@@ -221,12 +221,16 @@
                 <input type="text" id="getVisitorOwnerId" placeholder="123">
             </div>
             <div class="form-group">
+                <label>Unit ID:</label>
+                <input type="text" id="getVisitorUnitId" placeholder="U1001">
+            </div>
+            <div class="form-group">
                 <label>Visitor Name:</label>
                 <input type="text" id="getVisitorName" placeholder="Jane Smith">
             </div>
             <div class="form-group">
                 <label>Visit Date:</label>
-                <input type="datetime-local" id="getVisitorDate">
+                <input type="date" id="getVisitorDate">
             </div>
             <button onclick="getVisitorQR()">Get Visitor QR</button>
 
@@ -571,11 +575,17 @@
         // Get visitor QR
         async function getVisitorQR() {
             const ownerId = document.getElementById('getVisitorOwnerId').value;
+            const unitId = document.getElementById('getVisitorUnitId').value;
             const visitorName = document.getElementById('getVisitorName').value;
             const visitDate = document.getElementById('getVisitorDate').value;
 
+            if (!ownerId || !unitId || !visitorName || !visitDate) {
+                showResponse('Error: All required fields must be filled', 'error');
+                return;
+            }
+
             try {
-                const response = await fetch(`/visitor-qr?ownerId=${ownerId}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${visitDate}`);
+                const response = await fetch(`/visitor-qr?ownerId=${ownerId}&unitId=${unitId}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${visitDate}`);
                 const result = await response.json();
                 
                 if (response.ok) {
