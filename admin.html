@@ -1783,6 +1783,12 @@
             const responseContainer = document.getElementById('createResponseContainer');
             const responseBody = document.getElementById('createResponseBody');
 
+            // Check if all required elements exist
+            if (!btn || !status || !statusText || !responseContainer || !responseBody) {
+                showToast('Error: Unable to find required form elements', 'error');
+                return;
+            }
+
             // Set loading state
             btn.disabled = true;
             btn.classList.add('btn-loading');
@@ -1793,15 +1799,29 @@
             responseBody.innerHTML = 'Processing request...';
 
             try {
+                const nameInput = document.getElementById('enhancedCreateName');
+                const emailInput = document.getElementById('enhancedCreateEmail');
+                const phoneInput = document.getElementById('enhancedCreatePhone');
+                const communityInput = document.getElementById('enhancedCreateCommunity');
+                const fromInput = document.getElementById('enhancedCreateFrom');
+                const toInput = document.getElementById('enhancedCreateTo');
+                const typeInput = document.getElementById('enhancedCreateType');
+                const unitIdInput = document.getElementById('enhancedCreateUnitId');
+
+                // Check if all input elements exist
+                if (!nameInput || !emailInput || !communityInput || !unitIdInput || !fromInput || !toInput || !typeInput) {
+                    throw new Error('One or more form elements not found');
+                }
+
                 const data = {
-                    name: document.getElementById('enhancedCreateName').value.trim(),
-                    email: document.getElementById('enhancedCreateEmail').value.trim(),
-                    phone: document.getElementById('enhancedCreatePhone').value.trim(),
-                    community: document.getElementById('enhancedCreateCommunity').value.trim(),
-                    from: document.getElementById('enhancedCreateFrom').value,
-                    to: document.getElementById('enhancedCreateTo').value,
-                    type: document.getElementById('enhancedCreateType').value,
-                    unitId: document.getElementById('enhancedCreateUnitId').value.trim()
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    community: communityInput.value.trim(),
+                    from: fromInput.value,
+                    to: toInput.value,
+                    type: typeInput.value,
+                    unitId: unitIdInput.value.trim()
                 };
 
                 const response = await fetch('/residents', {
@@ -1856,6 +1876,12 @@
             const responseContainer = document.getElementById('identityResponseContainer');
             const responseBody = document.getElementById('identityResponseBody');
 
+            // Check if all required elements exist
+            if (!btn || !status || !statusText || !responseContainer || !responseBody) {
+                showToast('Error: Unable to find required form elements', 'error');
+                return;
+            }
+
             // Set loading state
             btn.disabled = true;
             btn.classList.add('btn-loading');
@@ -1866,8 +1892,16 @@
             responseBody.innerHTML = 'Processing request...';
 
             try {
-                const ownerId = document.getElementById('enhancedGetIdOwnerId').value.trim();
-                const unitId = document.getElementById('enhancedGetIdUnitId').value.trim();
+                const ownerIdInput = document.getElementById('enhancedGetIdOwnerId');
+                const unitIdInput = document.getElementById('enhancedGetIdUnitId');
+
+                // Check if all input elements exist
+                if (!ownerIdInput || !unitIdInput) {
+                    throw new Error('One or more form elements not found');
+                }
+
+                const ownerId = ownerIdInput.value.trim();
+                const unitId = unitIdInput.value.trim();
 
                 const response = await fetch(`/identity?unitId=${encodeURIComponent(unitId)}&ownerId=${encodeURIComponent(ownerId)}`);
                 const result = await response.json();
@@ -1920,6 +1954,12 @@
             const responseContainer = document.getElementById('visitorResponseContainer');
             const responseBody = document.getElementById('visitorResponseBody');
 
+            // Check if all required elements exist
+            if (!btn || !status || !statusText || !responseContainer || !responseBody) {
+                showToast('Error: Unable to find required form elements', 'error');
+                return;
+            }
+
             // Set loading state
             btn.disabled = true;
             btn.classList.add('btn-loading');
@@ -1930,10 +1970,20 @@
             responseBody.innerHTML = 'Processing request...';
 
             try {
-                const ownerId = document.getElementById('enhancedGetVisitorOwnerId').value.trim();
-                const unitId = document.getElementById('enhancedGetVisitorUnitId').value.trim();
-                const visitorName = document.getElementById('enhancedGetVisitorName').value.trim();
-                const visitDate = document.getElementById('enhancedGetVisitorDate').value;
+                const ownerIdInput = document.getElementById('enhancedGetVisitorOwnerId');
+                const unitIdInput = document.getElementById('enhancedGetVisitorUnitId');
+                const visitorNameInput = document.getElementById('enhancedGetVisitorName');
+                const visitDateInput = document.getElementById('enhancedGetVisitorDate');
+
+                // Check if all input elements exist
+                if (!ownerIdInput || !unitIdInput || !visitorNameInput || !visitDateInput) {
+                    throw new Error('One or more form elements not found');
+                }
+
+                const ownerId = ownerIdInput.value.trim();
+                const unitId = unitIdInput.value.trim();
+                const visitorName = visitorNameInput.value.trim();
+                const visitDate = visitDateInput.value;
 
                 const response = await fetch(`/visitor-qr?ownerId=${encodeURIComponent(ownerId)}&unitId=${encodeURIComponent(unitId)}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${encodeURIComponent(visitDate)}`);
                 const result = await response.json();
@@ -1991,6 +2041,12 @@
             const statusText = document.getElementById('deleteStatusText');
             const responseContainer = document.getElementById('deleteResponseContainer');
             const responseBody = document.getElementById('deleteResponseBody');
+
+            // Check if all required elements exist
+            if (!btn || !status || !statusText || !responseContainer || !responseBody) {
+                showToast('Error: Unable to find required form elements', 'error');
+                return;
+            }
 
             // Set loading state
             btn.disabled = true;
