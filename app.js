@@ -354,7 +354,8 @@ app.post('/residents', async (req, res) => {
         return res.status(500).json({ error: 'Failed to save resident locally' });
       }
 
-      const response = {
+      // Complete response with both Lyve and HikCentral data
+      const lyveResponse = {
         ownerId: personCode,
         phone: phone,
         name: name,
@@ -364,6 +365,18 @@ app.post('/residents', async (req, res) => {
         from: from,
         to: to,
         unitId: unitId
+      };
+
+      const response = {
+        lyveResponse: lyveResponse,
+        hikCentralResponse: hikCentralResponse,
+        requestDetails: {
+          endpoint: '/residents',
+          method: 'POST',
+          parameters: {
+            name, phone, email, community, from, to, ownerType, unitId
+          }
+        }
       };
 
       res.status(201).json(response);
@@ -429,12 +442,23 @@ app.get('/identity', async (req, res) => {
         });
       }
 
-      const response = {
+      // Complete response with both Lyve and HikCentral data
+      const lyveResponse = {
         id: row.id.toString(),
         ownerId: row.person_code,
         ownerType: row.type,
         unitId: row.unit_id,
         qrCode: hikCentralResponse.data.qrcode
+      };
+
+      const response = {
+        lyveResponse: lyveResponse,
+        hikCentralResponse: hikCentralResponse,
+        requestDetails: {
+          endpoint: '/identity',
+          method: 'GET',
+          parameters: { unitId, ownerId }
+        }
       };
 
       res.json(response);
@@ -508,7 +532,8 @@ app.get('/visitor-qr', async (req, res) => {
         return res.status(500).json({ error: 'Failed to create visitor in HikCentral' });
       }
 
-      const response = {
+      // Complete response with both Lyve and HikCentral data
+      const lyveResponse = {
         visitId: hikCentralResponse.data.appointRecordId,
         unitId: unitId,
         ownerId: ownerId,
@@ -516,6 +541,16 @@ app.get('/visitor-qr', async (req, res) => {
         visitorName: visitorName,
         visitDate: visitDate,
         qrCode: hikCentralResponse.data.grCodelmage
+      };
+
+      const response = {
+        lyveResponse: lyveResponse,
+        hikCentralResponse: hikCentralResponse,
+        requestDetails: {
+          endpoint: '/visitor-qr',
+          method: 'GET',
+          parameters: { unitId, ownerId, visitorName, visitDate }
+        }
       };
 
       res.json(response);
@@ -563,7 +598,28 @@ app.delete('/residents', async (req, res) => {
           return res.status(500).json({ error: 'Failed to update resident status' });
         }
 
-        res.json({ success: true });
+        // Complete response with both Lyve and HikCentral data
+        const lyveResponse = {
+          success: true,
+          deletedResident: {
+            ownerId: row.person_code,
+            name: row.name,
+            email: row.email,
+            unitId: row.unit_id
+          }
+        };
+
+        const response = {
+          lyveResponse: lyveResponse,
+          hikCentralResponse: hikCentralResponse,
+          requestDetails: {
+            endpoint: '/residents',
+            method: 'DELETE',
+            parameters: { ownerId, unitId }
+          }
+        };
+
+        res.json(response);
       });
     });
   } catch (error) {

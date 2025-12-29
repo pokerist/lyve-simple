@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikCentral Middleware Admin - Enhanced</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Forms */
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Tables */
+        .table-section {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-deleted {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #f1f1f1;
+        }
+
+        /* JSON Display */
+        .json-display {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* QR Code Display */
+        .qr-section {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .qr-image {
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .qr-image img {
+            max-width: 250px;
+            max-height: 250px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .qr-details {
+            flex: 2;
+            min-width: 300px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+
+        .qr-details h4 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .qr-details p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        /* Operation Details */
+        .operation-header {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .operation-header h3 {
+            margin: 0 0 5px 0;
+            color: #495057;
+        }
+
+        .operation-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        /* Response Sections */
+        .response-section {
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .response-header {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .response-content {
+            padding: 15px;
+        }
+
+        /* Download Button */
+        .download-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .grid {
+                gap: 20px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+            
+            .qr-section {
+                flex-direction: column;
+            }
+            
+            .operation-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Smart Stations Solutions</h1>
+            <p class="subtitle">HikCentral Middleware Administration - Enhanced</p>
+        </header>
+
+        <div class="grid">
+            <!-- Left Column: Forms -->
+            <div class="left-column">
+                <!-- Create Resident Form -->
+                <div class="form-section">
+                    <h3>Create Resident</h3>
+                    <form id="createResidentForm">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="community">Community</label>
+                            <input type="text" id="community" name="community">
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerType">Owner Type</label>
+                            <select id="ownerType" name="ownerType">
+                                <option value="resident">Resident</option>
+                                <option value="owner">Owner</option>
+                                <option value="tenant">Tenant</option>
+                                <option value="family">Family Member</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="unitId">Unit ID</label>
+                            <input type="text" id="unitId" name="unitId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fromDate">From Date</label>
+                            <input type="date" id="fromDate" name="fromDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="toDate">To Date</label>
+                            <input type="date" id="toDate" name="toDate">
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn">Create Resident</button>
+                            <button type="button" class="btn btn-secondary" id="clearFormBtn">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Get Identity Form -->
+                <div class="form-section">
+                    <h3>Get Identity (QR Code)</h3>
+                    <form id="getIdentityForm">
+                        <div class="form-group">
+                            <label for="identityUnitId">Unit ID</label>
+                            <input type="text" id="identityUnitId" name="unitId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="identityOwnerId">Owner ID</label>
+                            <input type="text" id="identityOwnerId" name="ownerId" required>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn">Get QR Code</button>
+                            <button type="button" class="btn btn-secondary" id="clearIdentityFormBtn">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Get Visitor QR Form -->
+                <div class="form-section">
+                    <h3>Get Visitor QR Code</h3>
+                    <form id="getVisitorQRForm">
+                        <div class="form-group">
+                            <label for="visitorUnitId">Unit ID</label>
+                            <input type="text" id="visitorUnitId" name="unitId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="visitorOwnerId">Owner ID</label>
+                            <input type="text" id="visitorOwnerId" name="ownerId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="visitorName">Visitor Name</label>
+                            <input type="text" id="visitorName" name="visitorName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="visitDate">Visit Date</label>
+                            <input type="date" id="visitDate" name="visitDate" required>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn">Get Visitor QR</button>
+                            <button type="button" class="btn btn-secondary" id="clearVisitorFormBtn">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Delete Resident Form -->
+                <div class="form-section">
+                    <h3>Delete Resident</h3>
+                    <form id="deleteResidentForm">
+                        <div class="form-group">
+                            <label for="deleteOwnerId">Owner ID</label>
+                            <input type="text" id="deleteOwnerId" name="ownerId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="deleteUnitId">Unit ID</label>
+                            <input type="text" id="deleteUnitId" name="unitId">
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-danger">Delete Resident</button>
+                            <button type="button" class="btn btn-secondary" id="clearDeleteFormBtn">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Data Display -->
+            <div class="right-column">
+                <!-- Residents Table -->
+                <div class="table-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>Residents</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" id="refreshResidentsBtn">Refresh</button>
+                            <button class="btn btn-warning" id="clearLogsBtn">Clear Logs</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="communityFilter">Filter by Community</label>
+                        <input type="text" id="communityFilter" placeholder="Enter community name to filter">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailFilter">Filter by Email</label>
+                        <input type="email" id="emailFilter" placeholder="Enter email to filter">
+                    </div>
+                    <table id="residentsTable">
+                        <thead>
+                            <tr>
+                                <th>Owner ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Community</th>
+                                <th>Type</th>
+                                <th>Unit ID</th>
+                                <th>Synced</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="residentsTableBody">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Logs Section -->
+                <div class="table-section" style="margin-top: 20px;">
+                    <h3>API Logs</h3>
+                    <div class="form-group">
+                        <label for="logsLimit">Number of logs to display</label>
+                        <input type="number" id="logsLimit" value="50" min="1" max="1000">
+                        <button class="btn btn-secondary" id="refreshLogsBtn" style="margin-left: 10px;">Refresh Logs</button>
+                    </div>
+                    <table id="logsTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Endpoint</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <!-- Logs will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Results -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">Operation Result</span>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <!-- Content will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeModalBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsqr.min.js"></script>
+    <script>
+        // Configuration
+        const API_BASE = 'http://localhost:3000';
+
+        // DOM Elements
+        const residentsTableBody = document.getElementById('residentsTableBody');
+        const logsTableBody = document.getElementById('logsTableBody');
+        const communityFilter = document.getElementById('communityFilter');
+        const emailFilter = document.getElementById('emailFilter');
+        const logsLimit = document.getElementById('logsLimit');
+        const refreshResidentsBtn = document.getElementById('refreshResidentsBtn');
+        const refreshLogsBtn = document.getElementById('refreshLogsBtn');
+        const clearLogsBtn = document.getElementById('clearLogsBtn');
+
+        // Modal Elements
+        const resultModal = document.getElementById('resultModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        // Form Elements
+        const createResidentForm = document.getElementById('createResidentForm');
+        const clearFormBtn = document.getElementById('clearFormBtn');
+        const getIdentityForm = document.getElementById('getIdentityForm');
+        const clearIdentityFormBtn = document.getElementById('clearIdentityFormBtn');
+        const getVisitorQRForm = document.getElementById('getVisitorQRForm');
+        const clearVisitorFormBtn = document.getElementById('clearVisitorFormBtn');
+        const deleteResidentForm = document.getElementById('deleteResidentForm');
+        const clearDeleteFormBtn = document.getElementById('clearDeleteFormBtn');
+
+        // Utility Functions
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+
+        function truncateText(text, maxLength = 50) {
+            if (!text) return '';
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+
+        function formatJSON(json) {
+            try {
+                return JSON.stringify(json, null, 2);
+            } catch (e) {
+                return String(json);
+            }
+        }
+
+        function showSuccess(message) {
+            showModal('Success', message, 'success');
+        }
+
+        function showError(message) {
+            showModal('Error', message, 'danger');
+        }
+
+        function showWarning(message) {
+            showModal('Warning', message, 'warning');
+        }
+
+        function showInfo(message) {
+            showModal('Information', message, 'info');
+        }
+
+        // Modal Functions
+        function showModal(title, content, type = 'info') {
+            modalTitle.textContent = title;
+            modalTitle.className = `modal-title ${type === 'success' ? 'text-success' : type === 'danger' ? 'text-danger' : type === 'warning' ? 'text-warning' : 'text-info'}`;
+            modalContent.innerHTML = content;
+            resultModal.style.display = 'block';
+        }
+
+        function closeModalHandler() {
+            resultModal.style.display = 'none';
+        }
+
+        // Event Listeners for Modal
+        closeModal.addEventListener('click', closeModalHandler);
+        closeModalBtn.addEventListener('click', closeModalHandler);
+        window.addEventListener('click', (event) => {
+            if (event.target === resultModal) {
+                closeModalHandler();
+            }
+        });
+
+        // Data Management
+        async function loadResidents() {
+            try {
+                const community = communityFilter.value.trim();
+                const email = emailFilter.value.trim();
+                const params = new URLSearchParams();
+                if (community) params.append('community', community);
+                if (email) params.append('email', email);
+
+                const response = await fetch(`${API_BASE}/residents?${params}`);
+                const residents = await response.json();
+
+                residentsTableBody.innerHTML = '';
+
+                if (residents.length === 0) {
+                    residentsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; color: #6c757d;">No residents found</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                residents.forEach(resident => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${resident.ownerId}</td>
+                        <td>${resident.name}</td>
+                        <td>${resident.email}</td>
+                        <td>${resident.phone || 'N/A'}</td>
+                        <td>${resident.community || 'N/A'}</td>
+                        <td>${resident.type || 'N/A'}</td>
+                        <td>${resident.unitId || 'N/A'}</td>
+                        <td>
+                            <span class="status-badge ${resident.synced ? 'status-active' : 'status-inactive'}">
+                                ${resident.synced ? 'Synced' : 'Not Synced'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-secondary btn-sm" onclick="viewResidentDetails('${resident.ownerId}')">View</button>
+                                <button class="btn btn-warning btn-sm" onclick="getIdentity('${resident.unitId}', '${resident.ownerId}')">QR Code</button>
+                            </div>
+                        </td>
+                    `;
+                    residentsTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading residents:', error);
+                showError('Failed to load residents');
+            }
+        }
+
+        async function loadLogs() {
+            try {
+                const limit = logsLimit.value || 50;
+                const response = await fetch(`${API_BASE}/logs?limit=${limit}`);
+                const logs = await response.json();
+
+                logsTableBody.innerHTML = '';
+
+                if (logs.length === 0) {
+                    logsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #6c757d;">No logs found</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                logs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatDateTime(log.created_at)}</td>
+                        <td>${log.endpoint}</td>
+                        <td>${log.method}</td>
+                        <td>
+                            <span class="status-badge ${log.status_code === 200 ? 'status-active' : 'status-danger'}">
+                                ${log.status_code}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="viewLogDetails('${log.id}')">Details</button>
+                        </td>
+                    `;
+                    logsTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading logs:', error);
+                showError('Failed to load logs');
+            }
+        }
+
+        // Enhanced Result Display with Complete JSON Responses
+        function displayOperationResult(operation, success, lyveResponse, hikCentralResponse, requestDetails) {
+            const statusClass = success ? 'status-active' : 'status-danger';
+            const statusText = success ? 'Success' : 'Failed';
+            const timestamp = new Date().toLocaleString();
+
+            let content = `
+                <div class="operation-header">
+                    <h3>${operation}</h3>
+                    <div class="operation-meta">
+                        <span><strong>Status:</strong> <span class="status-badge ${statusClass}">${statusText}</span></span>
+                        <span><strong>Timestamp:</strong> ${timestamp}</span>
+                        <span><strong>Operation:</strong> ${operation}</span>
+                    </div>
+                </div>
+            `;
+
+            // Request Details
+            if (requestDetails) {
+                content += `
+                    <div class="response-section">
+                        <div class="response-header">
+                            <span>📋 Request Details</span>
+                        </div>
+                        <div class="response-content">
+                            <div class="json-display">
+                                <strong>Endpoint:</strong> ${requestDetails.endpoint}<br>
+                                <strong>Method:</strong> ${requestDetails.method}<br>
+                                <strong>Parameters:</strong><br>
+                                ${formatJSON(requestDetails.parameters)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Lyve Response
+            if (lyveResponse) {
+                content += `
+                    <div class="response-section">
+                        <div class="response-header">
+                            <span>🌐 Lyve Response</span>
+                        </div>
+                        <div class="response-content">
+                            <div class="json-display">
+                                ${formatJSON(lyveResponse)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // HikCentral Response
+            if (hikCentralResponse) {
+                content += `
+                    <div class="response-section">
+                        <div class="response-header">
+                            <span>🏢 HikCentral Response</span>
+                        </div>
+                        <div class="response-content">
+                            <div class="json-display">
+                                ${formatJSON(hikCentralResponse)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // QR Code Section (if applicable)
+            if (hikCentralResponse && hikCentralResponse.data && hikCentralResponse.data.qrcode) {
+                content += `
+                    <div class="response-section">
+                        <div class="response-header">
+                            <span>📱 QR Code Details</span>
+                        </div>
+                        <div class="response-content">
+                            ${renderQRCodeSection(hikCentralResponse.data.qrcode)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            showModal(`${operation} - ${statusText}`, content, success ? 'success' : 'danger');
+        }
+
+        // QR Code Rendering and Text Extraction
+        function renderQRCodeSection(base64Data) {
+            const qrDataUrl = `data:image/png;base64,${base64Data}`;
+            
+            return `
+                <div class="qr-section">
+                    <div class="qr-image">
+                        <h4>QR Code Image</h4>
+                        <img id="qrImage" src="${qrDataUrl}" alt="QR Code">
+                        <br>
+                        <button class="download-btn" onclick="downloadQRCode('${base64Data}', '${new Date().toISOString()}')">Download QR</button>
+                    </div>
+                    <div class="qr-details">
+                        <h4>QR Code Analysis</h4>
+                        <p><strong>Format:</strong> Base64 encoded PNG image</p>
+                        <p><strong>Size:</strong> ${base64Data.length} characters</p>
+                        <p><strong>Encoded Data:</strong></p>
+                        <div id="qrTextContent" style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 50px;">
+                            <span style="color: #6c757d;">Analyzing QR code...</span>
+                            <canvas id="qrCanvas" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Download QR Code Function
+        window.downloadQRCode = function(base64Data, timestamp) {
+            const link = document.createElement('a');
+            link.download = `qr-code-${timestamp}.png`;
+            link.href = `data:image/png;base64,${base64Data}`;
+            link.click();
+        };
+
+        // Form Handlers
+        createResidentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(`${API_BASE}/residents`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                displayOperationResult(
+                    'Create Resident',
+                    response.ok,
+                    result,
+                    null, // No HikCentral response in this simplified version
+                    {
+                        endpoint: '/residents',
+                        method: 'POST',
+                        parameters: data
+                    }
+                );
+
+                if (response.ok) {
+                    loadResidents();
+                    e.target.reset();
+                }
+            } catch (error) {
+                showError('Failed to create resident: ' + error.message);
+            }
+        });
+
+        getIdentityForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(`${API_BASE}/identity?unitId=${data.unitId}&ownerId=${data.ownerId}`);
+                const result = await response.json();
+                
+                displayOperationResult(
+                    'Get Identity (QR Code)',
+                    response.ok,
+                    result,
+                    null, // No HikCentral response in this simplified version
+                    {
+                        endpoint: '/identity',
+                        method: 'GET',
+                        parameters: data
+                    }
+                );
+
+                if (response.ok) {
+                    // Trigger QR code analysis after modal is shown
+                    setTimeout(() => {
+                        analyzeQRCode();
+                    }, 100);
+                }
+            } catch (error) {
+                showError('Failed to get identity: ' + error.message);
+            }
+        });
+
+        getVisitorQRForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(`${API_BASE}/visitor-qr?unitId=${data.unitId}&ownerId=${data.ownerId}&visitorName=${encodeURIComponent(data.visitorName)}&visitDate=${data.visitDate}`);
+                const result = await response.json();
+                
+                displayOperationResult(
+                    'Get Visitor QR Code',
+                    response.ok,
+                    result,
+                    null, // No HikCentral response in this simplified version
+                    {
+                        endpoint: '/visitor-qr',
+                        method: 'GET',
+                        parameters: data
+                    }
+                );
+
+                if (response.ok) {
+                    // Trigger QR code analysis after modal is shown
+                    setTimeout(() => {
+                        analyzeQRCode();
+                    }, 100);
+                }
+            } catch (error) {
+                showError('Failed to get visitor QR: ' + error.message);
+            }
+        });
+
+        deleteResidentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(`${API_BASE}/residents?ownerId=${data.ownerId}&unitId=${data.unitId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                
+                displayOperationResult(
+                    'Delete Resident',
+                    response.ok,
+                    result,
+                    null, // No HikCentral response in this simplified version
+                    {
+                        endpoint: '/residents',
+                        method: 'DELETE',
+                        parameters: data
+                    }
+                );
+
+                if (response.ok) {
+                    loadResidents();
+                    e.target.reset();
+                }
+            } catch (error) {
+                showError('Failed to delete resident: ' + error.message);
+            }
+        });
+
+        // Utility Functions
+        window.viewResidentDetails = async function(ownerId) {
+            try {
+                const response = await fetch(`${API_BASE}/residents?email=${ownerId}`);
+                const result = await response.json();
+                
+                displayOperationResult(
+                    'View Resident Details',
+                    response.ok,
+                    result,
+                    null,
+                    {
+                        endpoint: '/residents',
+                        method: 'GET',
+                        parameters: { email: ownerId }
+                    }
+                );
+            } catch (error) {
+                showError('Failed to view resident details: ' + error.message);
+            }
+        };
+
+        window.viewLogDetails = async function(logId) {
+            try {
+                const response = await fetch(`${API_BASE}/logs?limit=1`);
+                const logs = await response.json();
+                
+                if (logs.length > 0) {
+                    const log = logs[0];
+                    displayOperationResult(
+                        'Log Details',
+                        true,
+                        null,
+                        null,
+                        {
+                            endpoint: log.endpoint,
+                            method: log.method,
+                            parameters: {
+                                requestBody: JSON.parse(log.request_body || '{}'),
+                                responseBody: JSON.parse(log.response_body || '{}'),
+                                statusCode: log.status_code
+                            }
+                        }
+                    );
+                }
+            } catch (error) {
+                showError('Failed to view log details: ' + error.message);
+            }
+        };
+
+        // QR Code Analysis
+        function analyzeQRCode() {
+            const qrImage = document.getElementById('qrImage');
+            const qrTextContent = document.getElementById('qrTextContent');
+            const qrCanvas = document.getElementById('qrCanvas');
+
+            if (!qrImage || !qrTextContent || !qrCanvas) return;
+
+            qrImage.onload = function() {
+                // Set canvas dimensions to match image
+                qrCanvas.width = qrImage.naturalWidth;
+                qrCanvas.height = qrImage.naturalHeight;
+
+                // Draw image to canvas
+                const ctx = qrCanvas.getContext('2d');
+                ctx.drawImage(qrImage, 0, 0);
+
+                // Get image data
+                const imageData = ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+
+                try {
+                    // Use jsQR to decode
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        qrTextContent.innerHTML = `
+                            <p><strong>✅ QR Code Decoded Successfully:</strong></p>
+                            <p><strong>Data:</strong> ${code.data}</p>
+                            <p><strong>Format:</strong> ${code.format}</p>
+                            <p><strong>Location:</strong> (${code.location.topLeftCorner.x}, ${code.location.topLeftCorner.y})</p>
+                        `;
+                    } else {
+                        qrTextContent.innerHTML = `
+                            <p><strong>❌ QR Code Analysis:</strong></p>
+                            <p>Unable to decode QR code content. The QR code may be corrupted or in an unsupported format.</p>
+                            <p><strong>Raw Base64:</strong> ${qrImage.src.substring(22, 100)}...</p>
+                        `;
+                    }
+                } catch (error) {
+                    qrTextContent.innerHTML = `
+                        <p><strong>❌ QR Code Analysis Error:</strong></p>
+                        <p>Failed to analyze QR code: ${error.message}</p>
+                        <p><strong>Raw Base64:</strong> ${qrImage.src.substring(22, 100)}...</p>
+                    `;
+                }
+            };
+        }
+
+        // Event Listeners
+        communityFilter.addEventListener('input', loadResidents);
+        emailFilter.addEventListener('input', loadResidents);
+        refreshResidentsBtn.addEventListener('click', loadResidents);
+        refreshLogsBtn.addEventListener('click', loadLogs);
+        clearLogsBtn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to clear all logs?')) {
+                try {
+                    await fetch(`${API_BASE}/logs`, { method: 'DELETE' });
+                    loadLogs();
+                    showSuccess('Logs cleared successfully');
+                } catch (error) {
+                    showError('Failed to clear logs: ' + error.message);
+                }
+            }
+        });
+
+        clearFormBtn.addEventListener('click', () => createResidentForm.reset());
+        clearIdentityFormBtn.addEventListener('click', () => getIdentityForm.reset());
+        clearVisitorFormBtn.addEventListener('click', () => getVisitorQRForm.reset());
+        clearDeleteFormBtn.addEventListener('click', () => deleteResidentForm.reset());
+
+        // Initialize
+        loadResidents();
+        loadLogs();
+    </script>
+</body>
+</html>
