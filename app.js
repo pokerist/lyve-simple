@@ -354,8 +354,7 @@ app.post('/residents', async (req, res) => {
         return res.status(500).json({ error: 'Failed to save resident locally' });
       }
 
-      // Complete response with both Lyve and HikCentral data
-      const lyveResponse = {
+      const response = {
         ownerId: personCode,
         phone: phone,
         name: name,
@@ -365,18 +364,6 @@ app.post('/residents', async (req, res) => {
         from: from,
         to: to,
         unitId: unitId
-      };
-
-      const response = {
-        lyveResponse: lyveResponse,
-        hikCentralResponse: hikCentralResponse,
-        requestDetails: {
-          endpoint: '/residents',
-          method: 'POST',
-          parameters: {
-            name, phone, email, community, from, to, ownerType, unitId
-          }
-        }
       };
 
       res.status(201).json(response);
@@ -442,23 +429,12 @@ app.get('/identity', async (req, res) => {
         });
       }
 
-      // Complete response with both Lyve and HikCentral data
-      const lyveResponse = {
+      const response = {
         id: row.id.toString(),
         ownerId: row.person_code,
         ownerType: row.type,
         unitId: row.unit_id,
         qrCode: hikCentralResponse.data.qrcode
-      };
-
-      const response = {
-        lyveResponse: lyveResponse,
-        hikCentralResponse: hikCentralResponse,
-        requestDetails: {
-          endpoint: '/identity',
-          method: 'GET',
-          parameters: { unitId, ownerId }
-        }
       };
 
       res.json(response);
@@ -532,8 +508,7 @@ app.get('/visitor-qr', async (req, res) => {
         return res.status(500).json({ error: 'Failed to create visitor in HikCentral' });
       }
 
-      // Complete response with both Lyve and HikCentral data
-      const lyveResponse = {
+      const response = {
         visitId: hikCentralResponse.data.appointRecordId,
         unitId: unitId,
         ownerId: ownerId,
@@ -541,16 +516,6 @@ app.get('/visitor-qr', async (req, res) => {
         visitorName: visitorName,
         visitDate: visitDate,
         qrCode: hikCentralResponse.data.grCodelmage
-      };
-
-      const response = {
-        lyveResponse: lyveResponse,
-        hikCentralResponse: hikCentralResponse,
-        requestDetails: {
-          endpoint: '/visitor-qr',
-          method: 'GET',
-          parameters: { unitId, ownerId, visitorName, visitDate }
-        }
       };
 
       res.json(response);
@@ -598,28 +563,7 @@ app.delete('/residents', async (req, res) => {
           return res.status(500).json({ error: 'Failed to update resident status' });
         }
 
-        // Complete response with both Lyve and HikCentral data
-        const lyveResponse = {
-          success: true,
-          deletedResident: {
-            ownerId: row.person_code,
-            name: row.name,
-            email: row.email,
-            unitId: row.unit_id
-          }
-        };
-
-        const response = {
-          lyveResponse: lyveResponse,
-          hikCentralResponse: hikCentralResponse,
-          requestDetails: {
-            endpoint: '/residents',
-            method: 'DELETE',
-            parameters: { ownerId, unitId }
-          }
-        };
-
-        res.json(response);
+        res.json({ success: true });
       });
     });
   } catch (error) {
@@ -721,6 +665,37 @@ function logApiCall(endpoint, method, requestBody, responseBody, statusCode, hik
   });
 }
 
+// GET /hikcentral/version - Test HikCentral connection
+app.get('/hikcentral/version', async (req, res) => {
+  try {
+    // Use POST method for version endpoint (even with no body)
+    const response = await hikCentralClient.makeRequest('/artemis/api/common/v1/version', null, 'POST');
+    
+    if (response) {
+      res.json({
+        success: true,
+        connected: true,
+        version: response.data,
+        message: 'HikCentral connection successful'
+      });
+    } else {
+      res.json({
+        success: false,
+        connected: false,
+        message: 'Failed to connect to HikCentral'
+      });
+    }
+  } catch (error) {
+    console.error('Error testing HikCentral connection:', error);
+    res.status(500).json({
+      success: false,
+      connected: false,
+      message: 'Connection test failed',
+      error: error.message
+    });
+  }
+});
+
 // GET /logs - Get API logs
 app.get('/logs', (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
@@ -741,7 +716,7 @@ app.get('/logs', (req, res) => {
 
 // Admin UI route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin_enhanced.html'));
+  res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 // Start server
