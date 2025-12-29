@@ -121,6 +121,7 @@ class HikCentralClient {
   _buildHeaders(body) {
     const timestamp = Date.now().toString();
     const nonce = crypto.randomUUID();
+    const date = new Date().toUTCString();
     
     const headers = {
       'Accept': 'application/json',
@@ -129,7 +130,8 @@ class HikCentralClient {
       'X-Ca-Nonce': nonce,
       'X-Ca-Timestamp': timestamp,
       'X-Ca-Signature-Headers': 'x-ca-key,x-ca-nonce,x-ca-timestamp',
-      'userId': HIKCENTRAL_CONFIG.userId
+      'userId': HIKCENTRAL_CONFIG.userId,
+      'Date': date
     };
 
     if (body) {
