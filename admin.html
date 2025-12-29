@@ -1971,8 +1971,12 @@
                     showToast('Visitor QR generated successfully!', 'success');
                     
                     // Update QR preview if available
-                    if (result.qrCode) {
-                        updateQrPreview(result.qrCode);
+                    // Check for both the expected format and the actual HikCentral format
+                    const qrCodeData = result.qrCode || (result.data && result.data.qrCodeImage);
+                    if (qrCodeData) {
+                        // Convert base64 to data URL if needed
+                        const qrCodeUrl = qrCodeData.startsWith('data:') ? qrCodeData : `data:image/png;base64,${qrCodeData}`;
+                        updateQrPreview(qrCodeUrl);
                     }
                 } else {
                     if (status && statusText) {
