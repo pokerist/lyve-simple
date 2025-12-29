@@ -1783,20 +1783,22 @@
             const responseContainer = document.getElementById('createResponseContainer');
             const responseBody = document.getElementById('createResponseBody');
 
-            // Check if all required elements exist
-            if (!btn || !status || !statusText || !responseContainer || !responseBody) {
-                showToast('Error: Unable to find required form elements', 'error');
-                return;
+            // Set loading state (even if some elements don't exist)
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('btn-loading');
+            }
+            
+            if (status && statusText) {
+                status.style.display = 'inline-flex';
+                status.classList.add('status-loading');
+                statusText.textContent = 'Creating resident...';
             }
 
-            // Set loading state
-            btn.disabled = true;
-            btn.classList.add('btn-loading');
-            status.style.display = 'inline-flex';
-            status.classList.add('status-loading');
-            statusText.textContent = 'Creating resident...';
-            responseContainer.style.display = 'block';
-            responseBody.innerHTML = 'Processing request...';
+            if (responseContainer && responseBody) {
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = 'Processing request...';
+            }
 
             try {
                 const nameInput = document.getElementById('enhancedCreateName');
@@ -1833,34 +1835,57 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-success');
-                    statusText.textContent = 'Resident created successfully!';
-                    responseBody.innerHTML = formatJsonResponse(result);
-                    responseBody.className = 'response-body';
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-success');
+                        statusText.textContent = 'Resident created successfully!';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
                     showToast('Resident created successfully!', 'success');
                     loadResidents(); // Refresh the residents list
                 } else {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-error');
-                    statusText.textContent = 'Error creating resident';
-                    responseBody.innerHTML = formatJsonResponse(result);
-                    responseBody.className = 'response-body';
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-error');
+                        statusText.textContent = 'Error creating resident';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
                     showToast('Error creating resident: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
-                status.classList.remove('status-loading');
-                status.classList.add('status-error');
-                statusText.textContent = 'Network error';
-                responseBody.innerHTML = `Network error: ${error.message}`;
-                responseBody.className = 'response-body';
+                if (status && statusText) {
+                    status.classList.remove('status-loading');
+                    status.classList.add('status-error');
+                    statusText.textContent = 'Network error';
+                }
+                
+                if (responseBody) {
+                    responseBody.innerHTML = `Network error: ${error.message}`;
+                    responseBody.className = 'response-body';
+                }
+                
                 showToast('Network error: ' + error.message, 'error');
             } finally {
-                btn.disabled = false;
-                btn.classList.remove('btn-loading');
-                setTimeout(() => {
-                    status.style.display = 'none';
-                }, 3000);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('btn-loading');
+                }
+                
+                if (status) {
+                    setTimeout(() => {
+                        status.style.display = 'none';
+                    }, 3000);
+                }
             }
         }
 
@@ -1876,20 +1901,22 @@
             const responseContainer = document.getElementById('identityResponseContainer');
             const responseBody = document.getElementById('identityResponseBody');
 
-            // Check if all required elements exist
-            if (!btn || !status || !statusText || !responseContainer || !responseBody) {
-                showToast('Error: Unable to find required form elements', 'error');
-                return;
+            // Set loading state (even if some elements don't exist)
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('btn-loading');
+            }
+            
+            if (status && statusText) {
+                status.style.display = 'inline-flex';
+                status.classList.add('status-loading');
+                statusText.textContent = 'Retrieving identity...';
             }
 
-            // Set loading state
-            btn.disabled = true;
-            btn.classList.add('btn-loading');
-            status.style.display = 'inline-flex';
-            status.classList.add('status-loading');
-            statusText.textContent = 'Retrieving identity...';
-            responseContainer.style.display = 'block';
-            responseBody.innerHTML = 'Processing request...';
+            if (responseContainer && responseBody) {
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = 'Processing request...';
+            }
 
             try {
                 const ownerIdInput = document.getElementById('enhancedGetIdOwnerId');
@@ -1907,11 +1934,17 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-success');
-                    statusText.textContent = 'Identity retrieved successfully!';
-                    responseBody.innerHTML = formatJsonResponse(result);
-                    responseBody.className = 'response-body';
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-success');
+                        statusText.textContent = 'Identity retrieved successfully!';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
                     showToast('Identity retrieved successfully!', 'success');
                     
                     // Update QR preview if available
@@ -1919,26 +1952,43 @@
                         updateQrPreview(result.qrCode);
                     }
                 } else {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-error');
-                    statusText.textContent = 'Error retrieving identity';
-                    responseBody.innerHTML = formatJsonResponse(result);
-                    responseBody.className = 'response-body';
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-error');
+                        statusText.textContent = 'Error retrieving identity';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
                     showToast('Error retrieving identity: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
-                status.classList.remove('status-loading');
-                status.classList.add('status-error');
-                statusText.textContent = 'Network error';
-                responseBody.innerHTML = `Network error: ${error.message}`;
-                responseBody.className = 'response-body';
+                if (status && statusText) {
+                    status.classList.remove('status-loading');
+                    status.classList.add('status-error');
+                    statusText.textContent = 'Network error';
+                }
+                
+                if (responseBody) {
+                    responseBody.innerHTML = `Network error: ${error.message}`;
+                    responseBody.className = 'response-body';
+                }
+                
                 showToast('Network error: ' + error.message, 'error');
             } finally {
-                btn.disabled = false;
-                btn.classList.remove('btn-loading');
-                setTimeout(() => {
-                    status.style.display = 'none';
-                }, 3000);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('btn-loading');
+                }
+                
+                if (status) {
+                    setTimeout(() => {
+                        status.style.display = 'none';
+                    }, 3000);
+                }
             }
         }
 
@@ -1954,20 +2004,22 @@
             const responseContainer = document.getElementById('visitorResponseContainer');
             const responseBody = document.getElementById('visitorResponseBody');
 
-            // Check if all required elements exist
-            if (!btn || !status || !statusText || !responseContainer || !responseBody) {
-                showToast('Error: Unable to find required form elements', 'error');
-                return;
+            // Set loading state (even if some elements don't exist)
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('btn-loading');
+            }
+            
+            if (status && statusText) {
+                status.style.display = 'inline-flex';
+                status.classList.add('status-loading');
+                statusText.textContent = 'Generating visitor QR...';
             }
 
-            // Set loading state
-            btn.disabled = true;
-            btn.classList.add('btn-loading');
-            status.style.display = 'inline-flex';
-            status.classList.add('status-loading');
-            statusText.textContent = 'Generating visitor QR...';
-            responseContainer.style.display = 'block';
-            responseBody.innerHTML = 'Processing request...';
+            if (responseContainer && responseBody) {
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = 'Processing request...';
+            }
 
             try {
                 const ownerIdInput = document.getElementById('enhancedGetVisitorOwnerId');
@@ -1989,11 +2041,17 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-success');
-                    statusText.textContent = 'Visitor QR generated successfully!';
-                    responseBody.innerHTML = formatJsonResponse(result);
-                    responseBody.className = 'response-body';
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-success');
+                        statusText.textContent = 'Visitor QR generated successfully!';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
                     showToast('Visitor QR generated successfully!', 'success');
                     
                     // Update QR preview if available
@@ -2001,26 +2059,43 @@
                         updateQrPreview(result.qrCode);
                     }
                 } else {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-error');
-                    statusText.textContent = 'Error generating visitor QR';
-                    responseBody.innerHTML = formatJsonResponse(result);
-                    responseBody.className = 'response-body';
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-error');
+                        statusText.textContent = 'Error generating visitor QR';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
                     showToast('Error generating visitor QR: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
-                status.classList.remove('status-loading');
-                status.classList.add('status-error');
-                statusText.textContent = 'Network error';
-                responseBody.innerHTML = `Network error: ${error.message}`;
-                responseBody.className = 'response-body';
+                if (status && statusText) {
+                    status.classList.remove('status-loading');
+                    status.classList.add('status-error');
+                    statusText.textContent = 'Network error';
+                }
+                
+                if (responseBody) {
+                    responseBody.innerHTML = `Network error: ${error.message}`;
+                    responseBody.className = 'response-body';
+                }
+                
                 showToast('Network error: ' + error.message, 'error');
             } finally {
-                btn.disabled = false;
-                btn.classList.remove('btn-loading');
-                setTimeout(() => {
-                    status.style.display = 'none';
-                }, 3000);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('btn-loading');
+                }
+                
+                if (status) {
+                    setTimeout(() => {
+                        status.style.display = 'none';
+                    }, 3000);
+                }
             }
         }
 
@@ -2042,20 +2117,22 @@
             const responseContainer = document.getElementById('deleteResponseContainer');
             const responseBody = document.getElementById('deleteResponseBody');
 
-            // Check if all required elements exist
-            if (!btn || !status || !statusText || !responseContainer || !responseBody) {
-                showToast('Error: Unable to find required form elements', 'error');
-                return;
+            // Set loading state (even if some elements don't exist)
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('btn-loading');
+            }
+            
+            if (status && statusText) {
+                status.style.display = 'inline-flex';
+                status.classList.add('status-loading');
+                statusText.textContent = 'Deleting resident...';
             }
 
-            // Set loading state
-            btn.disabled = true;
-            btn.classList.add('btn-loading');
-            status.style.display = 'inline-flex';
-            status.classList.add('status-loading');
-            statusText.textContent = 'Deleting resident...';
-            responseContainer.style.display = 'block';
-            responseBody.innerHTML = 'Processing request...';
+            if (responseContainer && responseBody) {
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = 'Processing request...';
+            }
 
             try {
                 const response = await fetch(`/residents?ownerId=${encodeURIComponent(ownerId)}`, {
@@ -2065,34 +2142,57 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-success');
-                    statusText.textContent = 'Resident deleted successfully!';
-                    responseBody.innerHTML = formatJsonResponse(result);
-                    responseBody.className = 'response-body';
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-success');
+                        statusText.textContent = 'Resident deleted successfully!';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
                     showToast('Resident deleted successfully!', 'success');
                     loadResidents(); // Refresh the residents list
                 } else {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-error');
-                    statusText.textContent = 'Error deleting resident';
-                    responseBody.innerHTML = formatJsonResponse(result);
-                    responseBody.className = 'response-body';
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-error');
+                        statusText.textContent = 'Error deleting resident';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
                     showToast('Error deleting resident: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
-                status.classList.remove('status-loading');
-                status.classList.add('status-error');
-                statusText.textContent = 'Network error';
-                responseBody.innerHTML = `Network error: ${error.message}`;
-                responseBody.className = 'response-body';
+                if (status && statusText) {
+                    status.classList.remove('status-loading');
+                    status.classList.add('status-error');
+                    statusText.textContent = 'Network error';
+                }
+                
+                if (responseBody) {
+                    responseBody.innerHTML = `Network error: ${error.message}`;
+                    responseBody.className = 'response-body';
+                }
+                
                 showToast('Network error: ' + error.message, 'error');
             } finally {
-                btn.disabled = false;
-                btn.classList.remove('btn-loading');
-                setTimeout(() => {
-                    status.style.display = 'none';
-                }, 3000);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('btn-loading');
+                }
+                
+                if (status) {
+                    setTimeout(() => {
+                        status.style.display = 'none';
+                    }, 3000);
+                }
             }
         }
 
