@@ -245,11 +245,11 @@
 
     <div id="responseContainer" class="response-box" style="margin-top: 20px; display: none;"></div>
 
-    <!-- Resident Details Modal -->
-    <div id="residentModal" class="modal" style="display: none;">
+    <!-- Operation Results Modal -->
+    <div id="resultsModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h3>Resident Details</h3>
+            <span class="close" onclick="closeResultsModal()">&times;</span>
+            <h3 id="modalTitle">Operation Results</h3>
             <div id="modalContent">
                 <!-- Content will be populated by JavaScript -->
             </div>
@@ -272,13 +272,13 @@
         
         .modal-content {
             background-color: white;
-            margin: 5% auto;
+            margin: 2% auto;
             padding: 20px;
             border-radius: 8px;
-            width: 80%;
-            max-width: 600px;
+            width: 90%;
+            max-width: 800px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-height: 80vh;
+            max-height: 90vh;
             overflow-y: auto;
         }
         
@@ -298,23 +298,45 @@
             cursor: pointer;
         }
         
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+        .result-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f9fa;
         }
         
-        .detail-label {
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .result-title {
             font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .result-timestamp {
+            font-size: 12px;
             color: #666;
         }
         
-        .detail-value {
-            color: #333;
+        .json-response {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
         }
         
-        .qr-preview {
+        .qr-section {
             margin-top: 20px;
             padding: 15px;
             background-color: #f8f9fa;
@@ -322,15 +344,44 @@
             text-align: center;
         }
         
-        .qr-code-text {
+        .qr-image {
+            max-width: 300px;
+            max-height: 300px;
+            margin: 10px auto;
+            display: block;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .qr-text {
             font-family: monospace;
-            font-size: 14px;
+            font-size: 12px;
             word-break: break-all;
             background-color: white;
             padding: 10px;
             border-radius: 4px;
             border: 1px solid #ddd;
+            margin-top: 10px;
         }
+        
+        .copy-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .status-success { color: #28a745; font-weight: bold; }
+        .status-error { color: #dc3545; font-weight: bold; }
+        .status-info { color: #17a2b8; font-weight: bold; }
     </style>
 
     <script>
@@ -530,7 +581,7 @@
 
             // Validate required fields
             if (!data.name || !data.email || !data.community || !data.from || !data.to || !data.unitId) {
-                showResponse('Error: All required fields must be filled', 'error');
+                showResultsModal('Create Resident', 'error', 'Error: All required fields must be filled');
                 return;
             }
 
@@ -542,14 +593,29 @@
                 });
 
                 const result = await response.json();
+                const timestamp = new Date().toLocaleString();
+                
                 if (response.ok) {
-                    showResponse('Resident created successfully: ' + JSON.stringify(result, null, 2), 'success');
+                    // Mock Lyve response for demonstration
+                    const lyveResponse = {
+                        ownerId: result.ownerId,
+                        phone: result.phone,
+                        name: result.name,
+                        email: result.email,
+                        community: result.community,
+                        type: result.type,
+                        from: result.from,
+                        to: result.to,
+                        unitId: result.unitId
+                    };
+                    
+                    showResultsModal('Create Resident', 'success', timestamp, lyveResponse, result);
                     loadResidents();
                 } else {
-                    showResponse('Error creating resident: ' + JSON.stringify(result, null, 2), 'error');
+                    showResultsModal('Create Resident', 'error', timestamp, null, result);
                 }
             } catch (error) {
-                showResponse('Error: ' + error.message, 'error');
+                showResultsModal('Create Resident', 'error', new Date().toLocaleString(), null, { error: error.message });
             }
         }
 
@@ -558,17 +624,32 @@
             const ownerId = document.getElementById('getIdOwnerId').value;
             const unitId = document.getElementById('getIdUnitId').value;
 
+            if (!ownerId || !unitId) {
+                showResultsModal('Get Identity', 'error', 'Error: Owner ID and Unit ID are required');
+                return;
+            }
+
             try {
                 const response = await fetch(`/identity?unitId=${unitId}&ownerId=${ownerId}`);
                 const result = await response.json();
+                const timestamp = new Date().toLocaleString();
                 
                 if (response.ok) {
-                    showResponse('Identity retrieved: ' + JSON.stringify(result, null, 2), 'success');
+                    // Mock Lyve response for demonstration
+                    const lyveResponse = {
+                        id: result.id,
+                        ownerId: result.ownerId,
+                        ownerType: result.ownerType,
+                        unitId: result.unitId,
+                        qrCode: result.qrCode
+                    };
+                    
+                    showResultsModal('Get Identity', 'success', timestamp, lyveResponse, result);
                 } else {
-                    showResponse('Error getting identity: ' + JSON.stringify(result, null, 2), 'error');
+                    showResultsModal('Get Identity', 'error', timestamp, null, result);
                 }
             } catch (error) {
-                showResponse('Error: ' + error.message, 'error');
+                showResultsModal('Get Identity', 'error', new Date().toLocaleString(), null, { error: error.message });
             }
         }
 
@@ -580,27 +661,44 @@
             const visitDate = document.getElementById('getVisitorDate').value;
 
             if (!ownerId || !unitId || !visitorName || !visitDate) {
-                showResponse('Error: All required fields must be filled', 'error');
+                showResultsModal('Get Visitor QR', 'error', 'Error: All required fields must be filled');
                 return;
             }
 
             try {
                 const response = await fetch(`/visitor-qr?ownerId=${ownerId}&unitId=${unitId}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${visitDate}`);
                 const result = await response.json();
+                const timestamp = new Date().toLocaleString();
                 
                 if (response.ok) {
-                    showResponse('Visitor QR generated: ' + JSON.stringify(result, null, 2), 'success');
+                    // Mock Lyve response for demonstration
+                    const lyveResponse = {
+                        visitId: result.visitId,
+                        unitId: result.unitId,
+                        ownerId: result.ownerId,
+                        ownerType: result.ownerType,
+                        visitorName: result.visitorName,
+                        visitDate: result.visitDate,
+                        qrCode: result.qrCode
+                    };
+                    
+                    showResultsModal('Get Visitor QR', 'success', timestamp, lyveResponse, result);
                 } else {
-                    showResponse('Error generating visitor QR: ' + JSON.stringify(result, null, 2), 'error');
+                    showResultsModal('Get Visitor QR', 'error', timestamp, null, result);
                 }
             } catch (error) {
-                showResponse('Error: ' + error.message, 'error');
+                showResultsModal('Get Visitor QR', 'error', new Date().toLocaleString(), null, { error: error.message });
             }
         }
 
         // Delete resident
         async function deleteResident() {
             const ownerId = document.getElementById('deleteOwnerId').value;
+
+            if (!ownerId) {
+                showResultsModal('Delete Resident', 'error', 'Error: Owner ID is required');
+                return;
+            }
 
             if (!confirm('Are you sure you want to delete this resident? This will soft-delete them (mark as deleted).')) {
                 return;
@@ -612,15 +710,22 @@
                 });
 
                 const result = await response.json();
+                const timestamp = new Date().toLocaleString();
                 
                 if (response.ok) {
-                    showResponse('Resident deleted successfully: ' + JSON.stringify(result, null, 2), 'success');
+                    // Mock Lyve response for demonstration
+                    const lyveResponse = {
+                        success: true,
+                        message: 'Resident deleted successfully'
+                    };
+                    
+                    showResultsModal('Delete Resident', 'success', timestamp, lyveResponse, result);
                     loadResidents();
                 } else {
-                    showResponse('Error deleting resident: ' + JSON.stringify(result, null, 2), 'error');
+                    showResultsModal('Delete Resident', 'error', timestamp, null, result);
                 }
             } catch (error) {
-                showResponse('Error: ' + error.message, 'error');
+                showResultsModal('Delete Resident', 'error', new Date().toLocaleString(), null, { error: error.message });
             }
         }
 
@@ -723,12 +828,103 @@
             }
         }
 
-        // Show response
-        function showResponse(message, type) {
-            const container = document.getElementById('responseContainer');
-            container.style.display = 'block';
-            container.innerHTML = message;
-            container.className = 'response-box ' + type;
+        // Show results in modal
+        function showResultsModal(operation, status, timestamp, lyveResponse = null, hikCentralResponse = null) {
+            const modal = document.getElementById('resultsModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+            
+            title.textContent = `${operation} Results`;
+            title.className = `status-${status}`;
+            
+            let html = '';
+            
+            // Operation header
+            html += `
+                <div class="result-section">
+                    <div class="result-header">
+                        <span class="result-title">Operation: ${operation}</span>
+                        <span class="result-timestamp">${timestamp}</span>
+                    </div>
+                    <div class="result-title status-${status}">Status: ${status.toUpperCase()}</div>
+                </div>
+            `;
+            
+            // Lyve Response
+            if (lyveResponse) {
+                html += `
+                    <div class="result-section">
+                        <div class="result-header">
+                            <span class="result-title">Lyve Response</span>
+                            <button class="copy-btn" onclick="copyToClipboard('${escapeHtml(JSON.stringify(lyveResponse, null, 2))}')">Copy</button>
+                        </div>
+                        <div class="json-response">${JSON.stringify(lyveResponse, null, 2)}</div>
+                    </div>
+                `;
+            }
+            
+            // HikCentral Response
+            if (hikCentralResponse) {
+                html += `
+                    <div class="result-section">
+                        <div class="result-header">
+                            <span class="result-title">HikCentral Response</span>
+                            <button class="copy-btn" onclick="copyToClipboard('${escapeHtml(JSON.stringify(hikCentralResponse, null, 2))}')">Copy</button>
+                        </div>
+                        <div class="json-response">${JSON.stringify(hikCentralResponse, null, 2)}</div>
+                    </div>
+                `;
+            }
+            
+            // QR Code Section (if response contains QR code)
+            if (hikCentralResponse && hikCentralResponse.data && hikCentralResponse.data.qrcode) {
+                const qrCodeData = hikCentralResponse.data.qrcode;
+                html += `
+                    <div class="qr-section">
+                        <h4>QR Code Details</h4>
+                        <div class="qr-text">
+                            Encoded Text: ${qrCodeData}
+                        </div>
+                    </div>
+                `;
+            } else if (lyveResponse && lyveResponse.qrCode) {
+                const qrCodeData = lyveResponse.qrCode;
+                html += `
+                    <div class="qr-section">
+                        <h4>QR Code Details</h4>
+                        <div class="qr-text">
+                            Encoded Text: ${qrCodeData}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+            modal.style.display = 'block';
+        }
+        
+        // Close results modal
+        function closeResultsModal() {
+            document.getElementById('resultsModal').style.display = 'none';
+        }
+        
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+        
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&")
+                .replace(/</g, "<")
+                .replace(/>/g, ">")
+                .replace(/"/g, """)
+                .replace(/'/g, "&#039;");
         }
 
         // Load residents on page load
