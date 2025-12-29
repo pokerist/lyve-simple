@@ -741,7 +741,7 @@ app.get('/logs', (req, res) => {
 
 // Admin UI route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin_modern.html'));
+  res.sendFile(path.join(__dirname, 'admin_enhanced.html'));
 });
 
 // Start server
