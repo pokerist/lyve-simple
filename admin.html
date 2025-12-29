@@ -502,13 +502,6 @@
                 </tbody>
             </table>
         </div>
-
-        <div class="card">
-            <h3>API Logs</h3>
-            <button onclick="loadLogs()" class="secondary">Refresh</button>
-            <div id="logsContainer">
-            </div>
-        </div>
     </div>
 
     <div class="container" style="margin-top: 20px;">
@@ -1278,43 +1271,6 @@
             }
         }
 
-        // Load logs
-        async function loadLogs() {
-            try {
-                const response = await fetch('/logs?limit=20');
-                const logs = await response.json();
-                
-                const container = document.getElementById('logsContainer');
-                container.innerHTML = '';
-                
-                if (logs.length === 0) {
-                    container.innerHTML = '<p>No logs available</p>';
-                    return;
-                }
-
-                logs.forEach(log => {
-                    const logEntry = document.createElement('div');
-                    logEntry.className = 'log-entry';
-                    
-                    const statusClass = log.status_code >= 400 ? 'error' : (log.status_code >= 300 ? 'info' : 'success');
-                    logEntry.className += ' ' + statusClass;
-                    
-                    logEntry.innerHTML = `
-                        <div class="log-time">${new Date(log.created_at).toLocaleString()}</div>
-                        <div><strong>${log.method}</strong> ${log.endpoint}</div>
-                        <div>Status: ${log.status_code}</div>
-                        <div>Request: ${log.request_body}</div>
-                        <div>Response: ${log.response_body}</div>
-                        ${log.hikcentral_response ? `<div>HikCentral: ${log.hikcentral_response}</div>` : ''}
-                    `;
-                    container.appendChild(logEntry);
-                });
-            } catch (error) {
-                console.error('Error loading logs:', error);
-                const container = document.getElementById('logsContainer');
-                container.innerHTML = '<p>Error loading logs</p>';
-            }
-        }
 
         // Test HikCentral connection - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
         // async function testConnection() {
@@ -2185,16 +2141,33 @@
         }
 
         function updateQrPreview(qrCode) {
-            // This would normally render an actual QR code image
-            // For now, we'll just update the text
+            // Create a QR code image from the base64 data
             const qrPlaceholder = document.querySelector('.qr-placeholder');
             if (qrPlaceholder) {
-                qrPlaceholder.innerHTML = `
-                    <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
-                        ${qrCode}
-                    </div>
-                    <small style="margin-top: 10px; display: block;">QR Code Data</small>
-                `;
+                // Check if the qrCode is base64 data
+                if (qrCode && qrCode.startsWith('data:image/')) {
+                    // It's already a data URL, use it directly
+                    qrPlaceholder.innerHTML = `
+                        <img src="${qrCode}" alt="QR Code" style="width: 200px; height: 200px; border-radius: 4px;">
+                        <small style="margin-top: 10px; display: block; color: #666;">QR Code Image</small>
+                    `;
+                } else if (qrCode) {
+                    // It's text data, create a simple QR code using an online service
+                    // For demo purposes, we'll use a QR code generator service
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`;
+                    qrPlaceholder.innerHTML = `
+                        <img src="${qrUrl}" alt="QR Code" style="width: 200px; height: 200px; border-radius: 4px;">
+                        <small style="margin-top: 10px; display: block; color: #666;">QR Code for: ${qrCode}</small>
+                    `;
+                } else {
+                    // Fallback to placeholder
+                    qrPlaceholder.innerHTML = `
+                        <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            QR Code will be generated here
+                        </div>
+                        <small style="margin-top: 10px; display: block; color: #666;">QR Code Preview</small>
+                    `;
+                }
             }
         }
 
@@ -2272,7 +2245,6 @@
         // Load residents on page load
         window.onload = function() {
             loadResidents();
-            loadLogs();
             // checkConnectionStatus(); - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
             // setInterval(checkConnectionStatus, 30000); - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
         };
