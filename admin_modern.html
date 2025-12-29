@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Stations Solutions - Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #16a34a;
+            --warning-color: #f59e0b;
+            --danger-color: #dc2626;
+            --info-color: #0ea5e9;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        .dark-theme {
+            --primary-color: #60a5fa;
+            --primary-hover: #3b82f6;
+            --secondary-color: #94a3b8;
+            --success-color: #22c55e;
+            --warning-color: #f97316;
+            --danger-color: #ef4444;
+            --info-color: #38bdf8;
+            --bg-color: #0f172a;
+            --card-bg: #111827;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .dashboard-container {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: var(--shadow-md);
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-text p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .grid-layout {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-control.error {
+            border-color: var(--danger-color);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            border: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: #1f2937;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        thead th {
+            background: var(--bg-color);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: var(--bg-color);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-active {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(22, 163, 74, 0.3);
+        }
+
+        .status-inactive {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-deleted {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            text-decoration: line-through;
+        }
+
+        .status-pending {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* Alerts */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            margin-bottom: 1rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success-color);
+            border-color: rgba(22, 163, 74, 0.3);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .alert-danger {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger-color);
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-color);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-color);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* QR Code Section */
+        .qr-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .qr-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .qr-image-container {
+            text-align: center;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+        }
+
+        .qr-image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .qr-details-container {
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+        }
+
+        .qr-details-container h4 {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .qr-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .qr-info-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(120%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .m-1 { margin: 0.5rem; }
+        .m-2 { margin: 1rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .p-2 { padding: 1rem; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 1rem; }
+        .w-full { width: 100%; }
+        .w-auto { width: auto; }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <div class="brand">
+                    <div class="brand-logo">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="brand-text">
+                        <h1>Smart Stations Solutions</h1>
+                        <p>HikCentral Middleware Administration</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark Mode</span>
+                    </button>
+                    <button class="btn btn-primary" id="refreshAllBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh All</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Alerts -->
+            <div id="alertContainer"></div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid-layout">
+                <!-- Left Column: Forms and Data -->
+                <div class="left-column">
+                    <!-- Quick Stats -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>System Overview</span>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-secondary" id="testConnectionBtn">
+                                    <i class="fas fa-plug"></i>
+                                    <span>Test Connection</span>
+                                </button>
+                                <button class="btn btn-warning" id="clearLogsBtn">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Clear Logs</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid-layout" style="grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                            <div class="card" style="padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; color: var(--primary-color); margin-bottom: 0.5rem;">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div style="font-size: 1.5rem; font-weight: bold;" id="totalResidents">0</div>
+                                <div style="color: var(--text-secondary); font-size: 0.875rem;">Total Residents</div>
+                            </div>
+                            <div class="card" style="padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; color: var(--success-color); margin-bottom: 0.5rem;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div style="font-size: 1.5rem; font-weight: bold;" id="syncedResidents">0</div>
+                                <div style="color: var(--text-secondary); font-size: 0.875rem;">Synced with HikCentral</div>
+                            </div>
+                            <div class="card" style="padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; color: var(--warning-color); margin-bottom: 0.5rem;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div style="font-size: 1.5rem; font-weight: bold;" id="pendingResidents">0</div>
+                                <div style="color: var(--text-secondary); font-size: 0.875rem;">Pending Sync</div>
+                            </div>
+                            <div class="card" style="padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; color: var(--info-color); margin-bottom: 0.5rem;">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div style="font-size: 1.5rem; font-weight: bold;" id="totalLogs">0</div>
+                                <div style="color: var(--text-secondary); font-size: 0.875rem;">API Logs</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Resident Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Create New Resident</span>
+                            </div>
+                            <button class="btn btn-secondary" id="clearFormBtn">
+                                <i class="fas fa-eraser"></i>
+                                <span>Clear Form</span>
+                            </button>
+                        </div>
+                        <form id="createResidentForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="name">Full Name *</label>
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address *</label>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter phone number">
+                                </div>
+                                <div class="form-group">
+                                    <label for="community">Community</label>
+                                    <input type="text" id="community" name="community" class="form-control" placeholder="Enter community name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ownerType">Owner Type</label>
+                                    <select id="ownerType" name="ownerType" class="form-control">
+                                        <option value="resident">Resident</option>
+                                        <option value="owner">Owner</option>
+                                        <option value="tenant">Tenant</option>
+                                        <option value="family">Family Member</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="unitId">Unit ID *</label>
+                                    <input type="text" id="unitId" name="unitId" class="form-control" placeholder="Enter unit ID" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fromDate">Valid From</label>
+                                    <input type="date" id="fromDate" name="fromDate" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="toDate">Valid To</label>
+                                    <input type="date" id="toDate" name="toDate" class="form-control">
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Create Resident</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="bulkImportBtn">
+                                    <i class="fas fa-file-upload"></i>
+                                    <span>Bulk Import</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Residents Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-users"></i>
+                                <span>Residents Management</span>
+                            </div>
+                            <div class="btn-group">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search by name, email, or unit..." style="width: 300px;">
+                                <button class="btn btn-secondary" id="exportResidentsBtn">
+                                    <i class="fas fa-download"></i>
+                                    <span>Export CSV</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Community</th>
+                                        <th>Type</th>
+                                        <th>Unit</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="residentsTableBody">
+                                    <!-- Data loaded via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Logs and Actions -->
+                <div class="right-column">
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-bolt"></i>
+                                <span>Quick Actions</span>
+                            </div>
+                        </div>
+                        <div class="grid-layout" style="grid-template-columns: 1fr; gap: 1rem;">
+                            <div class="card" style="padding: 1.5rem; text-align: center;">
+                                <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Get Identity QR</h4>
+                                <form id="getIdentityForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <input type="text" id="identityUnitId" class="form-control" placeholder="Unit ID" required>
+                                    <input type="text" id="identityOwnerId" class="form-control" placeholder="Owner ID" required>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span>Generate QR</span>
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="card" style="padding: 1.5rem; text-align: center;">
+                                <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Get Visitor QR</h4>
+                                <form id="getVisitorQRForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <input type="text" id="visitorUnitId" class="form-control" placeholder="Unit ID" required>
+                                    <input type="text" id="visitorOwnerId" class="form-control" placeholder="Owner ID" required>
+                                    <input type="text" id="visitorName" class="form-control" placeholder="Visitor Name" required>
+                                    <input type="date" id="visitDate" class="form-control" required>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-user-plus"></i>
+                                        <span>Generate Visitor QR</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card" style="padding: 1.5rem; text-align: center;">
+                                <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Delete Resident</h4>
+                                <form id="deleteResidentForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <input type="text" id="deleteOwnerId" class="form-control" placeholder="Owner ID" required>
+                                    <input type="text" id="deleteUnitId" class="form-control" placeholder="Unit ID (optional)">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                        <span>Delete Resident</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Logs -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-list-alt"></i>
+                                <span>API Logs</span>
+                            </div>
+                            <div class="btn-group">
+                                <input type="number" id="logsLimit" class="form-control" value="20" min="1" max="1000" style="width: 100px;">
+                                <button class="btn btn-secondary" id="refreshLogsBtn">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Endpoint</th>
+                                        <th>Method</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logsTableBody">
+                                    <!-- Logs loaded via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="card" style="padding: 2rem; text-align: center;">
+            <div class="loading" style="margin: 0 auto 1rem auto;"></div>
+            <div style="font-weight: 600;">Processing...</div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Result Modal -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="modalTitle">Operation Result</span>
+                </div>
+                <button class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <!-- Content loaded via JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalCloseBtn2">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div class="modal-overlay" id="qrModal">
+        <div class="modal" style="max-width: 1000px;">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-qrcode"></i>
+                    <span>QR Code Details</span>
+                </div>
+                <button class="modal-close" id="qrModalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="qrModalContent">
+                    <!-- QR content loaded via JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="qrModalCloseBtn2">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = '';
+        const THEME_KEY = 'admin_theme';
+
+        // State Management
+        let currentTheme = localStorage.getItem(THEME_KEY) || 'light';
+        let residentsData = [];
+        let logsData = [];
+
+        // DOM Elements
+        const elements = {
+            alertContainer: document.getElementById('alertContainer'),
+            residentsTableBody: document.getElementById('residentsTableBody'),
+            logsTableBody: document.getElementById('logsTableBody'),
+            searchInput: document.getElementById('searchInput'),
+            logsLimit: document.getElementById('logsLimit'),
+            themeToggle: document.getElementById('themeToggle'),
+            refreshAllBtn: document.getElementById('refreshAllBtn'),
+            testConnectionBtn: document.getElementById('testConnectionBtn'),
+            clearLogsBtn: document.getElementById('clearLogsBtn'),
+            clearFormBtn: document.getElementById('clearFormBtn'),
+            exportResidentsBtn: document.getElementById('exportResidentsBtn'),
+            bulkImportBtn: document.getElementById('bulkImportBtn'),
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            toastContainer: document.getElementById('toastContainer'),
+            resultModal: document.getElementById('resultModal'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalContent: document.getElementById('modalContent'),
+            modalCloseBtn: document.getElementById('modalCloseBtn'),
+            modalCloseBtn2: document.getElementById('modalCloseBtn2'),
+            qrModal: document.getElementById('qrModal'),
+            qrModalContent: document.getElementById('qrModalContent'),
+            qrModalCloseBtn: document.getElementById('qrModalCloseBtn'),
+            qrModalCloseBtn2: document.getElementById('qrModalCloseBtn2'),
+            stats: {
+                totalResidents: document.getElementById('totalResidents'),
+                syncedResidents: document.getElementById('syncedResidents'),
+                pendingResidents: document.getElementById('pendingResidents'),
+                totalLogs: document.getElementById('totalLogs')
+            }
+        };
+
+        // Form Elements
+        const forms = {
+            createResident: document.getElementById('createResidentForm'),
+            getIdentity: document.getElementById('getIdentityForm'),
+            getVisitorQR: document.getElementById('getVisitorQRForm'),
+            deleteResident: document.getElementById('deleteResidentForm')
+        };
+
+        // Utility Functions
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            elements.toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function showLoading(show = true) {
+            if (show) {
+                elements.loadingOverlay.classList.add('active');
+            } else {
+                elements.loadingOverlay.classList.remove('active');
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${message}</span>
+                <button class="modal-close" style="margin-left: auto;" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            
+            elements.alertContainer.appendChild(alert);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            return new Date(dateString).toLocaleDateString();
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            return new Date(dateString).toLocaleString();
+        }
+
+        function formatJSON(json) {
+            try {
+                return JSON.stringify(json, null, 2);
+            } catch (e) {
+                return String(json);
+            }
+        }
+
+        // Theme Management
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+            } else {
+                document.body.classList.remove('dark-theme');
+                elements.themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+            }
+            localStorage.setItem(THEME_KEY, theme);
+        }
+
+        // API Functions
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                const data = await response.json();
+                return { success: response.ok, data, status: response.status };
+            } catch (error) {
+                return { success: false, data: null, error: error.message };
+            }
+        }
+
+        // Data Loading Functions
+        async function loadResidents() {
+            showLoading(true);
+            try {
+                const { success, data } = await apiCall('/residents');
+                
+                if (success) {
+                    residentsData = Array.isArray(data) ? data : [data];
+                    renderResidentsTable();
+                    updateStats();
+                    showToast('Residents loaded successfully', 'success');
+                } else {
+                    showAlert('Failed to load residents', 'error');
+                }
+            } catch (error) {
+                showAlert('Error loading residents: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadLogs() {
+            try {
+                const limit = elements.logsLimit.value || 20;
+                const { success, data } = await apiCall(`/logs?limit=${limit}`);
+                
+                if (success) {
+                    logsData = data;
+                    renderLogsTable();
+                    elements.stats.totalLogs.textContent = logsData.length;
+                }
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+
+        async function testConnection() {
+            showLoading(true);
+            try {
+                const { success, data } = await apiCall('/hikcentral/version');
+                
+                if (success && data.connected) {
+                    showAlert('✅ HikCentral connection successful', 'success');
+                } else {
+                    showAlert('❌ HikCentral connection failed', 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Connection test failed: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Rendering Functions
+        function renderResidentsTable() {
+            const searchTerm = elements.searchInput.value.toLowerCase();
+            
+            const filteredResidents = residentsData.filter(resident => 
+                resident.name.toLowerCase().includes(searchTerm) ||
+                resident.email.toLowerCase().includes(searchTerm) ||
+                resident.unitId.toLowerCase().includes(searchTerm)
+            );
+
+            elements.residentsTableBody.innerHTML = '';
+
+            if (filteredResidents.length === 0) {
+                elements.residentsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <br>No residents found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredResidents.forEach(resident => {
+                const row = document.createElement('tr');
+                const statusClass = resident.synced ? 'status-active' : 'status-pending';
+                const statusText = resident.synced ? 'Synced' : 'Pending';
+                
+                row.innerHTML = `
+                    <td>${resident.ownerId}</td>
+                    <td>${resident.name}</td>
+                    <td>${resident.email}</td>
+                    <td>${resident.phone || 'N/A'}</td>
+                    <td>${resident.community || 'N/A'}</td>
+                    <td>${resident.type || 'N/A'}</td>
+                    <td>${resident.unitId || 'N/A'}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary btn-sm" onclick="viewResidentDetails('${resident.ownerId}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="getIdentity('${resident.unitId}', '${resident.ownerId}')">
+                                <i class="fas fa-qrcode"></i> QR
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteResident('${resident.ownerId}', '${resident.unitId}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                elements.residentsTableBody.appendChild(row);
+            });
+        }
+
+        function renderLogsTable() {
+            elements.logsTableBody.innerHTML = '';
+
+            if (logsData.length === 0) {
+                elements.logsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                            <i class="fas fa-file-alt" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <br>No logs available
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            logsData.forEach(log => {
+                const row = document.createElement('tr');
+                const statusClass = log.status_code === 200 ? 'status-active' : 'status-danger';
+                const statusText = log.status_code === 200 ? 'Success' : 'Error';
+                
+                row.innerHTML = `
+                    <td>${formatDateTime(log.created_at)}</td>
+                    <td>${log.endpoint}</td>
+                    <td>${log.method}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="viewLogDetails('${log.id}')">
+                            <i class="fas fa-info-circle"></i> Details
+                        </button>
+                    </td>
+                `;
+                elements.logsTableBody.appendChild(row);
+            });
+        }
+
+        function updateStats() {
+            const total = residentsData.length;
+            const synced = residentsData.filter(r => r.synced).length;
+            const pending = total - synced;
+
+            elements.stats.totalResidents.textContent = total;
+            elements.stats.syncedResidents.textContent = synced;
+            elements.stats.pendingResidents.textContent = pending;
+        }
+
+        // Modal Functions
+        function showModal(title, content, type = 'info') {
+            elements.modalTitle.textContent = title;
+            elements.modalTitle.className = `modal-title ${type === 'success' ? 'text-success' : type === 'error' ? 'text-danger' : type === 'warning' ? 'text-warning' : 'text-info'}`;
+            elements.modalContent.innerHTML = content;
+            elements.resultModal.classList.add('active');
+        }
+
+        function closeModal() {
+            elements.resultModal.classList.remove('active');
+        }
+
+        function showQRModal(title, content) {
+            elements.qrModalContent.innerHTML = content;
+            elements.qrModal.classList.add('active');
+        }
+
+        function closeQRModal() {
+            elements.qrModal.classList.remove('active');
+        }
+
+        // Event Listeners
+        elements.themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(currentTheme);
+        });
+
+        elements.refreshAllBtn.addEventListener('click', () => {
+            loadResidents();
+            loadLogs();
+        });
+
+        elements.testConnectionBtn.addEventListener('click', testConnection);
+
+        elements.clearLogsBtn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to clear all logs?')) {
+                const { success } = await apiCall('/logs', { method: 'DELETE' });
+                if (success) {
+                    loadLogs();
+                    showToast('Logs cleared successfully', 'success');
+                } else {
+                    showToast('Failed to clear logs', 'error');
+                }
+            }
+        });
+
+        elements.clearFormBtn.addEventListener('click', () => {
+            Object.values(forms).forEach(form => form.reset());
+        });
+
+        elements.searchInput.addEventListener('input', renderResidentsTable);
+
+        elements.logsLimit.addEventListener('change', loadLogs);
+
+        elements.refreshLogsBtn.addEventListener('click', loadLogs);
+
+        elements.exportResidentsBtn.addEventListener('click', () => {
+            const csv = [
+                ['ID', 'Name', 'Email', 'Phone', 'Community', 'Type', 'Unit', 'Status'],
+                ...residentsData.map(r => [
+                    r.ownerId,
+                    r.name,
+                    r.email,
+                    r.phone || '',
+                    r.community || '',
+                    r.type || '',
+                    r.unitId || '',
+                    r.synced ? 'Synced' : 'Pending'
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `residents_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Form Submissions
+        forms.createResident.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // Validation
+            if (!data.name || !data.email || !data.unitId) {
+                showAlert('Please fill in all required fields', 'warning');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const { success, data: result } = await apiCall('/residents', {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+
+                if (success) {
+                    showToast('Resident created successfully', 'success');
+                    loadResidents();
+                    e.target.reset();
+                } else {
+                    showAlert('Failed to create resident: ' + (result?.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showAlert('Error creating resident: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        forms.getIdentity.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const unitId = document.getElementById('identityUnitId').value;
+            const ownerId = document.getElementById('identityOwnerId').value;
+
+            if (!unitId || !ownerId) {
+                showAlert('Please enter both Unit ID and Owner ID', 'warning');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const { success, data } = await apiCall(`/identity?unitId=${unitId}&ownerId=${ownerId}`);
+
+                if (success) {
+                    showQRModal('Identity QR Code', renderQRModalContent(data));
+                } else {
+                    showAlert('Failed to get identity: ' + (data?.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showAlert('Error getting identity: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        forms.getVisitorQR.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const unitId = document.getElementById('visitorUnitId').value;
+            const ownerId = document.getElementById('visitorOwnerId').value;
+            const visitorName = document.getElementById('visitorName').value;
+            const visitDate = document.getElementById('visitDate').value;
+
+            if (!unitId || !ownerId || !visitorName || !visitDate) {
+                showAlert('Please fill in all required fields', 'warning');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const { success, data } = await apiCall(`/visitor-qr?unitId=${unitId}&ownerId=${ownerId}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${visitDate}`);
+
+                if (success) {
+                    showQRModal('Visitor QR Code', renderQRModalContent(data));
+                } else {
+                    showAlert('Failed to get visitor QR: ' + (data?.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showAlert('Error getting visitor QR: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        forms.deleteResident.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const ownerId = document.getElementById('deleteOwnerId').value;
+            const unitId = document.getElementById('deleteUnitId').value;
+
+            if (!ownerId) {
+                showAlert('Please enter Owner ID', 'warning');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this resident? This action cannot be undone.')) {
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const { success, data } = await apiCall(`/residents?ownerId=${ownerId}&unitId=${unitId}`, {
+                    method: 'DELETE'
+                });
+
+                if (success) {
+                    showToast('Resident deleted successfully', 'success');
+                    loadResidents();
+                    e.target.reset();
+                } else {
+                    showAlert('Failed to delete resident: ' + (data?.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showAlert('Error deleting resident: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Modal Event Listeners
+        elements.modalCloseBtn.addEventListener('click', closeModal);
+        elements.modalCloseBtn2.addEventListener('click', closeModal);
+        elements.resultModal.addEventListener('click', (e) => {
+            if (e.target === elements.resultModal) closeModal();
+        });
+
+        elements.qrModalCloseBtn.addEventListener('click', closeQRModal);
+        elements.qrModalCloseBtn2.addEventListener('click', closeQRModal);
+        elements.qrModal.addEventListener('click', (e) => {
+            if (e.target === elements.qrModal) closeQRModal();
+        });
+
+        // Helper Functions for Modals
+        function renderQRModalContent(data) {
+            const qrCode = data?.lyveResponse?.qrCode || data?.hikCentralResponse?.data?.qrcode;
+            
+            return `
+                <div class="qr-section">
+                    <div class="qr-image-container">
+                        <h4>QR Code</h4>
+                        ${qrCode ? `
+                            <img src="data:image/png;base64,${qrCode}" alt="QR Code" style="max-width: 300px; max-height: 300px;">
+                            <br><br>
+                            <button class="btn btn-success" onclick="downloadQRCode('${qrCode}', '${new Date().toISOString()}')">
+                                <i class="fas fa-download"></i> Download QR
+                            </button>
+                        ` : `
+                            <div style="color: var(--text-secondary); padding: 2rem;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                                <br>No QR code available
+                            </div>
+                        `}
+                    </div>
+                    <div class="qr-details-container">
+                        <h4>Details</h4>
+                        <div class="qr-info-item">
+                            <span>Generated At:</span>
+                            <span>${new Date().toLocaleString()}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>QR Code Format:</span>
+                            <span>${qrCode ? 'Base64 PNG' : 'Not Available'}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Size:</span>
+                            <span>${qrCode ? `${qrCode.length} characters` : 'N/A'}</span>
+                        </div>
+                        ${data?.lyveResponse ? `
+                            <div class="qr-info-item">
+                                <span>Owner ID:</span>
+                                <span>${data.lyveResponse.ownerId || 'N/A'}</span>
+                            </div>
+                            <div class="qr-info-item">
+                                <span>Unit ID:</span>
+                                <span>${data.lyveResponse.unitId || 'N/A'}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h4>Raw Data</h4>
+                    <pre style="background: var(--bg-color); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.875rem;">${formatJSON(data)}</pre>
+                </div>
+            `;
+        }
+
+        // Global Functions
+        window.viewResidentDetails = function(ownerId) {
+            const resident = residentsData.find(r => r.ownerId === ownerId);
+            if (!resident) {
+                showAlert('Resident not found', 'error');
+                return;
+            }
+
+            const content = `
+                <div class="grid-layout" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Personal Information</h4>
+                        <div class="qr-info-item">
+                            <span>Owner ID:</span>
+                            <span>${resident.ownerId}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Name:</span>
+                            <span>${resident.name}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Email:</span>
+                            <span>${resident.email}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Phone:</span>
+                            <span>${resident.phone || 'N/A'}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Type:</span>
+                            <span>${resident.type || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Property Information</h4>
+                        <div class="qr-info-item">
+                            <span>Community:</span>
+                            <span>${resident.community || 'N/A'}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Unit ID:</span>
+                            <span>${resident.unitId || 'N/A'}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Valid From:</span>
+                            <span>${formatDate(resident.from)}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Valid To:</span>
+                            <span>${formatDate(resident.to)}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Status:</span>
+                            <span class="status-badge ${resident.synced ? 'status-active' : 'status-pending'}">${resident.synced ? 'Synced' : 'Pending'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">HikCentral Integration</h4>
+                    <div class="qr-info-item">
+                        <span>Person ID:</span>
+                        <span>${resident.personId || 'Not Synced'}</span>
+                    </div>
+                    <div class="qr-info-item">
+                        <span>Sync Status:</span>
+                        <span class="status-badge ${resident.synced ? 'status-active' : 'status-pending'}">${resident.synced ? 'Connected' : 'Not Connected'}</span>
+                    </div>
+                </div>
+            `;
+
+            showModal('Resident Details', content, resident.synced ? 'success' : 'warning');
+        };
+
+        window.getIdentity = function(unitId, ownerId) {
+            document.getElementById('identityUnitId').value = unitId;
+            document.getElementById('identityOwnerId').value = ownerId;
+            
+            // Auto-submit the form
+            forms.getIdentity.dispatchEvent(new Event('submit'));
+        };
+
+        window.deleteResident = function(ownerId, unitId) {
+            document.getElementById('deleteOwnerId').value = ownerId;
+            document.getElementById('deleteUnitId').value = unitId;
+            
+            // Auto-submit the form
+            forms.deleteResident.dispatchEvent(new Event('submit'));
+        };
+
+        window.viewLogDetails = function(logId) {
+            const log = logsData.find(l => l.id === parseInt(logId));
+            if (!log) {
+                showAlert('Log not found', 'error');
+                return;
+            }
+
+            const content = `
+                <div class="grid-layout" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Request Information</h4>
+                        <div class="qr-info-item">
+                            <span>Timestamp:</span>
+                            <span>${formatDateTime(log.created_at)}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Endpoint:</span>
+                            <span>${log.endpoint}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Method:</span>
+                            <span>${log.method}</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>Status Code:</span>
+                            <span class="status-badge ${log.status_code === 200 ? 'status-active' : 'status-danger'}">${log.status_code}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Response Information</h4>
+                        <div class="qr-info-item">
+                            <span>Response Size:</span>
+                            <span>${log.response_body ? JSON.stringify(log.response_body).length : 0} characters</span>
+                        </div>
+                        <div class="qr-info-item">
+                            <span>HikCentral Response:</span>
+                            <span>${log.hikcentral_response ? 'Available' : 'None'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Request Body</h4>
+                    <pre style="background: var(--bg-color); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.875rem;">${formatJSON(JSON.parse(log.request_body || '{}'))}</pre>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Response Body</h4>
+                    <pre style="background: var(--bg-color); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.875rem;">${formatJSON(JSON.parse(log.response_body || '{}'))}</pre>
+                </div>
+                ${log.hikcentral_response ? `
+                    <div style="margin-top: 1rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">HikCentral Response</h4>
+                        <pre style="background: var(--bg-color); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.875rem;">${formatJSON(JSON.parse(log.hikcentral_response || '{}'))}</pre>
+                    </div>
+                ` : ''}
+            `;
+
+            showModal('Log Details', content, log.status_code === 200 ? 'success' : 'error');
+        };
+
+        window.downloadQRCode = function(base64Data, timestamp) {
+            const link = document.createElement('a');
+            link.download = `qr-code-${timestamp}.png`;
+            link.href = `data:image/png;base64,${base64Data}`;
+            link.click();
+        };
+
+        // Initialize
+        applyTheme(currentTheme);
+        loadResidents();
+        loadLogs();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadResidents();
+            loadLogs();
+        }, 30000);
+    </script>
+</body>
+</html>
