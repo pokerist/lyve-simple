@@ -723,8 +723,20 @@ function formatDateForHikCentralISO(date) {
   }
 }
 
-// Logging function
+// Logging function - Filter out read-only requests to prevent log growth on page refresh
 function logApiCall(endpoint, method, requestBody, responseBody, statusCode, hikCentralResponse = null) {
+  // Don't log read-only requests that happen on page refresh
+  const shouldSkipLogging = (
+    (method === 'GET' && endpoint === '/residents') ||
+    (method === 'GET' && endpoint === '/logs') ||
+    (method === 'GET' && endpoint === '/hikcentral/version') ||
+    (method === 'GET' && endpoint === '/')
+  );
+  
+  if (shouldSkipLogging) {
+    return; // Skip logging for these read-only requests
+  }
+
   const stmt = db.prepare(`
     INSERT INTO api_logs (endpoint, method, request_body, response_body, status_code, hikcentral_response)
     VALUES (?, ?, ?, ?, ?, ?)

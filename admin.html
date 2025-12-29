@@ -622,14 +622,9 @@
         </div>
 
                 <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
-                    <button id="createResidentBtn" class="btn-loading" onclick="enhancedCreateResident()">
-                        <span class="loading-spinner"></span>
+                    <button id="createResidentBtn" onclick="enhancedCreateResident()">
                         🏠 Create Resident
                     </button>
-                    <span class="status-indicator" id="createStatus" style="display: none;">
-                        <span class="loading-spinner"></span>
-                        <span id="createStatusText">Processing...</span>
-                    </span>
                 </div>
             </div>
 
@@ -690,14 +685,9 @@
                 </div>
 
                 <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
-                    <button id="getIdentityBtn" class="btn-loading" onclick="enhancedGetIdentity()">
-                        <span class="loading-spinner"></span>
+                    <button id="getIdentityBtn" onclick="enhancedGetIdentity()">
                         🔑 Get Identity
                     </button>
-                    <span class="status-indicator" id="identityStatus" style="display: none;">
-                        <span class="loading-spinner"></span>
-                        <span id="identityStatusText">Processing...</span>
-                    </span>
                 </div>
             </div>
 
@@ -777,14 +767,9 @@
                 </div>
 
                 <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
-                    <button id="getVisitorQrBtn" class="btn-loading" onclick="enhancedGetVisitorQR()">
-                        <span class="loading-spinner"></span>
+                    <button id="getVisitorQrBtn" onclick="enhancedGetVisitorQR()">
                         👤 Get Visitor QR
                     </button>
-                    <span class="status-indicator" id="visitorStatus" style="display: none;">
-                        <span class="loading-spinner"></span>
-                        <span id="visitorStatusText">Processing...</span>
-                    </span>
                 </div>
             </div>
 
@@ -827,14 +812,9 @@
                 </div>
 
                 <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
-                    <button id="deleteResidentBtn" class="btn-loading" style="background-color: #dc3545;" onclick="enhancedDeleteResident()">
-                        <span class="loading-spinner"></span>
+                    <button id="deleteResidentBtn" style="background-color: #dc3545;" onclick="enhancedDeleteResident()">
                         🗑️ Delete Resident
                     </button>
-                    <span class="status-indicator" id="deleteStatus" style="display: none;">
-                        <span class="loading-spinner"></span>
-                        <span id="deleteStatusText">Processing...</span>
-                    </span>
                 </div>
             </div>
 
@@ -1770,7 +1750,7 @@
             inputElement.classList.remove('field-error');
         }
 
-        // Enhanced API functions with loading states and better error handling
+        // Enhanced API functions with better error handling
         async function enhancedCreateResident() {
             if (!validateCreateForm()) {
                 showToast('Please fix the validation errors before submitting', 'error');
@@ -1778,21 +1758,12 @@
             }
 
             const btn = document.getElementById('createResidentBtn');
-            const status = document.getElementById('createStatus');
-            const statusText = document.getElementById('createStatusText');
             const responseContainer = document.getElementById('createResponseContainer');
             const responseBody = document.getElementById('createResponseBody');
 
-            // Set loading state (even if some elements don't exist)
+            // Set loading state
             if (btn) {
                 btn.disabled = true;
-                btn.classList.add('btn-loading');
-            }
-            
-            if (status && statusText) {
-                status.style.display = 'inline-flex';
-                status.classList.add('status-loading');
-                statusText.textContent = 'Creating resident...';
             }
 
             if (responseContainer && responseBody) {
@@ -1835,12 +1806,6 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    if (status && statusText) {
-                        status.classList.remove('status-loading');
-                        status.classList.add('status-success');
-                        statusText.textContent = 'Resident created successfully!';
-                    }
-                    
                     if (responseBody) {
                         responseBody.innerHTML = formatJsonResponse(result);
                         responseBody.className = 'response-body';
@@ -1849,12 +1814,6 @@
                     showToast('Resident created successfully!', 'success');
                     loadResidents(); // Refresh the residents list
                 } else {
-                    if (status && statusText) {
-                        status.classList.remove('status-loading');
-                        status.classList.add('status-error');
-                        statusText.textContent = 'Error creating resident';
-                    }
-                    
                     if (responseBody) {
                         responseBody.innerHTML = formatJsonResponse(result);
                         responseBody.className = 'response-body';
@@ -1863,12 +1822,6 @@
                     showToast('Error creating resident: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
-                if (status && statusText) {
-                    status.classList.remove('status-loading');
-                    status.classList.add('status-error');
-                    statusText.textContent = 'Network error';
-                }
-                
                 if (responseBody) {
                     responseBody.innerHTML = 'Network error: ' + error.message;
                     responseBody.className = 'response-body';
@@ -1878,13 +1831,6 @@
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.classList.remove('btn-loading');
-                }
-                
-                if (status) {
-                    setTimeout(() => {
-                        status.style.display = 'none';
-                    }, 3000);
                 }
             }
         }
