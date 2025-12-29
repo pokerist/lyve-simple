@@ -153,13 +153,13 @@ class HikCentralClient {
     return headers;
   }
 
-  async makeRequest(endpoint, body = null) {
+  async makeRequest(endpoint, body = null, method = null) {
     const fullUrl = `${this.baseUrl}${endpoint}`;
     const bodyStr = body ? JSON.stringify(body) : '';
-    const method = body ? 'POST' : 'GET';
+    const requestMethod = method || (body ? 'POST' : 'GET');
     
     const headers = this._buildHeaders(body ? body : null);
-    const signature = this._generateSignature(method, endpoint, headers, body);
+    const signature = this._generateSignature(requestMethod, endpoint, headers, body);
     headers['X-Ca-Signature'] = signature;
 
     console.log(`Requesting: ${fullUrl}`);
@@ -167,7 +167,7 @@ class HikCentralClient {
 
     try {
       let response;
-      if (body) {
+      if (requestMethod === 'POST') {
         response = await axios.post(fullUrl, body, {
           headers,
           httpsAgent: HIKCENTRAL_CONFIG.verifySSL ? undefined : new require('https').Agent({ rejectUnauthorized: false }),
@@ -656,7 +656,8 @@ function logApiCall(endpoint, method, requestBody, responseBody, statusCode, hik
 // GET /hikcentral/version - Test HikCentral connection
 app.get('/hikcentral/version', async (req, res) => {
   try {
-    const response = await hikCentralClient.makeRequest('/artemis/api/common/v1/version');
+    // Use POST method for version endpoint (even with no body)
+    const response = await hikCentralClient.makeRequest('/artemis/api/common/v1/version', null, 'POST');
     
     if (response) {
       res.json({
