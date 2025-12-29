@@ -215,27 +215,29 @@ const hikCentralClient = new HikCentralClient();
 
 // GET /residents - Get resident(s)
 app.get('/residents', async (req, res) => {
-  const { email, community } = req.query;
+  const { email, community, ownerId } = req.query;
   
   try {
     let query, params;
     
-    if (email) {
-      // Get specific resident by email
+    if (ownerId) {
+      // Get specific resident by ownerId (NEW: Support ownerId parameter)
       query = `
         SELECT * FROM residents 
-        WHERE email = ? AND status != 'deleted'
+        WHERE person_code = ? AND status != 'deleted'
         ${community ? 'AND community = ?' : ''}
       `;
-      params = community ? [email, community] : [email];
+      params = community ? [ownerId, community] : [ownerId];
       
       db.get(query, params, (err, row) => {
         if (err) {
           console.error('Database error:', err);
+          logApiCall('/residents', 'GET', { email, community, ownerId }, { error: 'Database error' }, 500);
           return res.status(500).json({ error: 'Database error' });
         }
 
         if (!row) {
+          logApiCall('/residents', 'GET', { email, community, ownerId }, { error: 'Resident not found' }, 404);
           return res.status(404).json({ error: 'Resident not found' });
         }
 
@@ -253,6 +255,45 @@ app.get('/residents', async (req, res) => {
           synced: !!row.person_id
         };
 
+        logApiCall('/residents', 'GET', { email, community, ownerId }, response, 200);
+        res.json(response);
+      });
+    } else if (email) {
+      // Get specific resident by email
+      query = `
+        SELECT * FROM residents 
+        WHERE email = ? AND status != 'deleted'
+        ${community ? 'AND community = ?' : ''}
+      `;
+      params = community ? [email, community] : [email];
+      
+      db.get(query, params, (err, row) => {
+        if (err) {
+          console.error('Database error:', err);
+          logApiCall('/residents', 'GET', { email, community, ownerId }, { error: 'Database error' }, 500);
+          return res.status(500).json({ error: 'Database error' });
+        }
+
+        if (!row) {
+          logApiCall('/residents', 'GET', { email, community, ownerId }, { error: 'Resident not found' }, 404);
+          return res.status(404).json({ error: 'Resident not found' });
+        }
+
+        const response = {
+          ownerId: row.person_code,
+          personId: row.person_id,
+          phone: row.phone,
+          name: row.name,
+          email: row.email,
+          community: row.community,
+          type: row.type,
+          from: row.from_date,
+          to: row.to_date,
+          unitId: row.unit_id,
+          synced: !!row.person_id
+        };
+
+        logApiCall('/residents', 'GET', { email, community, ownerId }, response, 200);
         res.json(response);
       });
     } else {
@@ -268,6 +309,7 @@ app.get('/residents', async (req, res) => {
       db.all(query, params, (err, rows) => {
         if (err) {
           console.error('Database error:', err);
+          logApiCall('/residents', 'GET', { email, community, ownerId }, { error: 'Database error' }, 500);
           return res.status(500).json({ error: 'Database error' });
         }
 
@@ -285,11 +327,13 @@ app.get('/residents', async (req, res) => {
           synced: !!row.person_id
         }));
 
+        logApiCall('/residents', 'GET', { email, community, ownerId }, residents, 200);
         res.json(residents);
       });
     }
   } catch (error) {
     console.error('Error getting residents:', error);
+    logApiCall('/residents', 'GET', { email, community, ownerId }, { error: 'Internal server error' }, 500);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -299,6 +343,7 @@ app.post('/residents', async (req, res) => {
   const { name, phone, email, community, from, to, ownerType, unitId } = req.body;
 
   if (!name || !email || !unitId) {
+    logApiCall('/residents', 'POST', req.body, { error: 'Name, email, and unitId are required' }, 400);
     return res.status(400).json({ error: 'Name, email, and unitId are required' });
   }
 
@@ -325,6 +370,10 @@ app.post('/residents', async (req, res) => {
     );
 
     if (!hikCentralResponse) {
+      logApiCall('/residents', 'POST', req.body, { 
+        error: 'Failed to create resident in HikCentral',
+        details: 'Local data not created due to HikCentral failure'
+      }, 500);
       return res.status(500).json({ 
         error: 'Failed to create resident in HikCentral',
         details: 'Local data not created due to HikCentral failure'
@@ -351,6 +400,7 @@ app.post('/residents', async (req, res) => {
     ], function(err) {
       if (err) {
         console.error('Database error:', err);
+        logApiCall('/residents', 'POST', req.body, { error: 'Failed to save resident locally' }, 500);
         return res.status(500).json({ error: 'Failed to save resident locally' });
       }
 
@@ -366,10 +416,12 @@ app.post('/residents', async (req, res) => {
         unitId: unitId
       };
 
+      logApiCall('/residents', 'POST', req.body, response, 201, hikCentralResponse);
       res.status(201).json(response);
     });
   } catch (error) {
     console.error('Error creating resident:', error);
+    logApiCall('/residents', 'POST', req.body, { error: 'Internal server error' }, 500);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -379,6 +431,7 @@ app.get('/identity', async (req, res) => {
   const { unitId, ownerId } = req.query;
 
   if (!unitId || !ownerId) {
+    logApiCall('/identity', 'GET', { unitId, ownerId }, { error: 'unitId and ownerId parameters are required' }, 400);
     return res.status(400).json({ error: 'unitId and ownerId parameters are required' });
   }
 
@@ -387,14 +440,20 @@ app.get('/identity', async (req, res) => {
     db.get('SELECT * FROM residents WHERE person_code = ? AND status != "deleted"', [ownerId], async (err, row) => {
       if (err) {
         console.error('Database error:', err);
+        logApiCall('/identity', 'GET', { unitId, ownerId }, { error: 'Database error' }, 500);
         return res.status(500).json({ error: 'Database error' });
       }
 
       if (!row) {
+        logApiCall('/identity', 'GET', { unitId, ownerId }, { error: 'Resident not found' }, 404);
         return res.status(404).json({ error: 'Resident not found' });
       }
 
       if (!row.person_id || row.person_id.trim() === '') {
+        logApiCall('/identity', 'GET', { unitId, ownerId }, { 
+          error: 'Resident not synced with HikCentral',
+          message: 'Cannot generate QR code for resident without HikCentral personId. Please recreate the resident.'
+        }, 400);
         return res.status(400).json({ 
           error: 'Resident not synced with HikCentral',
           message: 'Cannot generate QR code for resident without HikCentral personId. Please recreate the resident.'
@@ -423,6 +482,10 @@ app.get('/identity', async (req, res) => {
       console.log('DEBUG: HikCentral QR Response:', hikCentralResponse);
 
       if (!hikCentralResponse) {
+        logApiCall('/identity', 'GET', { unitId, ownerId }, { 
+          error: 'Failed to get QR code from HikCentral',
+          details: 'Check HikCentral logs for more information'
+        }, 500);
         return res.status(500).json({ 
           error: 'Failed to get QR code from HikCentral',
           details: 'Check HikCentral logs for more information'
@@ -437,10 +500,12 @@ app.get('/identity', async (req, res) => {
         qrCode: hikCentralResponse.data.qrcode
       };
 
+      logApiCall('/identity', 'GET', { unitId, ownerId }, response, 200, hikCentralResponse);
       res.json(response);
     });
   } catch (error) {
     console.error('Error getting identity:', error);
+    logApiCall('/identity', 'GET', { unitId, ownerId }, { error: 'Internal server error' }, 500);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -450,6 +515,9 @@ app.get('/visitor-qr', async (req, res) => {
   const { unitId, ownerId, visitorName, visitDate } = req.query;
 
   if (!unitId || !ownerId || !visitorName || !visitDate) {
+    logApiCall('/visitor-qr', 'GET', { unitId, ownerId, visitorName, visitDate }, { 
+      error: 'unitId, ownerId, visitorName, and visitDate parameters are required' 
+    }, 400);
     return res.status(400).json({ 
       error: 'unitId, ownerId, visitorName, and visitDate parameters are required' 
     });
@@ -460,10 +528,12 @@ app.get('/visitor-qr', async (req, res) => {
     db.get('SELECT * FROM residents WHERE person_code = ? AND status != "deleted"', [ownerId], async (err, row) => {
       if (err) {
         console.error('Database error:', err);
+        logApiCall('/visitor-qr', 'GET', { unitId, ownerId, visitorName, visitDate }, { error: 'Database error' }, 500);
         return res.status(500).json({ error: 'Database error' });
       }
 
       if (!row) {
+        logApiCall('/visitor-qr', 'GET', { unitId, ownerId, visitorName, visitDate }, { error: 'Resident not found' }, 404);
         return res.status(404).json({ error: 'Resident not found' });
       }
 
@@ -505,6 +575,7 @@ app.get('/visitor-qr', async (req, res) => {
       console.log('DEBUG: HikCentral Visitor Response:', hikCentralResponse);
 
       if (!hikCentralResponse) {
+        logApiCall('/visitor-qr', 'GET', { unitId, ownerId, visitorName, visitDate }, { error: 'Failed to create visitor in HikCentral' }, 500);
         return res.status(500).json({ error: 'Failed to create visitor in HikCentral' });
       }
 
@@ -518,10 +589,12 @@ app.get('/visitor-qr', async (req, res) => {
         qrCode: hikCentralResponse.data.grCodelmage
       };
 
+      logApiCall('/visitor-qr', 'GET', { unitId, ownerId, visitorName, visitDate }, response, 200, hikCentralResponse);
       res.json(response);
     });
   } catch (error) {
     console.error('Error getting visitor QR:', error);
+    logApiCall('/visitor-qr', 'GET', { unitId, ownerId, visitorName, visitDate }, { error: 'Internal server error' }, 500);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -531,6 +604,7 @@ app.delete('/residents', async (req, res) => {
   const { ownerId, unitId } = req.query;
 
   if (!ownerId) {
+    logApiCall('/residents', 'DELETE', { ownerId, unitId }, { error: 'ownerId parameter is required' }, 400);
     return res.status(400).json({ error: 'ownerId parameter is required' });
   }
 
@@ -539,10 +613,12 @@ app.delete('/residents', async (req, res) => {
     db.get('SELECT * FROM residents WHERE person_code = ? AND status != "deleted"', [ownerId], async (err, row) => {
       if (err) {
         console.error('Database error:', err);
+        logApiCall('/residents', 'DELETE', { ownerId, unitId }, { error: 'Database error' }, 500);
         return res.status(500).json({ error: 'Database error' });
       }
 
       if (!row) {
+        logApiCall('/residents', 'DELETE', { ownerId, unitId }, { error: 'Resident not found' }, 404);
         return res.status(404).json({ error: 'Resident not found' });
       }
 
@@ -560,14 +636,17 @@ app.delete('/residents', async (req, res) => {
       db.run('UPDATE residents SET status = "deleted", updated_at = CURRENT_TIMESTAMP WHERE person_code = ?', [ownerId], function(err) {
         if (err) {
           console.error('Database error:', err);
+          logApiCall('/residents', 'DELETE', { ownerId, unitId }, { error: 'Failed to update resident status' }, 500);
           return res.status(500).json({ error: 'Failed to update resident status' });
         }
 
+        logApiCall('/residents', 'DELETE', { ownerId, unitId }, { success: true }, 200, hikCentralResponse);
         res.json({ success: true });
       });
     });
   } catch (error) {
     console.error('Error deleting resident:', error);
+    logApiCall('/residents', 'DELETE', { ownerId, unitId }, { error: 'Internal server error' }, 500);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -672,6 +751,12 @@ app.get('/hikcentral/version', async (req, res) => {
     const response = await hikCentralClient.makeRequest('/artemis/api/common/v1/version', null, 'POST');
     
     if (response) {
+      logApiCall('/hikcentral/version', 'GET', {}, {
+        success: true,
+        connected: true,
+        version: response.data,
+        message: 'HikCentral connection successful'
+      }, 200, response);
       res.json({
         success: true,
         connected: true,
@@ -679,6 +764,11 @@ app.get('/hikcentral/version', async (req, res) => {
         message: 'HikCentral connection successful'
       });
     } else {
+      logApiCall('/hikcentral/version', 'GET', {}, {
+        success: false,
+        connected: false,
+        message: 'Failed to connect to HikCentral'
+      }, 200);
       res.json({
         success: false,
         connected: false,
@@ -687,6 +777,12 @@ app.get('/hikcentral/version', async (req, res) => {
     }
   } catch (error) {
     console.error('Error testing HikCentral connection:', error);
+    logApiCall('/hikcentral/version', 'GET', {}, {
+      success: false,
+      connected: false,
+      message: 'Connection test failed',
+      error: error.message
+    }, 500);
     res.status(500).json({
       success: false,
       connected: false,
@@ -707,9 +803,11 @@ app.get('/logs', (req, res) => {
   `, [limit], (err, rows) => {
     if (err) {
       console.error('Database error:', err);
+      logApiCall('/logs', 'GET', { limit }, { error: 'Database error' }, 500);
       return res.status(500).json({ error: 'Database error' });
     }
     
+    logApiCall('/logs', 'GET', { limit }, rows, 200);
     res.json(rows);
   });
 });

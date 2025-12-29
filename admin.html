@@ -608,18 +608,18 @@
                     </div>
                 </div>
 
-                <div class="response-container" id="createResponseContainer" style="display: none;">
-                    <div class="response-header">
-                        <span>📋 Create Resident Response</span>
-                        <div>
-                            <button class="btn-secondary" onclick="copyResponse('create')">📋 Copy</button>
-                            <button class="btn-secondary" onclick="clearResponse('create')">🗑️ Clear</button>
-                        </div>
-                    </div>
-                    <div class="response-body" id="createResponseBody">
-                        <!-- Response will be displayed here -->
-                    </div>
+        <div class="response-container" id="createResponseContainer" style="display: none;">
+            <div class="response-header">
+                <span>📋 Create Resident Response</span>
+                <div>
+                    <button class="btn-secondary" onclick="copyResponse('create')">📋 Copy</button>
+                    <button class="btn-secondary" onclick="clearResponse('create')">🗑️ Clear</button>
                 </div>
+            </div>
+            <div class="response-body" id="createResponseBody">
+                <!-- Response will be displayed here -->
+            </div>
+        </div>
 
                 <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
                     <button id="createResidentBtn" class="btn-loading" onclick="enhancedCreateResident()">
@@ -1870,7 +1870,7 @@
                 }
                 
                 if (responseBody) {
-                    responseBody.innerHTML = `Network error: ${error.message}`;
+                    responseBody.innerHTML = 'Network error: ' + error.message;
                     responseBody.className = 'response-body';
                 }
                 
@@ -1973,7 +1973,7 @@
                 }
                 
                 if (responseBody) {
-                    responseBody.innerHTML = `Network error: ${error.message}`;
+                    responseBody.innerHTML = 'Network error: ' + error.message;
                     responseBody.className = 'response-body';
                 }
                 
@@ -2080,7 +2080,7 @@
                 }
                 
                 if (responseBody) {
-                    responseBody.innerHTML = `Network error: ${error.message}`;
+                    responseBody.innerHTML = 'Network error: ' + error.message;
                     responseBody.className = 'response-body';
                 }
                 
@@ -2177,7 +2177,7 @@
                 }
                 
                 if (responseBody) {
-                    responseBody.innerHTML = `Network error: ${error.message}`;
+                    responseBody.innerHTML = 'Network error: ' + error.message;
                     responseBody.className = 'response-body';
                 }
                 
