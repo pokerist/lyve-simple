@@ -593,6 +593,18 @@
             border-bottom: none;
         }
 
+        .qr-info-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            flex: 0 0 140px;
+        }
+
+        .qr-info-value {
+            color: var(--text-primary);
+            text-align: right;
+            flex: 1;
+        }
+
         /* Toast Notifications */
         .toast-container {
             position: fixed;
@@ -732,13 +744,13 @@
                                 <span>System Overview</span>
                             </div>
                             <div class="btn-group">
-                                <button class="btn btn-secondary" id="testConnectionBtn">
-                                    <i class="fas fa-plug"></i>
-                                    <span>Test Connection</span>
-                                </button>
                                 <button class="btn btn-warning" id="clearLogsBtn">
                                     <i class="fas fa-trash"></i>
                                     <span>Clear Logs</span>
+                                </button>
+                                <button class="btn btn-info" id="systemHealthBtn">
+                                    <i class="fas fa-heartbeat"></i>
+                                    <span>System Health</span>
                                 </button>
                             </div>
                         </div>
@@ -1037,7 +1049,6 @@
             logsLimit: document.getElementById('logsLimit'),
             themeToggle: document.getElementById('themeToggle'),
             refreshAllBtn: document.getElementById('refreshAllBtn'),
-            testConnectionBtn: document.getElementById('testConnectionBtn'),
             clearLogsBtn: document.getElementById('clearLogsBtn'),
             clearFormBtn: document.getElementById('clearFormBtn'),
             exportResidentsBtn: document.getElementById('exportResidentsBtn'),
@@ -1203,23 +1214,6 @@
             }
         }
 
-        async function testConnection() {
-            showLoading(true);
-            try {
-                const { success, data } = await apiCall('/hikcentral/version');
-                
-                if (success && data.connected) {
-                    showAlert('✅ HikCentral connection successful', 'success');
-                } else {
-                    showAlert('❌ HikCentral connection failed', 'error');
-                }
-            } catch (error) {
-                showAlert('❌ Connection test failed: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
         // Rendering Functions
         function renderResidentsTable() {
             const searchTerm = elements.searchInput.value.toLowerCase();
@@ -1352,8 +1346,6 @@
             loadResidents();
             loadLogs();
         });
-
-        elements.testConnectionBtn.addEventListener('click', testConnection);
 
         elements.clearLogsBtn.addEventListener('click', async () => {
             if (confirm('Are you sure you want to clear all logs?')) {
@@ -1606,60 +1598,91 @@
                     <div>
                         <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Personal Information</h4>
                         <div class="qr-info-item">
-                            <span>Owner ID:</span>
-                            <span>${resident.ownerId}</span>
+                            <span class="qr-info-label">Owner ID:</span>
+                            <span class="qr-info-value">${resident.ownerId}</span>
                         </div>
                         <div class="qr-info-item">
-                            <span>Name:</span>
-                            <span>${resident.name}</span>
+                            <span class="qr-info-label">Full Name:</span>
+                            <span class="qr-info-value">${resident.name}</span>
                         </div>
                         <div class="qr-info-item">
-                            <span>Email:</span>
-                            <span>${resident.email}</span>
+                            <span class="qr-info-label">Email Address:</span>
+                            <span class="qr-info-value">${resident.email}</span>
                         </div>
                         <div class="qr-info-item">
-                            <span>Phone:</span>
-                            <span>${resident.phone || 'N/A'}</span>
+                            <span class="qr-info-label">Phone Number:</span>
+                            <span class="qr-info-value">${resident.phone || 'Not Provided'}</span>
                         </div>
                         <div class="qr-info-item">
-                            <span>Type:</span>
-                            <span>${resident.type || 'N/A'}</span>
+                            <span class="qr-info-label">Owner Type:</span>
+                            <span class="qr-info-value">${resident.type || 'Not Specified'}</span>
                         </div>
                     </div>
                     <div>
                         <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Property Information</h4>
                         <div class="qr-info-item">
-                            <span>Community:</span>
-                            <span>${resident.community || 'N/A'}</span>
+                            <span class="qr-info-label">Community:</span>
+                            <span class="qr-info-value">${resident.community || 'Not Specified'}</span>
                         </div>
                         <div class="qr-info-item">
-                            <span>Unit ID:</span>
-                            <span>${resident.unitId || 'N/A'}</span>
+                            <span class="qr-info-label">Unit ID:</span>
+                            <span class="qr-info-value">${resident.unitId || 'Not Specified'}</span>
                         </div>
                         <div class="qr-info-item">
-                            <span>Valid From:</span>
-                            <span>${formatDate(resident.from)}</span>
+                            <span class="qr-info-label">Valid From:</span>
+                            <span class="qr-info-value">${formatDate(resident.from) || 'Not Specified'}</span>
                         </div>
                         <div class="qr-info-item">
-                            <span>Valid To:</span>
-                            <span>${formatDate(resident.to)}</span>
+                            <span class="qr-info-label">Valid To:</span>
+                            <span class="qr-info-value">${formatDate(resident.to) || 'Not Specified'}</span>
                         </div>
                         <div class="qr-info-item">
-                            <span>Status:</span>
-                            <span class="status-badge ${resident.synced ? 'status-active' : 'status-pending'}">${resident.synced ? 'Synced' : 'Pending'}</span>
+                            <span class="qr-info-label">Database Status:</span>
+                            <span class="status-badge ${resident.status === 'active' ? 'status-active' : resident.status === 'deleted' ? 'status-deleted' : 'status-pending'}">
+                                ${resident.status || 'active'}
+                            </span>
                         </div>
                     </div>
                 </div>
-                <div style="margin-top: 2rem;">
-                    <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">HikCentral Integration</h4>
-                    <div class="qr-info-item">
-                        <span>Person ID:</span>
-                        <span>${resident.personId || 'Not Synced'}</span>
+                
+                <div style="margin-top: 2rem; padding: 1.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-color);">
+                    <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">HikCentral Integration Status</h4>
+                    <div class="grid-layout" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <div class="qr-info-item">
+                                <span class="qr-info-label">HikCentral Person ID:</span>
+                                <span class="qr-info-value">${resident.personId || 'Not Synced'}</span>
+                            </div>
+                            <div class="qr-info-item">
+                                <span class="qr-info-label">Sync Status:</span>
+                                <span class="status-badge ${resident.synced ? 'status-active' : 'status-pending'}">
+                                    ${resident.synced ? 'Connected' : 'Not Connected'}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="qr-info-item">
+                                <span class="qr-info-label">Created At:</span>
+                                <span class="qr-info-value">${formatDateTime(resident.created_at) || 'Unknown'}</span>
+                            </div>
+                            <div class="qr-info-item">
+                                <span class="qr-info-label">Last Updated:</span>
+                                <span class="qr-info-value">${formatDateTime(resident.updated_at) || 'Unknown'}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="qr-info-item">
-                        <span>Sync Status:</span>
-                        <span class="status-badge ${resident.synced ? 'status-active' : 'status-pending'}">${resident.synced ? 'Connected' : 'Not Connected'}</span>
-                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn btn-primary" onclick="getIdentity('${resident.unitId || ''}', '${resident.ownerId}')">
+                        <i class="fas fa-qrcode"></i> Generate QR
+                    </button>
+                    <button class="btn btn-success" onclick="getVisitorQR('${resident.unitId || ''}', '${resident.ownerId}', '${resident.name}', '${new Date().toISOString().slice(0, 10)}')">
+                        <i class="fas fa-user-plus"></i> Visitor QR
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteResident('${resident.ownerId}', '${resident.unitId || ''}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
                 </div>
             `;
 

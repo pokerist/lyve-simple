@@ -721,37 +721,6 @@ function logApiCall(endpoint, method, requestBody, responseBody, statusCode, hik
   });
 }
 
-// GET /hikcentral/version - Test HikCentral connection
-app.get('/hikcentral/version', async (req, res) => {
-  try {
-    // Use POST method for version endpoint (even with no body)
-    const response = await hikCentralClient.makeRequest('/artemis/api/common/v1/version', null, 'POST');
-    
-    if (response) {
-      res.json({
-        success: true,
-        connected: true,
-        version: response.data,
-        message: 'HikCentral connection successful'
-      });
-    } else {
-      res.json({
-        success: false,
-        connected: false,
-        message: 'Failed to connect to HikCentral'
-      });
-    }
-  } catch (error) {
-    console.error('Error testing HikCentral connection:', error);
-    res.status(500).json({
-      success: false,
-      connected: false,
-      message: 'Connection test failed',
-      error: error.message
-    });
-  }
-});
-
 // GET /logs - Get API logs
 app.get('/logs', (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
