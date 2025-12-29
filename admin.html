@@ -910,11 +910,16 @@
         
         // Copy to clipboard function
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert('Copied to clipboard!');
-            }, function(err) {
-                console.error('Could not copy text: ', err);
-            });
+            try {
+                navigator.clipboard.writeText(text).then(function() {
+                    alert('Copied to clipboard!');
+                }, function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            } catch (error) {
+                console.error('Copy to clipboard failed:', error);
+                alert('Copy failed. Please manually copy the text.');
+            }
         }
         
         // Escape HTML to prevent XSS
