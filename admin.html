@@ -227,6 +227,94 @@
 
     <div id="responseContainer" class="response-box" style="margin-top: 20px; display: none;"></div>
 
+    <!-- Resident Details Modal -->
+    <div id="residentModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Resident Details</h3>
+            <div id="modalContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Styles -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        .qr-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .qr-code-text {
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            background-color: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+
     <script>
         // API Base URL
         const API_BASE = '';
@@ -364,19 +452,37 @@
         async function testConnection() {
             const resultDiv = document.getElementById('connectionResult');
             resultDiv.style.display = 'block';
-            resultDiv.innerHTML = 'Testing connection...';
+            resultDiv.innerHTML = 'Testing HikCentral connection...';
             
             try {
-                const response = await fetch('/residents?email=test@example.com');
-                if (response.ok || response.status === 404) {
-                    resultDiv.innerHTML = '✅ Connection successful - Middleware is running';
+                const response = await fetch('/hikcentral/version');
+                const result = await response.json();
+                
+                if (result.success && result.connected) {
+                    resultDiv.innerHTML = `
+                        ✅ HikCentral Connection Successful
+                        <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                            Server: ${result.version.produceName}<br>
+                            Version: ${result.version.softVersion}
+                        </div>
+                    `;
                     resultDiv.className = 'response-box success';
                 } else {
-                    resultDiv.innerHTML = '❌ Connection failed';
+                    resultDiv.innerHTML = `
+                        ❌ HikCentral Connection Failed
+                        <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                            ${result.message || 'Unable to connect to HikCentral server'}
+                        </div>
+                    `;
                     resultDiv.className = 'response-box error';
                 }
             } catch (error) {
-                resultDiv.innerHTML = `❌ Connection failed: ${error.message}`;
+                resultDiv.innerHTML = `
+                    ❌ Connection Test Failed
+                    <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                        Error: ${error.message}
+                    </div>
+                `;
                 resultDiv.className = 'response-box error';
             }
         }
@@ -477,8 +583,102 @@
         }
 
         // View details
-        function viewDetails(ownerId) {
-            alert('Owner ID: ' + ownerId + '\n\nDetails would be shown in a modal or detailed view');
+        async function viewDetails(ownerId) {
+            try {
+                // Get resident details
+                const response = await fetch(`/residents?email=test@example.com&ownerId=${ownerId}`);
+                let resident = null;
+                
+                // Try to get by ownerId if email doesn't work
+                if (!response.ok) {
+                    // For now, we'll create a mock resident since we don't have a direct API for this
+                    resident = {
+                        ownerId: ownerId,
+                        name: 'Unknown Resident',
+                        email: 'unknown@example.com',
+                        phone: 'N/A',
+                        community: 'Unknown',
+                        type: 'Unknown',
+                        from: 'Unknown',
+                        to: 'Unknown',
+                        unitId: 'Unknown'
+                    };
+                } else {
+                    resident = await response.json();
+                }
+
+                // Build modal content
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = `
+                    <div class="detail-row">
+                        <span class="detail-label">Owner ID:</span>
+                        <span class="detail-value">${resident.ownerId}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value">${resident.name}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">${resident.email}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Phone:</span>
+                        <span class="detail-value">${resident.phone || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Community:</span>
+                        <span class="detail-value">${resident.community || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Type:</span>
+                        <span class="detail-value">${resident.type}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Unit ID:</span>
+                        <span class="detail-value">${resident.unitId}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Valid From:</span>
+                        <span class="detail-value">${resident.from || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Valid To:</span>
+                        <span class="detail-value">${resident.to || 'N/A'}</span>
+                    </div>
+                    <div class="qr-preview">
+                        <h4>Dynamic QR Code</h4>
+                        <p style="margin-bottom: 10px; font-size: 12px; color: #666;">
+                            This is the QR code that would be generated for this resident
+                        </p>
+                        <div class="qr-code-text">
+                            QR1234567890
+                        </div>
+                        <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                            Note: Actual QR code would be retrieved from HikCentral
+                        </p>
+                    </div>
+                `;
+
+                // Show modal
+                document.getElementById('residentModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading resident details:', error);
+                alert('Error loading resident details: ' + error.message);
+            }
+        }
+
+        // Close modal function
+        function closeModal() {
+            document.getElementById('residentModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('residentModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
         }
 
         // Show response

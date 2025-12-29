@@ -179,49 +179,79 @@ const hikCentralClient = new HikCentralClient();
 
 // API Routes
 
-// GET /residents - Get resident
+// GET /residents - Get resident(s)
 app.get('/residents', async (req, res) => {
   const { email, community } = req.query;
   
-  if (!email) {
-    return res.status(400).json({ error: 'Email parameter is required' });
-  }
-
   try {
-    const query = `
-      SELECT * FROM residents 
-      WHERE email = ? AND status != 'deleted'
-      ${community ? 'AND community = ?' : ''}
-    `;
+    let query, params;
     
-    const params = community ? [email, community] : [email];
-    
-    db.get(query, params, (err, row) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
+    if (email) {
+      // Get specific resident by email
+      query = `
+        SELECT * FROM residents 
+        WHERE email = ? AND status != 'deleted'
+        ${community ? 'AND community = ?' : ''}
+      `;
+      params = community ? [email, community] : [email];
+      
+      db.get(query, params, (err, row) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
 
-      if (!row) {
-        return res.status(404).json({ error: 'Resident not found' });
-      }
+        if (!row) {
+          return res.status(404).json({ error: 'Resident not found' });
+        }
 
-      const response = {
-        ownerId: row.person_code,
-        phone: row.phone,
-        name: row.name,
-        email: row.email,
-        community: row.community,
-        type: row.type,
-        from: row.from_date,
-        to: row.to_date,
-        unitId: row.unit_id
-      };
+        const response = {
+          ownerId: row.person_code,
+          phone: row.phone,
+          name: row.name,
+          email: row.email,
+          community: row.community,
+          type: row.type,
+          from: row.from_date,
+          to: row.to_date,
+          unitId: row.unit_id
+        };
 
-      res.json(response);
-    });
+        res.json(response);
+      });
+    } else {
+      // Get all residents
+      query = `
+        SELECT * FROM residents 
+        WHERE status != 'deleted'
+        ${community ? 'AND community = ?' : ''}
+        ORDER BY created_at DESC
+      `;
+      params = community ? [community] : [];
+      
+      db.all(query, params, (err, rows) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+
+        const residents = rows.map(row => ({
+          ownerId: row.person_code,
+          phone: row.phone,
+          name: row.name,
+          email: row.email,
+          community: row.community,
+          type: row.type,
+          from: row.from_date,
+          to: row.to_date,
+          unitId: row.unit_id
+        }));
+
+        res.json(residents);
+      });
+    }
   } catch (error) {
-    console.error('Error getting resident:', error);
+    console.error('Error getting residents:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -521,6 +551,36 @@ function logApiCall(endpoint, method, requestBody, responseBody, statusCode, hik
     }
   });
 }
+
+// GET /hikcentral/version - Test HikCentral connection
+app.get('/hikcentral/version', async (req, res) => {
+  try {
+    const response = await hikCentralClient.makeRequest('/artemis/api/common/v1/version');
+    
+    if (response) {
+      res.json({
+        success: true,
+        connected: true,
+        version: response.data,
+        message: 'HikCentral connection successful'
+      });
+    } else {
+      res.json({
+        success: false,
+        connected: false,
+        message: 'Failed to connect to HikCentral'
+      });
+    }
+  } catch (error) {
+    console.error('Error testing HikCentral connection:', error);
+    res.status(500).json({
+      success: false,
+      connected: false,
+      message: 'Connection test failed',
+      error: error.message
+    });
+  }
+});
 
 // GET /logs - Get API logs
 app.get('/logs', (req, res) => {
