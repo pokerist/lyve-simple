@@ -504,13 +504,13 @@
         <div class="card manual-operations">
             <h3>Manual Operations</h3>
             
-            <!-- Connection Status Indicator -->
-            <div style="margin-bottom: 15px;">
+            <!-- Connection Status Indicator - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs -->
+            <!-- <div style="margin-bottom: 15px;">
                 <span class="connection-status" id="connectionStatus">
                     <span class="status-dot" id="statusDot"></span>
                     <span id="statusText">Checking connection...</span>
                 </span>
-            </div>
+            </div> -->
 
             <!-- Operations Tabs -->
             <div class="operations-tabs">
@@ -1322,44 +1322,44 @@
             }
         }
 
-        // Test HikCentral connection
-        async function testConnection() {
-            const resultDiv = document.getElementById('connectionResult');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = 'Testing HikCentral connection...';
+        // Test HikCentral connection - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
+        // async function testConnection() {
+        //     const resultDiv = document.getElementById('connectionResult');
+        //     resultDiv.style.display = 'block';
+        //     resultDiv.innerHTML = 'Testing HikCentral connection...';
             
-            try {
-                const response = await fetch('/hikcentral/version');
-                const result = await response.json();
+        //     try {
+        //         const response = await fetch('/hikcentral/version');
+        //         const result = await response.json();
                 
-                if (result.success && result.connected) {
-                    resultDiv.innerHTML = `
-                        ✅ HikCentral Connection Successful
-                        <div style="margin-top: 10px; font-size: 14px; color: #666;">
-                            Server: ${result.version.produceName}<br>
-                            Version: ${result.version.softVersion}
-                        </div>
-                    `;
-                    resultDiv.className = 'response-box success';
-                } else {
-                    resultDiv.innerHTML = `
-                        ❌ HikCentral Connection Failed
-                        <div style="margin-top: 10px; font-size: 14px; color: #666;">
-                            ${result.message || 'Unable to connect to HikCentral server'}
-                        </div>
-                    `;
-                    resultDiv.className = 'response-box error';
-                }
-            } catch (error) {
-                resultDiv.innerHTML = `
-                    ❌ Connection Test Failed
-                    <div style="margin-top: 10px; font-size: 14px; color: #666;">
-                        Error: ${error.message}
-                    </div>
-                `;
-                resultDiv.className = 'response-box error';
-            }
-        }
+        //         if (result.success && result.connected) {
+        //             resultDiv.innerHTML = `
+        //                 ✅ HikCentral Connection Successful
+        //                 <div style="margin-top: 10px; font-size: 14px; color: #666;">
+        //                     Server: ${result.version.produceName}<br>
+        //                     Version: ${result.version.softVersion}
+        //                 </div>
+        //             `;
+        //             resultDiv.className = 'response-box success';
+        //         } else {
+        //             resultDiv.innerHTML = `
+        //                 ❌ HikCentral Connection Failed
+        //                 <div style="margin-top: 10px; font-size: 14px; color: #666;">
+        //                     ${result.message || 'Unable to connect to HikCentral server'}
+        //                 </div>
+        //             `;
+        //             resultDiv.className = 'response-box error';
+        //         }
+        //     } catch (error) {
+        //         resultDiv.innerHTML = `
+        //             ❌ Connection Test Failed
+        //             <div style="margin-top: 10px; font-size: 14px; color: #666;">
+        //                 Error: ${error.message}
+        //             </div>
+        //         `;
+        //         resultDiv.className = 'response-box error';
+        //     }
+        // }
 
         // Create resident
         async function createResident() {
@@ -1588,36 +1588,36 @@
             event.target.classList.add('active');
         }
 
-        // Connection status checking
-        async function checkConnectionStatus() {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
+        // Connection status checking - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
+        // async function checkConnectionStatus() {
+        //     const statusDot = document.getElementById('statusDot');
+        //     const statusText = document.getElementById('statusText');
             
-            try {
-                const response = await fetch('/hikcentral/version');
-                const result = await response.json();
+        //     try {
+        //         const response = await fetch('/hikcentral/version');
+        //         const result = await response.json();
                 
-                if (result.success && result.connected) {
-                    statusDot.classList.add('connected');
-                    statusDot.style.background = '#28a745';
-                    statusDot.style.boxShadow = '0 0 4px rgba(40, 167, 69, 0.5)';
-                    statusText.textContent = 'Connected to HikCentral';
-                    statusText.style.color = '#155724';
-                } else {
-                    statusDot.classList.remove('connected');
-                    statusDot.style.background = '#dc3545';
-                    statusDot.style.boxShadow = '0 0 4px rgba(220, 53, 69, 0.5)';
-                    statusText.textContent = 'Connection Failed';
-                    statusText.style.color = '#721c24';
-                }
-            } catch (error) {
-                statusDot.classList.remove('connected');
-                statusDot.style.background = '#dc3545';
-                statusDot.style.boxShadow = '0 0 4px rgba(220, 53, 69, 0.5)';
-                statusText.textContent = 'Connection Error';
-                statusText.style.color = '#721c24';
-            }
-        }
+        //         if (result.success && result.connected) {
+        //             statusDot.classList.add('connected');
+        //             statusDot.style.background = '#28a745';
+        //             statusDot.style.boxShadow = '0 0 4px rgba(40, 167, 69, 0.5)';
+        //             statusText.textContent = 'Connected to HikCentral';
+        //             statusText.style.color = '#155724';
+        //         } else {
+        //             statusDot.classList.remove('connected');
+        //             statusDot.style.background = '#dc3545';
+        //             statusDot.style.boxShadow = '0 0 4px rgba(220, 53, 69, 0.5)';
+        //             statusText.textContent = 'Connection Failed';
+        //             statusText.style.color = '#721c24';
+        //         }
+        //     } catch (error) {
+        //         statusDot.classList.remove('connected');
+        //         statusDot.style.background = '#dc3545';
+        //         statusDot.style.boxShadow = '0 0 4px rgba(220, 53, 69, 0.5)';
+        //         statusText.textContent = 'Connection Error';
+        //         statusText.style.color = '#721c24';
+        //     }
+        // }
 
         // Form validation functions
         function validateCreateForm() {
@@ -2213,10 +2213,8 @@
         window.onload = function() {
             loadResidents();
             loadLogs();
-            checkConnectionStatus();
-            
-            // Check connection status every 30 seconds
-            setInterval(checkConnectionStatus, 30000);
+            // checkConnectionStatus(); - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
+            // setInterval(checkConnectionStatus, 30000); - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
         };
     </script>
 </body>
