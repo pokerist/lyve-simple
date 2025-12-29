@@ -95,7 +95,7 @@ class HikCentralClient {
     const nonce = headers['X-Ca-Nonce'];
     const contentMd5 = headers['Content-MD5'] || '';
     
-    // Build string to sign
+    // Build string to sign - exact format from Python example
     const parts = [
       method,
       headers.Accept || '*/*',
@@ -110,12 +110,12 @@ class HikCentralClient {
 
     const stringToSign = parts.join('\n');
     
-    // Calculate HMAC-SHA256 and base64 encode
+    // Calculate HMAC-SHA256 and base64 encode - exact format from Python
     const signature = crypto.createHmac('sha256', this.appSecret)
       .update(stringToSign)
-      .digest();
+      .digest('base64');
     
-    return Buffer.from(signature).toString('base64');
+    return signature;
   }
 
   _buildHeaders(body) {
