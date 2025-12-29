@@ -96,18 +96,30 @@ class HikCentralClient {
     const contentMd5 = headers['Content-MD5'] || '';
     
     // Build string to sign - exact format from Python example
-    // For GET requests with no body, don't include Content-MD5 and Content-Type
-    const parts = [
-      method,
-      headers.Accept || '*/*',
-      body ? contentMd5 : '', // Only include Content-MD5 if body exists
-      body ? (headers['Content-Type'] || 'application/json') : '', // Only include Content-Type if body exists
-      headers.Date || new Date().toUTCString(),
-      `x-ca-key:${headers['X-Ca-Key']}`,
-      `x-ca-nonce:${nonce}`,
-      `x-ca-timestamp:${timestamp}`,
-      uri
-    ];
+    // For POST with no body (like version endpoint), use simplified format
+    let parts;
+    if (method === 'POST' && !body) {
+      // Simplified format for POST with no body (version endpoint)
+      parts = [
+        method,
+        '*/*', // Accept header
+        `x-ca-key:${headers['X-Ca-Key']}`,
+        uri
+      ];
+    } else {
+      // Standard format for other requests
+      parts = [
+        method,
+        headers.Accept || '*/*',
+        body ? contentMd5 : '', // Only include Content-MD5 if body exists
+        body ? (headers['Content-Type'] || 'application/json') : '', // Only include Content-Type if body exists
+        headers.Date || new Date().toUTCString(),
+        `x-ca-key:${headers['X-Ca-Key']}`,
+        `x-ca-nonce:${nonce}`,
+        `x-ca-timestamp:${timestamp}`,
+        uri
+      ];
+    }
 
     const stringToSign = parts.join('\n');
     
