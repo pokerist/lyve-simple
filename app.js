@@ -381,7 +381,7 @@ app.get('/identity', async (req, res) => {
       // Get dynamic QR code from HikCentral
       const qrData = {
         data: {
-          employeeID: row.person_id, // Note: HikCentral expects "employeeID" not "employeeId"
+          employeeID: row.person_code, // Use personCode (employeeID) not personId
           validity: 60, // 1 hour
           openLockTimes: 1,
           qrType: 0
