@@ -96,11 +96,12 @@ class HikCentralClient {
     const contentMd5 = headers['Content-MD5'] || '';
     
     // Build string to sign - exact format from Python example
+    // For GET requests with no body, don't include Content-MD5 and Content-Type
     const parts = [
       method,
       headers.Accept || '*/*',
-      contentMd5,
-      headers['Content-Type'] || 'application/json',
+      body ? contentMd5 : '', // Only include Content-MD5 if body exists
+      body ? (headers['Content-Type'] || 'application/json') : '', // Only include Content-Type if body exists
       headers.Date || new Date().toUTCString(),
       `x-ca-key:${headers['X-Ca-Key']}`,
       `x-ca-nonce:${nonce}`,
@@ -356,14 +357,21 @@ app.get('/identity', async (req, res) => {
         return res.status(500).json({ error: 'Database error' });
       }
 
-      if (!row || !row.person_id) {
-        return res.status(404).json({ error: 'Resident not found or not synced with HikCentral' });
+      if (!row) {
+        return res.status(404).json({ error: 'Resident not found' });
+      }
+
+      if (!row.person_id || row.person_id.trim() === '') {
+        return res.status(400).json({ 
+          error: 'Resident not synced with HikCentral',
+          message: 'Cannot generate QR code for resident without HikCentral personId. Please recreate the resident.'
+        });
       }
 
       // Get dynamic QR code from HikCentral
       const qrData = {
         data: {
-          employeeId: row.person_id,
+          employeeID: row.person_id, // Note: HikCentral expects "employeeID" not "employeeId"
           validity: 60, // 1 hour
           openLockTimes: 1,
           qrType: 0
