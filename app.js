@@ -207,6 +207,7 @@ app.get('/residents', async (req, res) => {
 
         const response = {
           ownerId: row.person_code,
+          personId: row.person_id,
           phone: row.phone,
           name: row.name,
           email: row.email,
@@ -214,7 +215,8 @@ app.get('/residents', async (req, res) => {
           type: row.type,
           from: row.from_date,
           to: row.to_date,
-          unitId: row.unit_id
+          unitId: row.unit_id,
+          synced: !!row.person_id
         };
 
         res.json(response);
@@ -237,6 +239,7 @@ app.get('/residents', async (req, res) => {
 
         const residents = rows.map(row => ({
           ownerId: row.person_code,
+          personId: row.person_id,
           phone: row.phone,
           name: row.name,
           email: row.email,
@@ -244,7 +247,8 @@ app.get('/residents', async (req, res) => {
           type: row.type,
           from: row.from_date,
           to: row.to_date,
-          unitId: row.unit_id
+          unitId: row.unit_id,
+          synced: !!row.person_id
         }));
 
         res.json(residents);
