@@ -145,20 +145,30 @@ class HikCentralClient {
   async makeRequest(endpoint, body = null) {
     const fullUrl = `${this.baseUrl}${endpoint}`;
     const bodyStr = body ? JSON.stringify(body) : '';
+    const method = body ? 'POST' : 'GET';
     
     const headers = this._buildHeaders(body ? body : null);
-    const signature = this._generateSignature('POST', endpoint, headers, body);
+    const signature = this._generateSignature(method, endpoint, headers, body);
     headers['X-Ca-Signature'] = signature;
 
     console.log(`Requesting: ${fullUrl}`);
     console.log('Headers:', JSON.stringify(headers, null, 2));
 
     try {
-      const response = await axios.post(fullUrl, body, {
-        headers,
-        httpsAgent: HIKCENTRAL_CONFIG.verifySSL ? undefined : new require('https').Agent({ rejectUnauthorized: false }),
-        timeout: 10000
-      });
+      let response;
+      if (body) {
+        response = await axios.post(fullUrl, body, {
+          headers,
+          httpsAgent: HIKCENTRAL_CONFIG.verifySSL ? undefined : new require('https').Agent({ rejectUnauthorized: false }),
+          timeout: 10000
+        });
+      } else {
+        response = await axios.get(fullUrl, {
+          headers,
+          httpsAgent: HIKCENTRAL_CONFIG.verifySSL ? undefined : new require('https').Agent({ rejectUnauthorized: false }),
+          timeout: 10000
+        });
+      }
 
       if (response.data.code === '0') {
         return response.data;
@@ -282,8 +292,8 @@ app.post('/residents', async (req, res) => {
       orgIndexCode: HIKCENTRAL_CONFIG.orgIndexCode,
       phoneNo: phone,
       email: email,
-      beginTime: from ? new Date(from).toISOString() : null,
-      endTime: to ? new Date(to).toISOString() : null
+      beginTime: from ? formatDateForHikCentral(from) : null,
+      endTime: to ? formatDateForHikCentral(to) : null
     };
 
     const hikCentralResponse = await hikCentralClient.makeRequest(
@@ -378,13 +388,22 @@ app.get('/identity', async (req, res) => {
         }
       };
 
+      console.log('DEBUG: QR Code Request Data:', JSON.stringify(qrData, null, 2));
+      console.log('DEBUG: Resident person_id:', row.person_id);
+      console.log('DEBUG: Resident person_code:', row.person_code);
+
       const hikCentralResponse = await hikCentralClient.makeRequest(
         '/artemis/api/resource/v1/person/dynamicqrcode/get',
         qrData
       );
 
+      console.log('DEBUG: HikCentral QR Response:', hikCentralResponse);
+
       if (!hikCentralResponse) {
-        return res.status(500).json({ error: 'Failed to get QR code from HikCentral' });
+        return res.status(500).json({ 
+          error: 'Failed to get QR code from HikCentral',
+          details: 'Check HikCentral logs for more information'
+        });
       }
 
       const response = {
@@ -541,6 +560,39 @@ function generatePersonCode() {
       }
     });
   });
+}
+
+// Helper function to format dates for HikCentral API
+function formatDateForHikCentral(dateString) {
+  try {
+    // Parse the input date (assuming YYYY-MM-DD format from frontend)
+    const date = new Date(dateString);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date format');
+    }
+    
+    // Format as ISO 8601 with timezone offset (e.g., "2025-01-01T00:00:00+02:00")
+    // Use the local timezone offset
+    const offset = date.getTimezoneOffset();
+    const offsetHours = Math.abs(Math.floor(offset / 60));
+    const offsetMinutes = Math.abs(offset % 60);
+    const offsetSign = offset >= 0 ? '-' : '+';
+    const offsetStr = `${offsetSign}${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}`;
+    
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = '00'; // Start of day
+    const minutes = '00';
+    const seconds = '00';
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetStr}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return null;
+  }
 }
 
 // Logging function
