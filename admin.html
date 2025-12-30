@@ -1865,7 +1865,7 @@
                     
                     // Update QR preview if available
                     if (result.qrCode) {
-                        updateQrPreview(result.qrCode);
+                        updateQrPreview(result.qrCode, 'identity');
                     }
                 } else {
                     if (status && statusText) {
@@ -1974,7 +1974,7 @@
                     // Generate QR code image from the extracted text data
                     if (result.qrCode) {
                         // Generate QR code image from the text using an online service
-                        updateQrPreview(result.qrCode);
+                        updateQrPreview(result.qrCode, 'visitor');
                     }
                 } else {
                     if (status && statusText) {
@@ -2142,9 +2142,24 @@
             }
         }
 
-        function updateQrPreview(qrCode) {
+        function updateQrPreview(qrCode, tab) {
             // Generate QR code image from text data using an online service
-            const qrPlaceholder = document.querySelector('.qr-placeholder');
+            let qrPlaceholder;
+            
+            // Select the correct QR code placeholder based on the tab
+            if (tab === 'identity') {
+                // Find the QR code placeholder in the "Get Identity" tab
+                const identityTab = document.getElementById('get-identity');
+                qrPlaceholder = identityTab.querySelector('.qr-placeholder');
+            } else if (tab === 'visitor') {
+                // Find the QR code placeholder in the "Visitor QR" tab
+                const visitorTab = document.getElementById('visitor-qr');
+                qrPlaceholder = visitorTab.querySelector('.qr-placeholder');
+            } else {
+                // Fallback to first QR code placeholder if tab is not specified
+                qrPlaceholder = document.querySelector('.qr-placeholder');
+            }
+
             if (qrPlaceholder && qrCode) {
                 // Generate QR code image from the text using an online service
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`;
@@ -2154,12 +2169,14 @@
                 `;
             } else {
                 // Fallback to placeholder if no QR code data
-                qrPlaceholder.innerHTML = `
-                    <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
-                        QR Code will be generated here
-                    </div>
-                    <small style="margin-top: 10px; display: block; color: #666;">QR Code Preview</small>
-                `;
+                if (qrPlaceholder) {
+                    qrPlaceholder.innerHTML = `
+                        <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            QR Code will be generated here
+                        </div>
+                        <small style="margin-top: 10px; display: block; color: #666;">QR Code Preview</small>
+                    `;
+                }
             }
         }
 
