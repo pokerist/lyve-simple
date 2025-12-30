@@ -204,7 +204,7 @@ async function getVisitorQRCode(visitorId) {
   const qrData = {
     visitorId: visitorId
   };
-  return await hikCentralClient.makeRequest('/api/visitor/v1/visitor/qr/get', qrData);
+  return await hikCentralClient.makeRequest('/artemis/api/visitor/v1/visitor/qr/get', qrData);
 }
 
 // API Routes
