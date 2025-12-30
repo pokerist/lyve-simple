@@ -25,6 +25,7 @@ app.use(securityHeaders);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname))); // Serve static files
 app.use(require('cors')(corsOptions));
 app.use(createRateLimit());
 app.use(requestLogger);
