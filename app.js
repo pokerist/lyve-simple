@@ -5,6 +5,7 @@ const cors = require('cors');
 const crypto = require('crypto');
 const path = require('path');
 const jsQR = require('jsqr');
+const PNG = require('pngjs').PNG;
 require('dotenv').config();
 
 const app = express();
@@ -570,44 +571,27 @@ async function extractQRCodeText(base64Image) {
       // Convert base64 to buffer
       const buffer = Buffer.from(base64Image, 'base64');
       
-      // For jsQR, we need to decode the PNG to get pixel data
-      // Since jsQR works with raw pixel data, we'll need to use a PNG decoder
-      // For now, let's use a simple approach and assume the QR code contains
-      // the appointRecordId or a simple identifier
-      
-      // Since we can't easily decode PNG in this environment without additional libraries,
-      // we'll extract a meaningful text from the available data
-      // In a real implementation, you would use a PNG decoder like 'pngjs' or 'sharp'
-      
-      // For now, return a meaningful identifier based on the appointment record
-      resolve(`VISITOR_${Date.now()}`);
-      
-      // Future implementation would be:
-      /*
-      const PNG = require('pngjs').PNG;
+      // Decode PNG image using pngjs
       const png = PNG.sync.read(buffer);
       
-      // Convert RGBA to grayscale for jsQR
+      // jsQR expects RGBA data, not grayscale
+      // Convert RGBA to the format jsQR expects
       const width = png.width;
       const height = png.height;
-      const grayscaleData = new Uint8ClampedArray(width * height);
+      const rgbaData = new Uint8ClampedArray(png.data);
       
-      for (let i = 0; i < png.data.length; i += 4) {
-        const r = png.data[i];
-        const g = png.data[i + 1];
-        const b = png.data[i + 2];
-        // Convert to grayscale
-        grayscaleData[i / 4] = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
-      }
+      // Use jsQR to decode the QR code
+      const code = jsQR(rgbaData, width, height);
       
-      const code = jsQR(grayscaleData, width, height);
       if (code) {
+        console.log('DEBUG: Successfully extracted QR code data:', code.data);
         resolve(code.data);
       } else {
+        console.log('DEBUG: No QR code found in image');
         reject(new Error('No QR code found in image'));
       }
-      */
     } catch (error) {
+      console.error('Error extracting QR code text:', error);
       reject(error);
     }
   });
