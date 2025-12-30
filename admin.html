@@ -1971,17 +1971,10 @@
                     showToast('Visitor QR generated successfully!', 'success');
                     
                     // Update QR preview if available
-                    // Check for both the expected format and the actual HikCentral format
-                    const qrCodeData = result.qrCode || (result.data && result.data.qrCodeImage);
-                    const qrCodeImage = result.qrCodeImage || (result.data && result.data.qrCodeImage);
-                    
-                    if (qrCodeImage) {
-                        // Display the actual QR code image from HikCentral
-                        const qrCodeImageUrl = qrCodeImage.startsWith('data:') ? qrCodeImage : `data:image/png;base64,${qrCodeImage}`;
-                        updateQrPreview(qrCodeImageUrl, true);
-                    } else if (qrCodeData) {
-                        // Fallback to text-based QR code if no image available
-                        updateQrPreview(qrCodeData, false);
+                    // Generate QR code image from the extracted text data
+                    if (result.qrCode) {
+                        // Generate QR code image from the text using an online service
+                        updateQrPreview(result.qrCode);
                     }
                 } else {
                     if (status && statusText) {
@@ -2150,33 +2143,23 @@
         }
 
         function updateQrPreview(qrCode) {
-            // Create a QR code image from the base64 data
+            // Generate QR code image from text data using an online service
             const qrPlaceholder = document.querySelector('.qr-placeholder');
-            if (qrPlaceholder) {
-                // Check if the qrCode is base64 data
-                if (qrCode && qrCode.startsWith('data:image/')) {
-                    // It's already a data URL, use it directly
-                    qrPlaceholder.innerHTML = `
-                        <img src="${qrCode}" alt="QR Code" style="width: 200px; height: 200px; border-radius: 4px;">
-                        <small style="margin-top: 10px; display: block; color: #666;">QR Code Image</small>
-                    `;
-                } else if (qrCode) {
-                    // It's text data, create a simple QR code using an online service
-                    // For demo purposes, we'll use a QR code generator service
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`;
-                    qrPlaceholder.innerHTML = `
-                        <img src="${qrUrl}" alt="QR Code" style="width: 200px; height: 200px; border-radius: 4px;">
-                        <small style="margin-top: 10px; display: block; color: #666;">QR Code for: ${qrCode}</small>
-                    `;
-                } else {
-                    // Fallback to placeholder
-                    qrPlaceholder.innerHTML = `
-                        <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
-                            QR Code will be generated here
-                        </div>
-                        <small style="margin-top: 10px; display: block; color: #666;">QR Code Preview</small>
-                    `;
-                }
+            if (qrPlaceholder && qrCode) {
+                // Generate QR code image from the text using an online service
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`;
+                qrPlaceholder.innerHTML = `
+                    <img src="${qrUrl}" alt="QR Code" style="width: 200px; height: 200px; border-radius: 4px;">
+                    <small style="margin-top: 10px; display: block; color: #666;">QR Code for: ${qrCode}</small>
+                `;
+            } else {
+                // Fallback to placeholder if no QR code data
+                qrPlaceholder.innerHTML = `
+                    <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                        QR Code will be generated here
+                    </div>
+                    <small style="margin-top: 10px; display: block; color: #666;">QR Code Preview</small>
+                `;
             }
         }
 
