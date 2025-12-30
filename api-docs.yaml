@@ -1,0 +1,1251 @@
+openapi: 3.0.3
+info:
+  title: HikCentral Middleware API
+  description: |
+    Production-ready middleware system that connects Lyve with HikCentral, exposing REST APIs that match the Lyve APIs exactly while internally calling HikCentral APIs.
+    
+    ## Security
+    - All external APIs are publicly accessible (as per Lyve specification)
+    - Admin dashboard requires authentication with username "admin" and password "Smart@1150"
+    - Input validation and rate limiting implemented
+    - Comprehensive logging for security monitoring
+    
+    ## Features
+    - **Lyve-Compatible APIs**: Exposes REST endpoints that match Lyve API specifications exactly
+    - **HikCentral Integration**: Internally calls HikCentral APIs with proper authentication
+    - **Local Database**: SQLite database as source of truth for resident data
+    - **Auto-increment IDs**: Generates numeric IDs that serve as personCode for HikCentral
+    - **Soft Delete**: Never hard-deletes residents, uses status field instead
+    - **Date Validation**: Automatically adjusts dates to maximum 10-year range for HikCentral compatibility
+    - **Production Ready**: Security, logging, monitoring, and deployment infrastructure
+  version: 1.0.0
+  contact:
+    name: HikCentral Middleware Team
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://middleware.hpd-lc.com
+    description: Production server
+
+tags:
+  - name: Residents
+    description: Resident management operations
+  - name: Authentication
+    description: Admin authentication and session management
+  - name: Configuration
+    description: Application configuration management
+  - name: Monitoring
+    description: Health checks and monitoring endpoints
+
+paths:
+  /residents:
+    get:
+      tags:
+        - Residents
+      summary: Get resident(s)
+      description: |
+        Retrieve resident(s) from the local database. Can retrieve all residents or a specific resident by email and community.
+        
+        **Note**: This endpoint is publicly accessible to maintain Lyve API compatibility.
+      parameters:
+        - name: email
+          in: query
+          description: Filter by resident email address
+          required: false
+          schema:
+            type: string
+            format: email
+            example: john@example.com
+        - name: community
+          in: query
+          description: Filter by community (when using email)
+          required: false
+          schema:
+            type: string
+            example: GreenHills
+        - name: ownerId
+          in: query
+          description: Filter by owner ID (NEW: Support ownerId parameter)
+          required: false
+          schema:
+            type: string
+            example: 123
+      responses:
+        '200':
+          description: Resident(s) retrieved successfully
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Resident'
+                  - $ref: '#/components/schemas/Resident'
+              examples:
+                singleResident:
+                  summary: Single resident response
+                  value:
+                    ownerId: "123"
+                    personId: "hikcentral-456"
+                    name: "John Doe"
+                    email: "john@example.com"
+                    phone: "+1234567890"
+                    community: "GreenHills"
+                    type: "resident"
+                    from: "2025-01-01T00:00:00+02:00"
+                    to: "2025-12-31T23:59:59+02:00"
+                    unitId: "U1001"
+                    synced: true
+                multipleResidents:
+                  summary: Multiple residents response
+                  value:
+                    - ownerId: "123"
+                      personId: "hikcentral-456"
+                      name: "John Doe"
+                      email: "john@example.com"
+                      phone: "+1234567890"
+                      community: "GreenHills"
+                      type: "resident"
+                      from: "2025-01-01T00:00:00+02:00"
+                      to: "2025-12-31T23:59:59+02:00"
+                      unitId: "U1001"
+                      synced: true
+                    - ownerId: "124"
+                      personId: "hikcentral-457"
+                      name: "Jane Smith"
+                      email: "jane@example.com"
+                      phone: "+1234567891"
+                      community: "GreenHills"
+                      type: "tenant"
+                      from: "2025-02-01T00:00:00+02:00"
+                      to: "2025-12-31T23:59:59+02:00"
+                      unitId: "U1002"
+                      synced: true
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalidEmail:
+                  summary: Invalid email format
+                  value:
+                    success: false
+                    error: "Validation failed"
+                    errors: ["email must be a valid email"]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Residents
+      summary: Create new resident
+      description: |
+        Create a new resident in both the local database and HikCentral system.
+        
+        **Important**: Date ranges are automatically validated and adjusted to maximum 10 years for HikCentral compatibility.
+        
+        **Note**: This endpoint is publicly accessible to maintain Lyve API compatibility.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateResidentRequest'
+            examples:
+              basicResident:
+                summary: Basic resident creation
+                value:
+                  name: "John Doe"
+                  email: "john@example.com"
+                  phone: "+1234567890"
+                  community: "GreenHills"
+                  from: "2025-01-01"
+                  to: "2025-12-31"
+                  type: "resident"
+                  unitId: "U1001"
+              withDateAdjustment:
+                summary: Resident with date adjustment
+                value:
+                  name: "Jane Smith"
+                  email: "jane@example.com"
+                  phone: "+1234567891"
+                  community: "PalmHeights"
+                  from: "2025-01-01"
+                  to: "2036-01-01"
+                  type: "tenant"
+                  unitId: "U2002"
+      responses:
+        '201':
+          description: Resident created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateResidentResponse'
+              examples:
+                successResponse:
+                  summary: Successful creation
+                  value:
+                    ownerId: "123"
+                    phone: "+1234567890"
+                    name: "John Doe"
+                    email: "john@example.com"
+                    community: "GreenHills"
+                    type: "resident"
+                    from: "2025-01-01T00:00:00+02:00"
+                    to: "2025-12-31T23:59:59+02:00"
+                    unitId: "U1001"
+                    hikCentralPersonId: "hikcentral-456"
+                withDateAdjustment:
+                  summary: Creation with date adjustment
+                  value:
+                    ownerId: "124"
+                    phone: "+1234567891"
+                    name: "Jane Smith"
+                    email: "jane@example.com"
+                    community: "PalmHeights"
+                    type: "tenant"
+                    from: "2025-01-01T00:00:00+02:00"
+                    to: "2035-01-01T00:00:00+02:00"
+                    unitId: "U2002"
+                    hikCentralPersonId: "hikcentral-457"
+                    dateAdjustment:
+                      originalFrom: "2025-01-01T00:00:00+02:00"
+                      originalTo: "2036-01-01T00:00:00+02:00"
+                      adjustedFrom: "2025-01-01T00:00:00+02:00"
+                      adjustedTo: "2035-01-01T00:00:00+02:00"
+                      reason: "Date range exceeded 10 years, adjusted to maximum allowed duration"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                validationError:
+                  summary: Validation failed
+                  value:
+                    success: false
+                    error: "Date validation failed"
+                    message: "Start date must be before end date"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                hikcentralError:
+                  summary: HikCentral creation failed
+                  value:
+                    success: false
+                    error: "Failed to create resident in HikCentral: Invalid date range"
+                    details: "Local data not created due to HikCentral failure"
+
+  /identity:
+    get:
+      tags:
+        - Residents
+      summary: Get dynamic QR code
+      description: |
+        Retrieve a resident's dynamic QR code for access. Requires resident to be synced with HikCentral.
+        
+        **Note**: This endpoint is publicly accessible to maintain Lyve API compatibility.
+      parameters:
+        - name: unitId
+          in: query
+          description: Unit identifier
+          required: true
+          schema:
+            type: string
+            example: U1001
+        - name: ownerId
+          in: query
+          description: Resident's owner ID
+          required: true
+          schema:
+            type: string
+            example: 123
+      responses:
+        '200':
+          description: Identity retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityResponse'
+              examples:
+                successResponse:
+                  summary: Successful retrieval
+                  value:
+                    id: "1"
+                    ownerId: "123"
+                    ownerType: "resident"
+                    unitId: "U1001"
+                    qrCode: "QR1234567890"
+        '400':
+          description: Resident not synced with HikCentral
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notSynced:
+                  summary: Resident not synced
+                  value:
+                    success: false
+                    error: "Resident not synced with HikCentral"
+                    message: "Cannot generate QR code for resident without HikCentral personId. Please recreate the resident."
+        '404':
+          description: Resident not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFound:
+                  summary: Resident not found
+                  value:
+                    success: false
+                    error: "Resident not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /visitor-qr:
+    get:
+      tags:
+        - Residents
+      summary: Generate visitor QR code
+      description: |
+        Create a temporary QR code for visitors. Requires resident to be synced with HikCentral.
+        
+        **Note**: This endpoint is publicly accessible to maintain Lyve API compatibility.
+      parameters:
+        - name: unitId
+          in: query
+          description: Unit identifier
+          required: true
+          schema:
+            type: string
+            example: U1001
+        - name: ownerId
+          in: query
+          description: Resident's owner ID (host)
+          required: true
+          schema:
+            type: string
+            example: 123
+        - name: visitorName
+          in: query
+          description: Full name of the visitor
+          required: true
+          schema:
+            type: string
+            example: "Jane Smith"
+        - name: visitDate
+          in: query
+          description: Date of the visit
+          required: true
+          schema:
+            type: string
+            format: date
+            example: "2025-01-15"
+      responses:
+        '200':
+          description: Visitor QR generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisitorQRResponse'
+              examples:
+                successResponse:
+                  summary: Successful generation
+                  value:
+                    visitId: "visit-456"
+                    unitId: "U1001"
+                    ownerId: "123"
+                    ownerType: "resident"
+                    visitorName: "Jane Smith"
+                    visitDate: "2025-01-15"
+                    qrCode: "VISITOR123456"
+        '404':
+          description: Resident not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFound:
+                  summary: Resident not found
+                  value:
+                    success: false
+                    error: "Resident not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /residents:
+    delete:
+      tags:
+        - Residents
+      summary: Soft delete resident
+      description: |
+        Soft delete a resident from the system. Marks them as deleted rather than removing them completely.
+        
+        **Note**: This endpoint is publicly accessible to maintain Lyve API compatibility.
+      parameters:
+        - name: ownerId
+          in: query
+          description: Resident's owner ID to delete
+          required: true
+          schema:
+            type: string
+            example: 123
+        - name: unitId
+          in: query
+          description: Unit ID (optional)
+          required: false
+          schema:
+            type: string
+            example: U1001
+      responses:
+        '200':
+          description: Resident deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResidentResponse'
+              examples:
+                successResponse:
+                  summary: Successful deletion
+                  value:
+                    success: true
+        '404':
+          description: Resident not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFound:
+                  summary: Resident not found
+                  value:
+                    success: false
+                    error: "Resident not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /hikcentral/version:
+    get:
+      tags:
+        - Monitoring
+      summary: Test HikCentral connection
+      description: Test connection to HikCentral server
+      responses:
+        '200':
+          description: Connection test completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionTestResponse'
+              examples:
+                success:
+                  summary: Connection successful
+                  value:
+                    success: true
+                    connected: true
+                    version: "HikCentral Version Info"
+                    message: "HikCentral connection successful"
+                failed:
+                  summary: Connection failed
+                  value:
+                    success: false
+                    connected: false
+                    message: "Failed to connect to HikCentral"
+                    error: "Connection timeout"
+
+  /admin/login:
+    post:
+      tags:
+        - Authentication
+      summary: Admin login
+      description: Authenticate admin user and create session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              validLogin:
+                summary: Valid login
+                value:
+                  username: "admin"
+                  password: "Smart@1150"
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: Session token cookie
+              schema:
+                type: string
+                example: "sessionToken=abc123; HttpOnly; Secure; SameSite=Strict"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                success:
+                  summary: Login successful
+                  value:
+                    success: true
+                    message: "Authentication successful"
+                    expiresAt: "2025-12-30T14:00:00.000Z"
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalidCredentials:
+                  summary: Invalid username or password
+                  value:
+                    success: false
+                    message: "Username and password are required"
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                authFailed:
+                  summary: Authentication failed
+                  value:
+                    success: false
+                    message: "Authentication required"
+                    error: "Invalid username or password"
+
+  /admin/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Admin logout
+      description: Logout admin user and clear session
+      responses:
+        '200':
+          description: Logout successful
+          headers:
+            Set-Cookie:
+              description: Cleared session cookie
+              schema:
+                type: string
+                example: "sessionToken=; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+              examples:
+                success:
+                  summary: Logout successful
+                  value:
+                    success: true
+                    message: "Logged out successfully"
+
+  /admin/config:
+    get:
+      tags:
+        - Configuration
+      summary: Get all configuration
+      description: Retrieve all application configuration settings
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+              examples:
+                config:
+                  summary: Configuration settings
+                  value:
+                    success: true
+                    config:
+                      HIKCENTRAL_BASE_URL:
+                        value: "https://192.168.1.101/artemis"
+                        type: "string"
+                        description: "HikCentral base URL"
+                        updated_at: "2025-12-30T12:00:00.000Z"
+                      HIKCENTRAL_APP_KEY:
+                        value: "27108141"
+                        type: "string"
+                        description: "HikCentral app key"
+                        updated_at: "2025-12-30T12:00:00.000Z"
+                      ADMIN_PASSWORD_HASH:
+                        value: "$2b$10$..."
+                        type: "string"
+                        description: "Admin password hash"
+                        updated_at: "2025-12-30T12:00:00.000Z"
+
+    put:
+      tags:
+        - Configuration
+      summary: Update configuration
+      description: Update a specific configuration setting
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConfigRequest'
+            examples:
+              updateBaseUrl:
+                summary: Update HikCentral base URL
+                value:
+                  key: "HIKCENTRAL_BASE_URL"
+                  value: "https://new-hikcentral.example.com/artemis"
+                  type: "string"
+                  description: "Updated HikCentral base URL"
+      responses:
+        '200':
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateConfigResponse'
+              examples:
+                success:
+                  summary: Update successful
+                  value:
+                    success: true
+                    message: "Configuration updated successfully"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/logs:
+    get:
+      tags:
+        - Monitoring
+      summary: Get API logs
+      description: Retrieve recent API request logs
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of logs to return (default: 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+      responses:
+        '200':
+          description: Logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogsResponse'
+              examples:
+                logs:
+                  summary: API logs
+                  value:
+                    success: true
+                    logs:
+                      - timestamp: "2025-12-30T12:00:00.000Z"
+                        method: "POST"
+                        url: "/residents"
+                        ip: "192.168.1.100"
+                        userAgent: "Mozilla/5.0..."
+                        statusCode: 201
+                        responseTime: 150
+                        body:
+                          name: "John Doe"
+                          email: "john@example.com"
+                      - timestamp: "2025-12-30T12:01:00.000Z"
+                        method: "GET"
+                        url: "/identity?unitId=U1001&ownerId=123"
+                        ip: "192.168.1.100"
+                        userAgent: "Mozilla/5.0..."
+                        statusCode: 200
+                        responseTime: 200
+
+  /admin/health:
+    get:
+      tags:
+        - Monitoring
+      summary: Health check
+      description: Check application health status
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Health check completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                healthy:
+                  summary: Application healthy
+                  value:
+                    success: true
+                    health:
+                      status: "healthy"
+                      timestamp: "2025-12-30T12:00:00.000Z"
+                      uptime: 3600
+                      memory:
+                        rss: 52428800
+                        heapTotal: 20971520
+                        heapUsed: 10485760
+                        external: 1024000
+                      configKeys: 10
+                      recentLogs: 50
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionToken
+
+  schemas:
+    Resident:
+      type: object
+      properties:
+        ownerId:
+          type: string
+          description: Unique owner identifier
+          example: "123"
+        personId:
+          type: string
+          description: HikCentral person ID
+          example: "hikcentral-456"
+        phone:
+          type: string
+          description: Resident phone number
+          example: "+1234567890"
+        name:
+          type: string
+          description: Resident full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Resident email address
+          example: "john@example.com"
+        community:
+          type: string
+          description: Community identifier
+          example: "GreenHills"
+        type:
+          type: string
+          description: Resident type
+          enum: [resident, tenant, family_member, staff, visitor]
+          example: "resident"
+        from:
+          type: string
+          format: date-time
+          description: Start date of validity
+          example: "2025-01-01T00:00:00+02:00"
+        to:
+          type: string
+          format: date-time
+          description: End date of validity
+          example: "2025-12-31T23:59:59+02:00"
+        unitId:
+          type: string
+          description: Unit identifier
+          example: "U1001"
+        synced:
+          type: boolean
+          description: Whether resident is synced with HikCentral
+          example: true
+
+    CreateResidentRequest:
+      type: object
+      required:
+        - name
+        - email
+        - community
+        - from
+        - to
+        - unitId
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Resident full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Resident email address
+          example: "john@example.com"
+        phone:
+          type: string
+          pattern: "^[+]?[\\d\\s\\-\\(\\)]{7,20}$"
+          description: Resident phone number
+          example: "+1234567890"
+        community:
+          type: string
+          maxLength: 50
+          description: Community identifier
+          example: "GreenHills"
+        from:
+          type: string
+          format: date
+          description: Start date of validity
+          example: "2025-01-01"
+        to:
+          type: string
+          format: date
+          description: End date of validity
+          example: "2025-12-31"
+        type:
+          type: string
+          enum: [resident, tenant, family_member, staff, visitor]
+          default: "resident"
+          description: Resident type
+          example: "resident"
+        unitId:
+          type: string
+          maxLength: 50
+          description: Unit identifier
+          example: "U1001"
+
+    CreateResidentResponse:
+      type: object
+      properties:
+        ownerId:
+          type: string
+          description: Unique owner identifier
+          example: "123"
+        phone:
+          type: string
+          description: Resident phone number
+          example: "+1234567890"
+        name:
+          type: string
+          description: Resident full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Resident email address
+          example: "john@example.com"
+        community:
+          type: string
+          description: Community identifier
+          example: "GreenHills"
+        type:
+          type: string
+          description: Resident type
+          example: "resident"
+        from:
+          type: string
+          format: date-time
+          description: Start date of validity
+          example: "2025-01-01T00:00:00+02:00"
+        to:
+          type: string
+          format: date-time
+          description: End date of validity
+          example: "2025-12-31T23:59:59+02:00"
+        unitId:
+          type: string
+          description: Unit identifier
+          example: "U1001"
+        hikCentralPersonId:
+          type: string
+          description: HikCentral person ID
+          example: "hikcentral-456"
+        dateAdjustment:
+          type: object
+          description: Date adjustment information (if applicable)
+          properties:
+            originalFrom:
+              type: string
+              format: date-time
+              description: Original start date
+              example: "2025-01-01T00:00:00+02:00"
+            originalTo:
+              type: string
+              format: date-time
+              description: Original end date
+              example: "2036-01-01T00:00:00+02:00"
+            adjustedFrom:
+              type: string
+              format: date-time
+              description: Adjusted start date
+              example: "2025-01-01T00:00:00+02:00"
+            adjustedTo:
+              type: string
+              format: date-time
+              description: Adjusted end date
+              example: "2035-01-01T00:00:00+02:00"
+            reason:
+              type: string
+              description: Reason for adjustment
+              example: "Date range exceeded 10 years, adjusted to maximum allowed duration"
+
+    IdentityResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identity identifier
+          example: "1"
+        ownerId:
+          type: string
+          description: Owner identifier
+          example: "123"
+        ownerType:
+          type: string
+          description: Type of owner
+          example: "resident"
+        unitId:
+          type: string
+          description: Unit identifier
+          example: "U1001"
+        qrCode:
+          type: string
+          description: Dynamic QR code for access
+          example: "QR1234567890"
+
+    VisitorQRResponse:
+      type: object
+      properties:
+        visitId:
+          type: string
+          description: Unique visit identifier
+          example: "visit-456"
+        unitId:
+          type: string
+          description: Unit identifier
+          example: "U1001"
+        ownerId:
+          type: string
+          description: Owner identifier
+          example: "123"
+        ownerType:
+          type: string
+          description: Owner type
+          example: "resident"
+        visitorName:
+          type: string
+          description: Visitor name
+          example: "Jane Smith"
+        visitDate:
+          type: string
+          format: date
+          description: Visit date
+          example: "2025-01-15"
+        qrCode:
+          type: string
+          description: Generated visitor QR code
+          example: "VISITOR123456"
+
+    DeleteResidentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation succeeded
+          example: true
+
+    ConnectionTestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the connection test succeeded
+          example: true
+        connected:
+          type: boolean
+          description: Whether HikCentral is connected
+          example: true
+        version:
+          type: object
+          description: HikCentral version information
+          example: "HikCentral Version Info"
+        message:
+          type: string
+          description: Connection test message
+          example: "HikCentral connection successful"
+        error:
+          type: string
+          description: Error message (if connection failed)
+          example: "Connection timeout"
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: Admin username
+          example: "admin"
+        password:
+          type: string
+          description: Admin password
+          example: "Smart@1150"
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether login succeeded
+          example: true
+        message:
+          type: string
+          description: Login message
+          example: "Authentication successful"
+        expiresAt:
+          type: string
+          format: date-time
+          description: Session expiration time
+          example: "2025-12-30T14:00:00.000Z"
+
+    LogoutResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether logout succeeded
+          example: true
+        message:
+          type: string
+          description: Logout message
+          example: "Logged out successfully"
+
+    ConfigResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request succeeded
+          example: true
+        config:
+          type: object
+          description: Configuration settings
+          additionalProperties:
+            type: object
+            properties:
+              value:
+                type: any
+                description: Configuration value
+              type:
+                type: string
+                description: Configuration type
+                enum: [string, number, boolean]
+              description:
+                type: string
+                description: Configuration description
+              updated_at:
+                type: string
+                format: date-time
+                description: Last update time
+
+    UpdateConfigRequest:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          description: Configuration key
+          example: "HIKCENTRAL_BASE_URL"
+        value:
+          type: any
+          description: Configuration value
+          example: "https://new-hikcentral.example.com/artemis"
+        type:
+          type: string
+          enum: [string, number, boolean]
+          default: "string"
+          description: Configuration type
+          example: "string"
+        description:
+          type: string
+          description: Configuration description
+          example: "Updated HikCentral base URL"
+
+    UpdateConfigResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the update succeeded
+          example: true
+        message:
+          type: string
+          description: Update message
+          example: "Configuration updated successfully"
+
+    LogsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request succeeded
+          example: true
+        logs:
+          type: array
+          description: API request logs
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+                description: Request timestamp
+                example: "2025-12-30T12:00:00.000Z"
+              method:
+                type: string
+                description: HTTP method
+                enum: [GET, POST, PUT, DELETE, OPTIONS]
+                example: "POST"
+              url:
+                type: string
+                description: Request URL
+                example: "/residents"
+              ip:
+                type: string
+                description: Client IP address
+                example: "192.168.1.100"
+              userAgent:
+                type: string
+                description: User agent
+                example: "Mozilla/5.0..."
+              statusCode:
+                type: integer
+                description: HTTP status code
+                example: 201
+              responseTime:
+                type: integer
+                description: Response time in milliseconds
+                example: 150
+              body:
+                type: object
+                description: Request body (for POST requests)
+                example:
+                  name: "John Doe"
+                  email: "john@example.com"
+
+    HealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the health check succeeded
+          example: true
+        health:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Health status
+              enum: [healthy, unhealthy]
+              example: "healthy"
+            timestamp:
+              type: string
+              format: date-time
+              description: Health check timestamp
+              example: "2025-12-30T12:00:00.000Z"
+            uptime:
+              type: number
+              description: Application uptime in seconds
+              example: 3600
+            memory:
+              type: object
+              description: Memory usage statistics
+              properties:
+                rss:
+                  type: number
+                  description: Resident set size
+                  example: 52428800
+                heapTotal:
+                  type: number
+                  description: Total heap size
+                  example: 20971520
+                heapUsed:
+                  type: number
+                  description: Used heap size
+                  example: 10485760
+                external:
+                  type: number
+                  description: External memory usage
+                  example: 1024000
+            configKeys:
+              type: integer
+              description: Number of configuration keys
+              example: 10
+            recentLogs:
+              type: integer
+              description: Number of recent logs
+              example: 50
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request succeeded
+          example: false
+        error:
+          type: string
+          description: Error message
+          example: "Internal server error"
+        message:
+          type: string
+          description: Additional error details
+          example: "Database connection failed"
+        errors:
+          type: array
+          description: Validation errors
+          items:
+            type: string
+          example: ["email must be a valid email", "name is required"]
