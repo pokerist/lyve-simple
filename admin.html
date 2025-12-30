@@ -845,7 +845,7 @@
         }
 
         function validateSession(token) {
-            fetch('/admin/health', {
+            fetch(getApiBaseUrl() + '/admin/health', {
                 headers: {
                     'X-Session-Token': token
                 }
@@ -875,7 +875,7 @@
             spinner.style.display = 'inline-block';
             errorDiv.style.display = 'none';
 
-            fetch('/admin/login', {
+            fetch(getApiBaseUrl() + '/admin/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -904,7 +904,7 @@
         }
 
         function logout() {
-            fetch('/admin/logout', {
+            fetch(getApiBaseUrl() + '/admin/logout', {
                 method: 'POST',
                 headers: {
                     'X-Session-Token': sessionToken
@@ -954,8 +954,13 @@
         }
 
         // API Functions
+        function getApiBaseUrl() {
+            // Use current origin for reverse proxy compatibility
+            return window.location.origin;
+        }
+
         function loadResidents() {
-            fetch('/residents', {
+            fetch(getApiBaseUrl() + '/residents', {
                 headers: {
                     'X-Session-Token': sessionToken
                 }
@@ -1013,7 +1018,7 @@
             const spinner = document.getElementById('createSpinner');
             spinner.style.display = 'inline-block';
 
-            fetch('/residents', {
+            fetch(getApiBaseUrl() + '/residents', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1051,7 +1056,7 @@
             const spinner = document.getElementById('getIdentitySpinner');
             spinner.style.display = 'inline-block';
 
-            fetch(`/identity?unitId=${encodeURIComponent(unitId)}&ownerId=${encodeURIComponent(ownerId)}`, {
+            fetch(getApiBaseUrl() + `/identity?unitId=${encodeURIComponent(unitId)}&ownerId=${encodeURIComponent(ownerId)}`, {
                 headers: {
                     'X-Session-Token': sessionToken
                 }
@@ -1086,7 +1091,7 @@
             const spinner = document.getElementById('getVisitorSpinner');
             spinner.style.display = 'inline-block';
 
-            fetch(`/visitor-qr?unitId=${encodeURIComponent(unitId)}&ownerId=${encodeURIComponent(ownerId)}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${encodeURIComponent(visitDate)}`, {
+            fetch(getApiBaseUrl() + `/visitor-qr?unitId=${encodeURIComponent(unitId)}&ownerId=${encodeURIComponent(ownerId)}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${encodeURIComponent(visitDate)}`, {
                 headers: {
                     'X-Session-Token': sessionToken
                 }
@@ -1122,7 +1127,7 @@
             const spinner = document.getElementById('deleteSpinner');
             spinner.style.display = 'inline-block';
 
-            fetch(`/residents?ownerId=${encodeURIComponent(ownerId)}`, {
+            fetch(getApiBaseUrl() + `/residents?ownerId=${encodeURIComponent(ownerId)}`, {
                 method: 'DELETE',
                 headers: {
                     'X-Session-Token': sessionToken
@@ -1148,7 +1153,7 @@
 
         // Configuration Functions
         function loadConfig() {
-            fetch('/admin/config', {
+            fetch(getApiBaseUrl() + '/admin/config', {
                 headers: {
                     'X-Session-Token': sessionToken
                 }
@@ -1188,7 +1193,7 @@
             const row = button.closest('tr');
             const value = row.querySelector('input').value;
             
-            fetch('/admin/config', {
+            fetch(getApiBaseUrl() + '/admin/config', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1226,7 +1231,7 @@
                 return;
             }
 
-            fetch('/admin/password', {
+            fetch(getApiBaseUrl() + '/admin/password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1255,7 +1260,7 @@
         function loadLogs() {
             const limit = document.getElementById('logsLimit').value;
             
-            fetch(`/admin/logs?limit=${limit}`, {
+            fetch(getApiBaseUrl() + `/admin/logs?limit=${limit}`, {
                 headers: {
                     'X-Session-Token': sessionToken
                 }
@@ -1293,7 +1298,7 @@
 
         function clearLogs() {
             if (confirm('Are you sure you want to clear all logs?')) {
-                fetch('/admin/logs/clear', {
+                fetch(getApiBaseUrl() + '/admin/logs/clear', {
                     method: 'POST',
                     headers: {
                         'X-Session-Token': sessionToken
