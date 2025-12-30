@@ -568,20 +568,28 @@ app.get('/visitor-qr', async (req, res) => {
 async function extractQRCodeText(base64Image) {
   return new Promise((resolve, reject) => {
     try {
+      // Handle data URI format if present
+      let base64Data = base64Image;
+      if (base64Image.startsWith('data:image/png;base64,')) {
+        base64Data = base64Image.substring('data:image/png;base64,'.length);
+        console.log('DEBUG: Stripped data URI prefix');
+      }
+      
+      // Validate base64 string
+      if (!base64Data || base64Data.length === 0) {
+        throw new Error('Empty base64 data');
+      }
+      
       // Convert base64 to buffer
-      const buffer = Buffer.from(base64Image, 'base64');
+      const buffer = Buffer.from(base64Data, 'base64');
+      console.log('DEBUG: Base64 decoded successfully, buffer length:', buffer.length);
       
-      // Decode PNG image using pngjs
+      // Decode PNG image
       const png = PNG.sync.read(buffer);
+      console.log('DEBUG: PNG decoded, dimensions:', png.width, 'x', png.height);
       
-      // jsQR expects RGBA data, not grayscale
-      // Convert RGBA to the format jsQR expects
-      const width = png.width;
-      const height = png.height;
-      const rgbaData = new Uint8ClampedArray(png.data);
-      
-      // Use jsQR to decode the QR code
-      const code = jsQR(rgbaData, width, height);
+      // jsQR expects RGBA data - use the raw data from PNG
+      const code = jsQR(png.data, png.width, png.height);
       
       if (code) {
         console.log('DEBUG: Successfully extracted QR code data:', code.data);
@@ -747,6 +755,30 @@ app.get('/hikcentral/version', async (req, res) => {
   }
 });
 
+
+// Debug endpoint for testing QR code extraction
+app.post('/debug-qr', async (req, res) => {
+  const { base64Image } = req.body;
+
+  if (!base64Image) {
+    return res.status(400).json({ error: 'base64Image parameter is required' });
+  }
+
+  try {
+    const extractedText = await extractQRCodeText(base64Image);
+    res.json({
+      success: true,
+      extractedText: extractedText,
+      message: 'QR code extraction successful'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'QR code extraction failed'
+    });
+  }
+});
 
 // Admin UI route
 app.get('/', (req, res) => {
