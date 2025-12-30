@@ -541,7 +541,7 @@ app.get('/visitor-qr', async (req, res) => {
       }
 
       // Step 2: Get the correct QR code using the visitorId
-      const visitorId = hikCentralResponse.data.appointRecordId;
+      const visitorId = hikCentralResponse.data.visitorId;
       console.log('DEBUG: Visitor ID for QR code request:', visitorId);
 
       const qrCodeResponse = await getVisitorQRCode(visitorId);
