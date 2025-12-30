@@ -492,7 +492,7 @@ app.get('/visitor-qr', async (req, res) => {
 
       // Calculate visit times
       const now = new Date();
-      const visitStartTime = new Date(now.getTime() + 60000); // Now + 1 minute
+      const visitStartTime = new Date(now.getTime()); 
       const visitEndTime = new Date(visitStartTime.getTime() + 24 * 60 * 60 * 1000); // Start + 1 day
 
       // Format dates for HikCentral (ISO 8601 with timezone)
