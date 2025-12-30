@@ -1,81 +1,129 @@
-# HikCentral Middleware - Production Ready
+# HikCentral Middleware MVP
 
-A production-ready middleware system that connects Lyve with HikCentral, exposing REST APIs that match the Lyve APIs exactly while internally calling HikCentral APIs.
+A functional middleware system that connects Lyve with HikCentral, exposing REST APIs that match the Lyve APIs exactly while internally calling HikCentral APIs.
 
-## 🚀 Production Ready Features
+## Features
 
-This enhanced version includes all the features needed for production deployment:
+- **Lyve-Compatible APIs**: Exposes REST endpoints that match Lyve API specifications exactly
+- **HikCentral Integration**: Internally calls HikCentral APIs with proper authentication
+- **Local Database**: SQLite database as source of truth for resident data
+- **Auto-increment IDs**: Generates numeric IDs that serve as personCode for HikCentral
+- **Soft Delete**: Never hard-deletes residents, uses status field instead
+- **Admin UI**: Simple web interface for monitoring and testing
+- **Logging**: Comprehensive API request/response logging
 
-### ✅ Security & Authentication
-- **Admin Authentication**: Secure login with username "admin" and password "Smart@1150"
-- **Session Management**: 30-minute session timeout with secure cookies
-- **Input Validation**: Comprehensive validation using Joi schemas
-- **Rate Limiting**: 100 requests per 15 minutes per IP
-- **Security Headers**: Helmet.js protection against common vulnerabilities
-- **CORS Configuration**: Controlled cross-origin access
+## Tech Stack
 
-### ✅ Environment Management
-- **Dynamic Configuration**: Edit HikCentral settings via admin dashboard
-- **Database-Driven Config**: Settings persist across restarts
-- **Real-time Updates**: Configuration changes applied immediately
-- **Secure Storage**: Passwords hashed with bcrypt
+- **Backend**: Node.js with Express.js
+- **Database**: SQLite (no setup required)
+- **Frontend**: Plain HTML/CSS/JavaScript
+- **HTTP Client**: Axios for HikCentral API calls
+- **Authentication**: HMAC-SHA256 with base64 encoding
 
-### ✅ Production Infrastructure
-- **Ubuntu Deployment**: Complete deployment script and systemd service
-- **Auto-Start**: Service starts automatically on boot
-- **Log Rotation**: Automatic log management with size limits
-- **Health Monitoring**: Systemd health checks and monitoring
-- **Firewall Configuration**: UFW setup for security
-
-### ✅ Modular Architecture
-- **Service Layer**: Clean separation of business logic
-- **Middleware Pattern**: Reusable authentication and security
-- **Configuration Management**: Centralized configuration service
-- **Error Handling**: Comprehensive error handling and logging
-
-### ✅ Date Validation
-- **10-Year Limit**: Automatic date adjustment for HikCentral compatibility
-- **Smart Validation**: Prevents API failures due to date range limits
-- **User-Friendly**: Transparent date adjustment with clear messaging
-
-### ✅ Comprehensive Documentation
-- **API Documentation**: Complete OpenAPI specification
-- **Technical Documentation**: Architecture, deployment, and maintenance
-- **User Documentation**: Admin guide and API usage examples
-
-## 📋 System Requirements
-
-- **Node.js**: 18.x or higher
-- **Ubuntu**: 20.04 or higher (for deployment)
-- **Port**: 3000 (must be available)
-
-## 🏗️ Architecture
+## Project Structure
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Lyve System   │    │  Middleware API  │    │  HikCentral     │
-│                 │    │                  │    │  System         │
-│  External APIs  │◄──►│  Express.js      │◄──►│  REST APIs      │
-│  (Public)       │    │  Services        │    │  (Authenticated)│
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                │
-                                ▼
-                       ┌──────────────────┐
-                       │   Admin UI       │
-                       │  (Protected)     │
-                       │  Authentication  │
-                       └──────────────────┘
-                                │
-                                ▼
-                       ┌──────────────────┐
-                       │   SQLite DB      │
-                       │  (Local Storage) │
-                       └──────────────────┘
+├── app.js              # Main application server
+├── admin.html          # Admin UI interface
+├── .env               # Configuration file
+├── package.json       # Dependencies
+├── README.md          # This file
+└── hikcentral_middleware.db  # SQLite database (created on first run)
 ```
 
-## 🚀 Quick Start
+## Configuration
 
-### Development
+Copy the `.env.example` file to `.env` and update with your HikCentral credentials:
+
+```env
+# HikCentral Configuration
+HIKCENTRAL_BASE_URL=https://192.168.1.101/artemis
+HIKCENTRAL_APP_KEY=27108141
+HIKCENTRAL_APP_SECRET=c3U7KikkPGo2Yka6GMZ5
+HIKCENTRAL_USER_ID=admin
+HIKCENTRAL_ORG_INDEX_CODE=1
+HIKCENTRAL_VERIFY_SSL=false
+```
+
+## API Endpoints
+
+### Lyve-Compatible Endpoints
+
+1. **GET /residents** - Get resident by email and community
+2. **POST /residents** - Create a new resident
+3. **GET /identity** - Get dynamic QR code for resident
+4. **GET /visitor-qr** - Get visitor QR code
+5. **DELETE /residents** - Soft delete resident
+
+### Internal Endpoints
+
+- **GET /** - Admin UI interface
+- **GET /logs** - API request logs
+
+## Database Schema
+
+### Residents Table
+```sql
+CREATE TABLE residents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_code TEXT UNIQUE NOT NULL,  -- Our auto-increment ID
+  person_id TEXT,                    -- HikCentral personId
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  community TEXT,
+  type TEXT,
+  from_date TEXT,
+  to_date TEXT,
+  unit_id TEXT,
+  status TEXT DEFAULT 'active',      -- active, inactive, deleted
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### API Logs Table
+```sql
+CREATE TABLE api_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  endpoint TEXT NOT NULL,
+  method TEXT NOT NULL,
+  request_body TEXT,
+  response_body TEXT,
+  status_code INTEGER,
+  hikcentral_response TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## HikCentral Integration
+
+The middleware implements proper HikCentral authentication:
+
+1. **HMAC-SHA256 Signature**: Generates signatures using app secret
+2. **Base64 Encoding**: Properly encodes signatures as required
+3. **Required Headers**: Includes all necessary authentication headers
+4. **Error Handling**: Never deletes local data on HikCentral failures
+
+### Authentication Flow
+
+1. Generate timestamp and nonce
+2. Calculate Content-MD5 for request body
+3. Build string to sign with required headers
+4. Calculate HMAC-SHA256 signature
+5. Base64 encode the signature
+6. Include in X-Ca-Signature header
+
+## Admin UI Features
+
+The Admin UI provides:
+
+- **Resident Management**: View, search, and manage residents
+- **API Logs**: View recent API calls with status
+- **Connection Testing**: Test HikCentral connectivity
+- **Manual Operations**: Create residents, get QR codes, delete residents
+
+## Usage
 
 1. **Install Dependencies**:
    ```bash
@@ -83,229 +131,105 @@ This enhanced version includes all the features needed for production deployment
    ```
 
 2. **Configure Environment**:
-   Edit `.env` with your HikCentral credentials:
-   ```env
-   HIKCENTRAL_BASE_URL=https://192.168.1.101/artemis
-   HIKCENTRAL_APP_KEY=27108141
-   HIKCENTRAL_APP_SECRET=c3U7KikkPGo2Yka6GMZ5
-   HIKCENTRAL_USER_ID=admin
-   HIKCENTRAL_ORG_INDEX_CODE=1
-   HIKCENTRAL_VERIFY_SSL=false
-   ```
+   Edit `.env` with your HikCentral credentials
 
-3. **Start Development Server**:
+3. **Start Server**:
    ```bash
    node app.js
    ```
 
 4. **Access Admin UI**:
-   Open http://localhost:3000 and login with:
-   - Username: `admin`
-   - Password: `Smart@1150`
+   Open http://localhost:3000 in your browser
 
-### Production Deployment
+## API Examples
 
-1. **Upload Files** to your Ubuntu server
-
-2. **Run Deployment Script**:
-   ```bash
-   chmod +x deploy.sh
-   ./deploy.sh install
-   ```
-
-3. **Verify Installation**:
-   ```bash
-   sudo systemctl status hikcentral-middleware
-   ```
-
-4. **Access Admin UI**:
-   Open http://your-server-ip:3000
-
-## 🔧 API Endpoints
-
-### Public APIs (Lyve-Compatible)
-
-1. **GET /residents** - Get resident(s)
-2. **POST /residents** - Create resident
-3. **GET /identity** - Get dynamic QR code
-4. **GET /visitor-qr** - Generate visitor QR code
-5. **DELETE /residents** - Soft delete resident
-
-### Admin APIs (Protected)
-
-1. **POST /admin/login** - Admin authentication
-2. **GET /admin/config** - Get configuration
-3. **PUT /admin/config** - Update configuration
-4. **GET /admin/logs** - Get API logs
-5. **GET /admin/health** - Health check
-6. **POST /admin/password** - Change password
-
-## 📖 Documentation
-
-- **[API Documentation](API_DOCUMENTATION.md)** - Complete API reference with examples
-- **[Technical Documentation](TECHNICAL_DOCUMENTATION.md)** - Architecture and implementation details
-- **[OpenAPI Specification](api-docs.yaml)** - Machine-readable API specification
-
-## 🔒 Security Features
-
-### Authentication
-- **bcrypt Password Hashing**: Secure password storage
-- **Session Management**: Secure session tokens with timeout
-- **Cookie Security**: HttpOnly, Secure, SameSite flags
-
-### Input Validation
-- **Joi Schemas**: Comprehensive request validation
-- **Sanitization**: Input cleaning and validation
-- **Rate Limiting**: Protection against abuse
-
-### API Security
-- **HikCentral Authentication**: HMAC-SHA256 signatures
-- **SSL Verification**: Configurable SSL validation
-- **Request Logging**: Complete audit trail
-
-## 🛠️ Configuration Management
-
-### Dynamic Configuration
-The admin dashboard allows you to modify HikCentral settings:
-
-- `HIKCENTRAL_BASE_URL` - HikCentral base URL
-- `HIKCENTRAL_APP_KEY` - HikCentral app key
-- `HIKCENTRAL_APP_SECRET` - HikCentral app secret
-- `HIKCENTRAL_USER_ID` - HikCentral user ID
-- `HIKCENTRAL_ORG_INDEX_CODE` - HikCentral organization index code
-- `HIKCENTRAL_VERIFY_SSL` - SSL verification setting
-
-### Configuration Persistence
-- Settings stored in SQLite database
-- Changes applied immediately
-- Fallback to `.env` file for missing values
-- Automatic configuration seeding
-
-## 📊 Monitoring & Logging
-
-### Health Checks
-- Application uptime monitoring
-- Memory usage tracking
-- Database connectivity checks
-- Configuration validation
-
-### Logging
-- **Structured Logging**: JSON format with metadata
-- **Log Rotation**: Automatic rotation with size limits
-- **Security Events**: Authentication and access logging
-- **Error Tracking**: Comprehensive error logging
-
-### Log Access
+### Create Resident
 ```bash
-# View application logs
-sudo journalctl -u hikcentral-middleware -f
-
-# View specific time range
-sudo journalctl -u hikcentral-middleware --since "1 hour ago"
+curl -X POST http://localhost:3000/residents \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+1234567890",
+    "community": "GreenHills",
+    "type": "resident",
+    "unitId": "U1001"
+  }'
 ```
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **HikCentral Connection Failed**
-   - Check network connectivity
-   - Verify credentials in admin dashboard
-   - Check SSL verification setting
-
-2. **Database Issues**
-   - Verify file permissions
-   - Check disk space
-   - Review database logs
-
-3. **Authentication Problems**
-   - Verify admin credentials
-   - Check session timeout
-   - Clear browser cookies
-
-### Debug Commands
-
+### Get Resident
 ```bash
-# Check service status
-sudo systemctl status hikcentral-middleware
-
-# View recent logs
-sudo journalctl -u hikcentral-middleware -n 50
-
-# Test HikCentral connection
-curl http://localhost:3000/hikcentral/version
-
-# Check configuration
-curl -H "Cookie: sessionToken=abc123" http://localhost:3000/admin/config
+curl "http://localhost:3000/residents?email=john@example.com&community=GreenHills"
 ```
 
-## 🔄 Updates & Maintenance
+### Get Identity (QR Code)
+```bash
+curl "http://localhost:3000/identity?unitId=U1001&ownerId=1"
+```
 
-### Updating Configuration
-1. Access admin dashboard
-2. Navigate to Configuration tab
-3. Modify settings as needed
-4. Changes applied immediately
+### Get Visitor QR
+```bash
+curl "http://localhost:3000/visitor-qr?unitId=U1001&ownerId=1&visitorName=Jane%20Smith&visitDate=2025-01-15T10:00:00"
+```
 
-### Updating Application
-1. Upload new files to server
-2. Run deployment script:
-   ```bash
-   ./deploy.sh update
-   ```
-3. Verify service status
+### Delete Resident
+```bash
+curl -X DELETE "http://localhost:3000/residents?ownerId=1"
+```
 
-### Log Maintenance
-- Automatic rotation every 5MB
-- Retention of 5 files
-- Manual clearing via admin dashboard
+## Error Handling
 
-## 🚨 Security Best Practices
+- **HikCentral Failures**: Never delete local data, log errors, return clear responses
+- **Database Errors**: Return 500 status with error details
+- **Validation Errors**: Return 400 status with field-specific errors
+- **Not Found**: Return 404 status for missing resources
 
-### Production Deployment
-- Change default admin password
-- Use HTTPS in production
-- Configure firewall rules
-- Monitor access logs
-- Regular security updates
+## Security Notes
 
-### Configuration Security
-- Use strong passwords
-- Enable SSL verification
-- Restrict network access
-- Regular backup of configuration
+- **SSL Verification**: Can be disabled for development (verifySSL=false)
+- **Authentication**: Uses HMAC-SHA256 with base64 encoding
+- **Input Validation**: Validates required fields before processing
+- **Error Messages**: Avoids exposing sensitive information
 
-## 📞 Support
+## MVP Limitations
 
-For support and documentation updates:
-- **GitHub Repository**: https://github.com/pokerist/lyve-simple
-- **API Documentation**: [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
-- **Technical Documentation**: [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
+This is an MVP implementation with the following limitations:
 
-## 📄 License
+- No Docker containerization
+- No CI/CD pipeline
+- No background workers or queues
+- No advanced security measures
+- Simple HTML UI (not production-ready)
+- SQLite database (not suitable for high-scale production)
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Deployment
 
-## 🤝 Contributing
+For production deployment:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
+1. Update `.env` with production HikCentral credentials
+2. Consider using a production database (PostgreSQL, MySQL)
+3. Set up proper SSL certificates
+4. Configure reverse proxy (nginx, Apache)
+5. Implement proper logging and monitoring
+6. Set up backup procedures for the database
 
-## 📝 Changelog
+## Troubleshooting
 
-### v1.0.0 - Production Ready Release
-- ✅ Complete security implementation
-- ✅ Dynamic configuration management
-- ✅ Production deployment infrastructure
-- ✅ Comprehensive documentation
-- ✅ Date validation and adjustment
-- ✅ Modular architecture
-- ✅ Enhanced error handling
-- ✅ Performance optimizations
+### Connection Issues
+- Verify HikCentral credentials in `.env`
+- Check network connectivity to HikCentral server
+- Ensure SSL verification settings match your environment
 
----
+### Authentication Errors
+- Verify app key and secret are correct
+- Check that user ID has necessary permissions
+- Ensure organization index code is valid
 
-**Note**: This is a production-ready system designed for enterprise deployment. Always follow security best practices and test thoroughly before deploying to production environments.
+### Database Issues
+- Check that SQLite file is writable
+- Verify database schema was created successfully
+- Check for any constraint violations
+
+## License
+
+This project is licensed under the MIT License.

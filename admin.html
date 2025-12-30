@@ -5,296 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HikCentral Middleware Admin</title>
     <style>
-        :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --dark-color: #343a40;
-            --light-color: #f8f9fa;
-            --border-radius: 8px;
-            --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .container {
+            font-family: Arial, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f5f5f5;
         }
-
-        /* Login Styles */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: var(--border-radius);
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            transition: background-color 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-secondary {
-            background-color: var(--secondary-color);
-        }
-
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-
-        .error-message {
-            color: var(--danger-color);
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-            display: none;
-        }
-
-        /* Dashboard Styles */
-        .dashboard-header {
+        .header {
             background: white;
             padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-
-        .dashboard-header h1 {
-            color: var(--dark-color);
-            font-size: 24px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logout-btn {
-            background-color: var(--danger-color);
-        }
-
-        .logout-btn:hover {
-            background-color: #c82333;
-        }
-
-        .dashboard-grid {
+        .container {
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
         }
-
         .card {
             background: white;
             padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
         .card h3 {
-            margin-bottom: 15px;
-            color: var(--dark-color);
-            border-bottom: 2px solid var(--light-color);
-            padding-bottom: 10px;
+            margin-top: 0;
+            color: #333;
         }
-
-        /* Table Styles */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
         }
-
         th, td {
-            padding: 12px;
+            padding: 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
-            font-size: 14px;
         }
-
         th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: #555;
-        }
-
-        tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        .status-active { color: var(--success-color); font-weight: bold; }
-        .status-inactive { color: var(--warning-color); font-weight: bold; }
-        .status-deleted { color: var(--danger-color); font-weight: bold; text-decoration: line-through; }
-
-        /* Form Styles */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .form-group-full {
-            grid-column: 1 / -1;
-        }
-
-        .required::before {
-            content: "* ";
-            color: var(--danger-color);
+            background-color: #f8f8f8;
             font-weight: bold;
         }
-
-        .form-help {
+        .status-active { color: green; font-weight: bold; }
+        .status-inactive { color: orange; font-weight: bold; }
+        .status-deleted { color: red; font-weight: bold; text-decoration: line-through; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button.secondary {
+            background-color: #6c757d;
+        }
+        button.secondary:hover {
+            background-color: #545b62;
+        }
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .log-time {
             font-size: 12px;
             color: #666;
-            margin-top: 4px;
-            display: block;
         }
-
-        .field-error {
-            border-color: var(--danger-color) !important;
-            background-color: #f8d7da !important;
-        }
-
-        .error-message {
-            color: var(--danger-color);
-            font-size: 12px;
-            margin-top: 4px;
-            display: none;
-        }
-
-        /* Button Styles */
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-
-        /* Response Container */
-        .response-container {
-            margin-top: 20px;
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .info { border-left: 4px solid #17a2b8; }
+        .response-box {
+            background-color: #f8f9fa;
             border: 1px solid #dee2e6;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            display: none;
-        }
-
-        .response-header {
-            background: #f8f9fa;
-            padding: 10px 15px;
-            border-bottom: 1px solid #dee2e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-        }
-
-        .response-body {
-            padding: 15px;
-            background: #f8f9fa;
-            max-height: 300px;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            max-height: 200px;
             overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.4;
         }
-
-        .json-key { color: var(--primary-color); }
-        .json-string { color: var(--success-color); }
-        .json-number { color: #6f42c1; }
-        .json-boolean { color: var(--warning-color); }
-        .json-null { color: var(--secondary-color); }
-
-        /* Tabs */
-        .tabs {
+        
+        /* Enhanced Manual Operations Styles */
+        .manual-operations {
+            margin-top: 20px;
+        }
+        
+        .operations-tabs {
             display: flex;
             border-bottom: 2px solid #dee2e6;
             margin-bottom: 20px;
             background: white;
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            border-radius: 8px 8px 0 0;
             overflow: hidden;
         }
-
-        .tab-btn {
+        
+        .tab-button {
             flex: 1;
             padding: 12px 16px;
             background: #f8f9fa;
@@ -305,59 +134,114 @@
             transition: all 0.3s ease;
             border-right: 1px solid #dee2e6;
         }
-
-        .tab-btn:last-child {
+        
+        .tab-button:last-child {
             border-right: none;
         }
-
-        .tab-btn:hover {
+        
+        .tab-button:hover {
             background: #e9ecef;
         }
-
-        .tab-btn.active {
-            background: var(--primary-color);
+        
+        .tab-button.active {
+            background: #007bff;
             color: white;
-            border-bottom: 3px solid var(--primary-color);
+            border-bottom: 3px solid #007bff;
         }
-
+        
         .tab-content {
             display: none;
             background: white;
             border: 1px solid #dee2e6;
             border-top: none;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            border-radius: 0 0 8px 8px;
             padding: 20px;
             min-height: 400px;
         }
-
+        
         .tab-content.active {
             display: block;
         }
-
-        /* Loading */
-        .loading {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            color: var(--primary-color);
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
         }
-
-        .spinner {
+        
+        .form-section h4 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 16px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group.required::before {
+            content: "* ";
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .form-help {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+            display: block;
+        }
+        
+        .field-error {
+            border-color: #dc3545 !important;
+            background-color: #f8d7da !important;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        .loading-spinner {
+            display: none;
             border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--primary-color);
+            border-top: 2px solid #007bff;
             border-radius: 50%;
             width: 16px;
             height: 16px;
             animation: spin 1s linear infinite;
+            margin-right: 8px;
         }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* Toast Notifications */
+        
+        .btn-loading {
+            position: relative;
+            padding-right: 40px;
+        }
+        
+        .btn-loading .loading-spinner {
+            display: inline-block;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
         .toast-container {
             position: fixed;
             top: 20px;
@@ -367,7 +251,18 @@
             flex-direction: column;
             gap: 10px;
         }
-
+        
+        /* Ensure toast container exists in DOM */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+        
         .toast {
             background: white;
             border: 1px solid #dee2e6;
@@ -381,43 +276,195 @@
             transform: translateX(120%);
             transition: transform 0.3s ease;
         }
-
+        
         .toast.show {
             transform: translateX(0);
         }
-
+        
         .toast.success {
-            border-left: 4px solid var(--success-color);
+            border-left: 4px solid #28a745;
             background: #d4edda;
         }
-
+        
         .toast.error {
-            border-left: 4px solid var(--danger-color);
+            border-left: 4px solid #dc3545;
             background: #f8d7da;
         }
-
+        
         .toast.info {
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid #17a2b8;
             background: #d1ecf1;
         }
-
+        
         .toast-icon {
             font-size: 18px;
             width: 24px;
             text-align: center;
         }
-
-        /* Responsive */
+        
+        .response-container {
+            margin-top: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .response-header {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .response-body {
+            padding: 15px;
+            background: #f8f9fa;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .json-key { color: #007bff; }
+        .json-string { color: #28a745; }
+        .json-number { color: #6f42c1; }
+        .json-boolean { color: #fd7e14; }
+        .json-null { color: #6c757d; }
+        
+        .response-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        
+        .qr-preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .qr-code-box {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            margin: 0 auto 15px auto;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .operation-instruction {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #0056b3;
+        }
+        
+        .field-group {
+            margin-bottom: 15px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dc3545;
+            box-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+        }
+        
+        .status-dot.connected {
+            background: #28a745;
+            box-shadow: 0 0 4px rgba(40, 167, 69, 0.5);
+        }
+        
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
             }
             
-            .tabs {
+            .qr-preview-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .operations-tabs {
                 flex-direction: column;
             }
             
-            .tab-btn {
+            .tab-button {
                 border-right: none;
                 border-bottom: 1px solid #dee2e6;
             }
@@ -425,559 +472,723 @@
     </style>
 </head>
 <body>
-    <!-- Login Form -->
-    <div id="loginForm" class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <h1>🔐 Admin Login</h1>
-                <p>HikCentral Middleware</p>
+    <div class="header">
+        <h1>HikCentral Middleware Admin</h1>
+        <p>Port 3000 - Local Database + HikCentral Integration</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h3>Residents</h3>
+            <button onclick="loadResidents()" class="secondary">Refresh</button>
+            <div style="margin-top: 10px;">
+                <input type="text" id="searchEmail" placeholder="Search by email...">
+                <button onclick="searchResidents()">Search</button>
             </div>
-            <form id="loginFormElement">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter password" required>
-                </div>
-                <div id="loginError" class="error-message"></div>
-                <button type="submit" class="btn">
-                    <span class="spinner" id="loginSpinner" style="display: none;"></span>
-                    Login
+            <table id="residentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Type</th>
+                        <th>HikCentral ID</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 20px;">
+        <div class="card manual-operations">
+            <h3>Manual Operations</h3>
+            
+            <!-- Connection Status Indicator - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs -->
+            <!-- <div style="margin-bottom: 15px;">
+                <span class="connection-status" id="connectionStatus">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Checking connection...</span>
+                </span>
+            </div> -->
+
+            <!-- Operations Tabs -->
+            <div class="operations-tabs">
+                <button class="tab-button active" onclick="switchTab('create-resident')">
+                    🏠 Create Resident
                 </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Dashboard -->
-    <div id="dashboard" style="display: none;">
-        <div class="dashboard-header">
-            <h1>🛡️ Admin Dashboard</h1>
-            <div class="user-info">
-                <span id="currentUser">Admin</span>
-                <button class="btn btn-secondary logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </div>
-
-        <div class="dashboard-grid">
-            <!-- Residents Management -->
-            <div class="card">
-                <h3>👥 Residents Management</h3>
-                <div style="margin-bottom: 15px;">
-                    <input type="text" id="searchEmail" placeholder="Search by email..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 300px;">
-                    <button onclick="loadResidents()" class="btn btn-small" style="margin-left: 10px;">Search</button>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table id="residentsTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Type</th>
-                                <th>HikCentral ID</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <button class="tab-button" onclick="switchTab('get-identity')">
+                    🔑 Get Identity
+                </button>
+                <button class="tab-button" onclick="switchTab('visitor-qr')">
+                    👤 Visitor QR
+                </button>
+                <button class="tab-button" onclick="switchTab('delete-resident')">
+                    🗑️ Delete Resident
+                </button>
+                <button class="tab-button" onclick="switchTab('api-docs')">
+                    📚 API Documentation
+                </button>
             </div>
 
-            <!-- Manual Operations -->
-            <div class="card">
-                <h3>⚙️ Manual Operations</h3>
+            <!-- Create Resident Tab -->
+            <div id="create-resident" class="tab-content active">
+                <div class="operation-instruction">
+                    <strong>📝 Create New Resident:</strong> Fill in the required information to create a new resident in both the local database and HikCentral system.
+                </div>
                 
-                <!-- Tabs -->
-                <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab('create-resident')">🏠 Create Resident</button>
-                    <button class="tab-btn" onclick="switchTab('get-identity')">🔑 Get Identity</button>
-                    <button class="tab-btn" onclick="switchTab('visitor-qr')">👤 Visitor QR</button>
-                    <button class="tab-btn" onclick="switchTab('delete-resident')">🗑️ Delete Resident</button>
-                    <button class="tab-btn" onclick="switchTab('config')">⚙️ Configuration</button>
-                    <button class="tab-btn" onclick="switchTab('logs')">📊 Logs</button>
-                </div>
-
-                <!-- Create Resident Tab -->
-                <div id="create-resident" class="tab-content active">
-                    <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                        <strong>📝 Create New Resident:</strong> Fill in the required information to create a new resident in both the local database and HikCentral system.
+                <div class="form-section">
+                    <h4>📋 Resident Information</h4>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label class="required">Full Name</label>
+                            <input type="text" id="enhancedCreateName" placeholder="Enter full name as it appears on ID">
+                            <span class="form-help">This will be split into family name and given name for HikCentral</span>
+                            <span class="error-message" id="nameError">Please enter a valid name</span>
+                        </div>
+                        <div class="field-group">
+                            <label class="required">Email Address</label>
+                            <input type="email" id="enhancedCreateEmail" placeholder="resident@example.com">
+                            <span class="form-help">Must be a valid email address</span>
+                            <span class="error-message" id="emailError">Please enter a valid email address</span>
+                        </div>
                     </div>
                     
-                    <form id="createResidentForm">
-                        <div class="form-row">
-                            <div class="form-group required">
-                                <label>Name</label>
-                                <input type="text" id="createName" placeholder="Enter full name">
-                                <span class="form-help">This will be split into family name and given name for HikCentral</span>
-                                <span class="error-message" id="nameError">Please enter a valid name</span>
-                            </div>
-                            <div class="form-group required">
-                                <label>Email Address</label>
-                                <input type="email" id="createEmail" placeholder="resident@example.com">
-                                <span class="form-help">Must be a valid email address</span>
-                                <span class="error-message" id="emailError">Please enter a valid email address</span>
-                            </div>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="enhancedCreatePhone" placeholder="+1234567890">
+                            <span class="form-help">Optional - for contact purposes</span>
+                            <span class="error-message" id="phoneError">Please enter a valid phone number</span>
                         </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Phone Number</label>
-                                <input type="tel" id="createPhone" placeholder="+1234567890">
-                                <span class="form-help">Optional - for contact purposes</span>
-                                <span class="error-message" id="phoneError">Please enter a valid phone number</span>
-                            </div>
-                            <div class="form-group required">
-                                <label>Community</label>
-                                <input type="text" id="createCommunity" placeholder="GreenHills">
-                                <span class="form-help">Community identifier for organization</span>
-                                <span class="error-message" id="communityError">Please enter community name</span>
-                            </div>
+                        <div class="field-group">
+                            <label class="required">Community</label>
+                            <input type="text" id="enhancedCreateCommunity" placeholder="GreenHills">
+                            <span class="form-help">Community identifier for organization</span>
+                            <span class="error-message" id="communityError">Please enter community name</span>
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group required">
-                                <label>Owner Type</label>
-                                <select id="createType">
-                                    <option value="resident">Resident</option>
-                                    <option value="tenant">Tenant</option>
-                                    <option value="family_member">Family Member</option>
-                                    <option value="staff">Staff</option>
-                                    <option value="visitor">Visitor</option>
-                                </select>
-                                <span class="form-help">Type of access and permissions</span>
-                            </div>
-                            <div class="form-group required">
-                                <label>Unit ID</label>
-                                <input type="text" id="createUnitId" placeholder="U1001">
-                                <span class="form-help">Unique identifier for the unit</span>
-                                <span class="error-message" id="unitIdError">Please enter unit ID</span>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group required">
-                                <label>Valid From</label>
-                                <input type="date" id="createFrom">
-                                <span class="form-help">Start date for access permissions</span>
-                                <span class="error-message" id="fromError">Please select a valid start date</span>
-                            </div>
-                            <div class="form-group required">
-                                <label>Valid To</label>
-                                <input type="date" id="createTo">
-                                <span class="form-help">End date for access permissions (max 10 years)</span>
-                                <span class="error-message" id="toError">Please select a valid end date</span>
-                            </div>
-                        </div>
-
-                        <div class="btn-group">
-                            <button type="submit" class="btn">
-                                <span class="spinner" id="createSpinner" style="display: none;"></span>
-                                🏠 Create Resident
-                            </button>
-                        </div>
-                    </form>
-
-                    <div id="createResponseContainer" class="response-container">
-                        <div class="response-header">
-                            <span>📋 Create Resident Response</span>
-                            <div>
-                                <button class="btn-secondary btn-small" onclick="copyResponse('create')">📋 Copy</button>
-                                <button class="btn-secondary btn-small" onclick="clearResponse('create')">🗑️ Clear</button>
-                            </div>
-                        </div>
-                        <div id="createResponseBody" class="response-body"></div>
                     </div>
                 </div>
 
-                <!-- Get Identity Tab -->
-                <div id="get-identity" class="tab-content">
-                    <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                        <strong>🔑 Get Resident Identity:</strong> Retrieve a resident's dynamic QR code for access. Requires resident to be synced with HikCentral.
+                <div class="form-section">
+                    <h4>🏠 Unit & Access Details</h4>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label class="required">Owner Type</label>
+                            <select id="enhancedCreateType">
+                                <option value="resident">Resident</option>
+                                <option value="tenant">Tenant</option>
+                                <option value="family_member">Family Member</option>
+                                <option value="staff">Staff</option>
+                                <option value="visitor">Visitor</option>
+                            </select>
+                            <span class="form-help">Type of access and permissions</span>
+                        </div>
+                        <div class="field-group">
+                            <label class="required">Unit ID</label>
+                            <input type="text" id="enhancedCreateUnitId" placeholder="U1001">
+                            <span class="form-help">Unique identifier for the unit</span>
+                            <span class="error-message" id="unitIdError">Please enter unit ID</span>
+                        </div>
                     </div>
                     
-                    <form id="getIdentityForm">
-                        <div class="form-row">
-                            <div class="form-group required">
-                                <label>Owner ID</label>
-                                <input type="text" id="getIdOwnerId" placeholder="123">
-                                <span class="form-help">The unique identifier for the resident</span>
-                                <span class="error-message" id="getIdOwnerIdError">Please enter owner ID</span>
-                            </div>
-                            <div class="form-group">
-                                <label>Unit ID</label>
-                                <input type="text" id="getIdUnitId" placeholder="U1001">
-                                <span class="form-help">Optional - unit identifier</span>
-                            </div>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label class="required">Valid From</label>
+                            <input type="date" id="enhancedCreateFrom">
+                            <span class="form-help">Start date for access permissions</span>
+                            <span class="error-message" id="fromError">Please select a valid start date</span>
                         </div>
-
-                        <div class="btn-group">
-                            <button type="submit" class="btn">
-                                <span class="spinner" id="getIdentitySpinner" style="display: none;"></span>
-                                🔑 Get Identity
-                            </button>
+                        <div class="field-group">
+                            <label class="required">Valid To</label>
+                            <input type="date" id="enhancedCreateTo">
+                            <span class="form-help">End date for access permissions</span>
+                            <span class="error-message" id="toError">Please select a valid end date</span>
                         </div>
-                    </form>
-
-                    <div id="identityResponseContainer" class="response-container">
-                        <div class="response-header">
-                            <span>🔑 Identity Response</span>
-                            <div>
-                                <button class="btn-secondary btn-small" onclick="copyResponse('identity')">📋 Copy</button>
-                                <button class="btn-secondary btn-small" onclick="clearResponse('identity')">🗑️ Clear</button>
-                            </div>
-                        </div>
-                        <div id="identityResponseBody" class="response-body"></div>
                     </div>
                 </div>
 
-                <!-- Visitor QR Tab -->
-                <div id="visitor-qr" class="tab-content">
-                    <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                        <strong>👤 Generate Visitor QR:</strong> Create a temporary QR code for visitors. Requires resident to be synced with HikCentral.
+        <div class="response-container" id="createResponseContainer" style="display: none;">
+            <div class="response-header">
+                <span>📋 Create Resident Response</span>
+                <div>
+                    <button class="btn-secondary" onclick="copyResponse('create')">📋 Copy</button>
+                    <button class="btn-secondary" onclick="clearResponse('create')">🗑️ Clear</button>
+                </div>
+            </div>
+            <div class="response-body" id="createResponseBody">
+                <!-- Response will be displayed here -->
+            </div>
+        </div>
+
+                <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
+                    <button id="createResidentBtn" onclick="enhancedCreateResident()">
+                        🏠 Create Resident
+                    </button>
+                </div>
+            </div>
+
+            <!-- Get Identity Tab -->
+            <div id="get-identity" class="tab-content">
+                <div class="operation-instruction">
+                    <strong>🔑 Get Resident Identity:</strong> Retrieve a resident's dynamic QR code for access. Requires resident to be synced with HikCentral.
+                </div>
+                
+                <div class="form-section">
+                    <h4>📍 Resident Selection</h4>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label class="required">Owner ID</label>
+                            <input type="text" id="enhancedGetIdOwnerId" placeholder="123">
+                            <span class="form-help">The unique identifier for the resident</span>
+                            <span class="error-message" id="getIdOwnerIdError">Please enter owner ID</span>
+                        </div>
+                        <div class="field-group">
+                            <label>Unit ID</label>
+                            <input type="text" id="enhancedGetIdUnitId" placeholder="U1001">
+                            <span class="form-help">Optional - unit identifier</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qr-preview-container">
+                    <div class="qr-code-box">
+                        <div class="qr-placeholder">
+                            QR Code Preview<br>
+                            <small>Will display actual QR code when generated</small>
+                        </div>
+                        <h4>Dynamic QR Code</h4>
+                        <p style="font-size: 12px; color: #666; margin: 0;">
+                            This QR code provides temporary access for the resident
+                        </p>
                     </div>
                     
-                    <form id="getVisitorQRForm">
-                        <div class="form-row">
-                            <div class="form-group required">
-                                <label>Owner ID</label>
-                                <input type="text" id="getVisitorOwnerId" placeholder="123">
-                                <span class="form-help">The resident who is hosting the visitor</span>
-                                <span class="error-message" id="getVisitorOwnerIdError">Please enter owner ID</span>
-                            </div>
-                            <div class="form-group required">
-                                <label>Unit ID</label>
-                                <input type="text" id="getVisitorUnitId" placeholder="U1001">
-                                <span class="form-help">Unit where visitor will be granted access</span>
-                                <span class="error-message" id="getVisitorUnitIdError">Please enter unit ID</span>
-                            </div>
+                    <div style="padding: 20px;">
+                        <h4>📋 Identity Information</h4>
+                        <div id="identityInfo" style="font-size: 14px; color: #666;">
+                            Fill in the form above and click "Get Identity" to retrieve resident information and QR code.
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group required">
-                                <label>Visitor Name</label>
-                                <input type="text" id="getVisitorName" placeholder="Jane Smith">
-                                <span class="form-help">Full name of the visitor</span>
-                                <span class="error-message" id="getVisitorNameError">Please enter visitor name</span>
-                            </div>
-                            <div class="form-group required">
-                                <label>Visit Date</label>
-                                <input type="date" id="getVisitorDate">
-                                <span class="form-help">Date of the visit</span>
-                                <span class="error-message" id="getVisitorDateError">Please select a visit date</span>
-                            </div>
-                        </div>
-
-                        <div class="btn-group">
-                            <button type="submit" class="btn">
-                                <span class="spinner" id="getVisitorSpinner" style="display: none;"></span>
-                                👤 Get Visitor QR
-                            </button>
-                        </div>
-                    </form>
-
-                    <div id="visitorResponseContainer" class="response-container">
-                        <div class="response-header">
-                            <span>👤 Visitor QR Response</span>
-                            <div>
-                                <button class="btn-secondary btn-small" onclick="copyResponse('visitor')">📋 Copy</button>
-                                <button class="btn-secondary btn-small" onclick="clearResponse('visitor')">🗑️ Clear</button>
-                            </div>
-                        </div>
-                        <div id="visitorResponseBody" class="response-body"></div>
                     </div>
                 </div>
 
-                <!-- Delete Resident Tab -->
-                <div id="delete-resident" class="tab-content">
+                <div class="response-container" id="identityResponseContainer" style="display: none;">
+                    <div class="response-header">
+                        <span>🔑 Identity Response</span>
+                        <div>
+                            <button class="btn-secondary" onclick="copyResponse('identity')">📋 Copy</button>
+                            <button class="btn-secondary" onclick="clearResponse('identity')">🗑️ Clear</button>
+                        </div>
+                    </div>
+                    <div class="response-body" id="identityResponseBody">
+                        <!-- Response will be displayed here -->
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
+                    <button id="getIdentityBtn" onclick="enhancedGetIdentity()">
+                        🔑 Get Identity
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visitor QR Tab -->
+            <div id="visitor-qr" class="tab-content">
+                <div class="operation-instruction">
+                    <strong>👤 Generate Visitor QR:</strong> Create a temporary QR code for visitors. Requires resident to be synced with HikCentral.
+                </div>
+                
+                <div class="form-section">
+                    <h4>📍 Host Information</h4>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label class="required">Owner ID</label>
+                            <input type="text" id="enhancedGetVisitorOwnerId" placeholder="123">
+                            <span class="form-help">The resident who is hosting the visitor</span>
+                            <span class="error-message" id="getVisitorOwnerIdError">Please enter owner ID</span>
+                        </div>
+                        <div class="field-group">
+                            <label class="required">Unit ID</label>
+                            <input type="text" id="enhancedGetVisitorUnitId" placeholder="U1001">
+                            <span class="form-help">Unit where visitor will be granted access</span>
+                            <span class="error-message" id="getVisitorUnitIdError">Please enter unit ID</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>👤 Visitor Details</h4>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label class="required">Visitor Name</label>
+                            <input type="text" id="enhancedGetVisitorName" placeholder="Jane Smith">
+                            <span class="form-help">Full name of the visitor</span>
+                            <span class="error-message" id="getVisitorNameError">Please enter visitor name</span>
+                        </div>
+                        <div class="field-group">
+                            <label class="required">Visit Date</label>
+                            <input type="date" id="enhancedGetVisitorDate">
+                            <span class="form-help">Date of the visit</span>
+                            <span class="error-message" id="getVisitorDateError">Please select a visit date</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qr-preview-container">
+                    <div class="qr-code-box">
+                        <div class="qr-placeholder">
+                            Visitor QR Code<br>
+                            <small>Will display actual QR code when generated</small>
+                        </div>
+                        <h4>Visitor QR Code</h4>
+                        <p style="font-size: 12px; color: #666; margin: 0;">
+                            This QR code provides temporary access for the visitor
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 20px;">
+                        <h4>📋 Visitor Information</h4>
+                        <div id="visitorInfo" style="font-size: 14px; color: #666;">
+                            Fill in the form above and click "Get Visitor QR" to generate a temporary QR code for the visitor.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="response-container" id="visitorResponseContainer" style="display: none;">
+                    <div class="response-header">
+                        <span>👤 Visitor QR Response</span>
+                        <div>
+                            <button class="btn-secondary" onclick="copyResponse('visitor')">📋 Copy</button>
+                            <button class="btn-secondary" onclick="clearResponse('visitor')">🗑️ Clear</button>
+                        </div>
+                    </div>
+                    <div class="response-body" id="visitorResponseBody">
+                        <!-- Response will be displayed here -->
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
+                    <button id="getVisitorQrBtn" onclick="enhancedGetVisitorQR()">
+                        👤 Get Visitor QR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Delete Resident Tab -->
+            <div id="delete-resident" class="tab-content">
+                <div class="operation-instruction">
+                    <strong>🗑️ Delete Resident:</strong> Soft delete a resident from the system. This marks them as deleted rather than removing them completely.
+                </div>
+                
+                <div class="form-section">
+                    <h4>⚠️ Warning</h4>
                     <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                        <strong>⚠️ Warning:</strong> This operation will soft delete the resident from the local database and attempt to remove them from HikCentral. The resident will be marked as "deleted" but their data will remain in the system for audit purposes.
+                        <p style="margin: 0; color: #856404;">
+                            <strong>Important:</strong> This operation will soft delete the resident from the local database and attempt to remove them from HikCentral. 
+                            The resident will be marked as "deleted" but their data will remain in the system for audit purposes.
+                        </p>
                     </div>
                     
-                    <form id="deleteResidentForm">
-                        <div class="form-row">
-                            <div class="form-group required">
-                                <label>Owner ID</label>
-                                <input type="text" id="deleteOwnerId" placeholder="123">
-                                <span class="form-help">The unique identifier for the resident to delete</span>
-                                <span class="error-message" id="deleteOwnerIdError">Please enter owner ID</span>
-                            </div>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label class="required">Owner ID</label>
+                            <input type="text" id="enhancedDeleteOwnerId" placeholder="123">
+                            <span class="form-help">The unique identifier for the resident to delete</span>
+                            <span class="error-message" id="deleteOwnerIdError">Please enter owner ID</span>
                         </div>
-
-                        <div class="btn-group">
-                            <button type="submit" class="btn" style="background-color: var(--danger-color);">
-                                <span class="spinner" id="deleteSpinner" style="display: none;"></span>
-                                🗑️ Delete Resident
-                            </button>
-                        </div>
-                    </form>
-
-                    <div id="deleteResponseContainer" class="response-container">
-                        <div class="response-header">
-                            <span>🗑️ Delete Resident Response</span>
-                            <div>
-                                <button class="btn-secondary btn-small" onclick="copyResponse('delete')">📋 Copy</button>
-                                <button class="btn-secondary btn-small" onclick="clearResponse('delete')">🗑️ Clear</button>
-                            </div>
-                        </div>
-                        <div id="deleteResponseBody" class="response-body"></div>
                     </div>
                 </div>
 
-                <!-- Configuration Tab -->
-                <div id="config" class="tab-content">
-                    <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                        <strong>⚙️ Configuration Management:</strong> Manage application configuration settings. Changes are applied immediately and persist across restarts.
-                    </div>
-
-                    <div class="btn-group">
-                        <button class="btn" onclick="loadConfig()">🔄 Load Configuration</button>
-                        <button class="btn btn-secondary" onclick="changePassword()">🔐 Change Password</button>
-                    </div>
-
-                    <div id="configList" style="margin-top: 20px; display: none;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Key</th>
-                                    <th>Value</th>
-                                    <th>Type</th>
-                                    <th>Description</th>
-                                    <th>Updated</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="configTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div id="configResponseContainer" class="response-container">
-                        <div class="response-header">
-                            <span>⚙️ Configuration Response</span>
-                            <div>
-                                <button class="btn-secondary btn-small" onclick="copyResponse('config')">📋 Copy</button>
-                                <button class="btn-secondary btn-small" onclick="clearResponse('config')">🗑️ Clear</button>
-                            </div>
+                <div class="response-container" id="deleteResponseContainer" style="display: none;">
+                    <div class="response-header">
+                        <span>🗑️ Delete Resident Response</span>
+                        <div>
+                            <button class="btn-secondary" onclick="copyResponse('delete')">📋 Copy</button>
+                            <button class="btn-secondary" onclick="clearResponse('delete')">🗑️ Clear</button>
                         </div>
-                        <div id="configResponseBody" class="response-body"></div>
+                    </div>
+                    <div class="response-body" id="deleteResponseBody">
+                        <!-- Response will be displayed here -->
                     </div>
                 </div>
 
-                <!-- Logs Tab -->
-                <div id="logs" class="tab-content">
-                    <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                        <strong>📊 API Logs:</strong> View recent API request logs for monitoring and debugging.
-                    </div>
+                <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
+                    <button id="deleteResidentBtn" style="background-color: #dc3545;" onclick="enhancedDeleteResident()">
+                        🗑️ Delete Resident
+                    </button>
+                </div>
+            </div>
 
-                    <div class="btn-group">
-                        <button class="btn" onclick="loadLogs()">🔄 Load Logs</button>
-                        <button class="btn btn-secondary" onclick="clearLogs()">🗑️ Clear Logs</button>
-                    </div>
+            <!-- API Documentation Tab -->
+            <div id="api-docs" class="tab-content">
+                <div class="operation-instruction">
+                    <strong>📚 HikCentral Middleware API Documentation</strong>
+                    <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">
+                        This middleware provides 5 main external APIs for resident management and access control.
+                        Use the curl examples below to communicate with the middleware.
+                    </p>
+                </div>
 
-                    <div style="margin-top: 20px;">
-                        <label>Limit: </label>
-                        <input type="number" id="logsLimit" value="100" min="1" max="1000" style="width: 100px; padding: 5px;">
-                        <button class="btn btn-small" onclick="loadLogs()">Apply</button>
-                    </div>
-
-                    <div id="logsList" style="margin-top: 20px; display: none;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Time</th>
-                                    <th>Method</th>
-                                    <th>URL</th>
-                                    <th>Status</th>
-                                    <th>Response Time</th>
-                                    <th>IP</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logsTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div id="logsResponseContainer" class="response-container">
-                        <div class="response-header">
-                            <span>📊 Logs Response</span>
-                            <div>
-                                <button class="btn-secondary btn-small" onclick="copyResponse('logs')">📋 Copy</button>
-                                <button class="btn-secondary btn-small" onclick="clearResponse('logs')">🗑️ Clear</button>
-                            </div>
+                <!-- API 1: GET /residents -->
+                <div class="form-section">
+                    <h4>1. 📋 GET /residents - Retrieve Resident Information</h4>
+                    <p><strong>Purpose:</strong> Get resident(s) from the local database. Can retrieve all residents or a specific resident by email.</p>
+                    
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                        <h5>Parameters:</h5>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li><strong>email</strong> (optional): Filter by resident email address</li>
+                            <li><strong>community</strong> (optional): Filter by community (when using email)</li>
+                        </ul>
+                        
+                        <h5>Response Format:</h5>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
+                            <span class="json-key">{"ownerId"</span>: <span class="json-string">"123"</span>, <span class="json-key">"personId"</span>: <span class="json-string">"hikcentral-456"</span>, <span class="json-key">"name"</span>: <span class="json-string">"John Doe"</span>, <span class="json-key">"email"</span>: <span class="json-string">"john@example.com"</span>, <span class="json-key">"phone"</span>: <span class="json-string">"+1234567890"</span>, <span class="json-key">"community"</span>: <span class="json-string">"GreenHills"</span>, <span class="json-key">"type"</span>: <span class="json-string">"resident"</span>, <span class="json-key">"from"</span>: <span class="json-string">"2025-01-01"</span>, <span class="json-key">"to"</span>: <span class="json-string">"2025-12-31"</span>, <span class="json-key">"unitId"</span>: <span class="json-string">"U1001"</span>, <span class="json-key">"synced"</span>: <span class="json-boolean">true</span><span class="json-key">}</span>
                         </div>
-                        <div id="logsResponseBody" class="response-body"></div>
                     </div>
+
+                    <h5>Example curl Commands:</h5>
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Get all residents</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X GET https://middleware.hpd-lc.com/residents
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET https://middleware.hpd-lc.com/residents')">📋 Copy</button>
+                        </div>
+                    </div>
+
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Get specific resident by email</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X GET "https://middleware.hpd-lc.com/residents?email=john@example.com"
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/residents?email=john@example.com\\\"')">📋 Copy</button>
+                        </div>
+                    </div>
+
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Get resident with community filter</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X GET "https://middleware.hpd-lc.com/residents?email=john@example.com&community=GreenHills"
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/residents?email=john@example.com&community=GreenHills\\\"')">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 2: POST /residents -->
+                <div class="form-section">
+                    <h4>2. ➕ POST /residents - Create New Resident</h4>
+                    <p><strong>Purpose:</strong> Create a new resident in both the local database and HikCentral system.</p>
+                    
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                        <h5>Request Body (JSON):</h5>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
+                            <span class="json-key">{"name"</span>: <span class="json-string">"John Doe"</span>, <span class="json-key">"email"</span>: <span class="json-string">"john@example.com"</span>, <span class="json-key">"phone"</span>: <span class="json-string">"+1234567890"</span>, <span class="json-key">"community"</span>: <span class="json-string">"GreenHills"</span>, <span class="json-key">"from"</span>: <span class="json-string">"2025-01-01"</span>, <span class="json-key">"to"</span>: <span class="json-string">"2025-12-31"</span>, <span class="json-key">"type"</span>: <span class="json-string">"resident"</span>, <span class="json-key">"unitId"</span>: <span class="json-string">"U1001"</span><span class="json-key">}</span>
+                        </div>
+                        
+                        <h5>Required Fields:</h5>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li><strong>name</strong>: Full name of the resident</li>
+                            <li><strong>email</strong>: Valid email address</li>
+                            <li><strong>community</strong>: Community identifier</li>
+                            <li><strong>from</strong>: Start date for access (YYYY-MM-DD)</li>
+                            <li><strong>to</strong>: End date for access (YYYY-MM-DD)</li>
+                            <li><strong>unitId</strong>: Unit identifier</li>
+                        </ul>
+                    </div>
+
+                    <h5>Example curl Command:</h5>
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Create new resident</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X POST https://middleware.hpd-lc.com/residents \ <br>
+                            &nbsp;&nbsp;-H "Content-Type: application/json" \ <br>
+                            &nbsp;&nbsp;-d '{"name":"John Doe","email":"john@example.com","phone":"+1234567890","community":"GreenHills","from":"2025-01-01","to":"2025-12-31","type":"resident","unitId":"U1001"}'
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCreateResidentCurl()">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 3: GET /identity -->
+                <div class="form-section">
+                    <h4>3. 🔑 GET /identity - Get Dynamic QR Code</h4>
+                    <p><strong>Purpose:</strong> Retrieve a resident's dynamic QR code for access. Requires resident to be synced with HikCentral.</p>
+                    
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                        <h5>Parameters:</h5>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li><strong>unitId</strong> (required): Unit identifier</li>
+                            <li><strong>ownerId</strong> (required): Resident's owner ID</li>
+                        </ul>
+                        
+                        <h5>Response Format:</h5>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
+                            <span class="json-key">{"id"</span>: <span class="json-string">"1"</span>, <span class="json-key">"ownerId"</span>: <span class="json-string">"123"</span>, <span class="json-key">"ownerType"</span>: <span class="json-string">"resident"</span>, <span class="json-key">"unitId"</span>: <span class="json-string">"U1001"</span>, <span class="json-key">"qrCode"</span>: <span class="json-string">"QR1234567890"</span><span class="json-key">}</span>
+                        </div>
+                    </div>
+
+                    <h5>Example curl Command:</h5>
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Get resident identity and QR code</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X GET "https://middleware.hpd-lc.com/identity?unitId=U1001&ownerId=123"
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/identity?unitId=U1001&ownerId=123\\\"')">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 4: GET /visitor-qr -->
+                <div class="form-section">
+                    <h4>4. 👤 GET /visitor-qr - Generate Visitor QR Code</h4>
+                    <p><strong>Purpose:</strong> Create a temporary QR code for visitors. Requires resident to be synced with HikCentral.</p>
+                    
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                        <h5>Parameters:</h5>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li><strong>unitId</strong> (required): Unit identifier</li>
+                            <li><strong>ownerId</strong> (required): Resident's owner ID (host)</li>
+                            <li><strong>visitorName</strong> (required): Full name of the visitor</li>
+                            <li><strong>visitDate</strong> (required): Date of the visit</li>
+                        </ul>
+                        
+                        <h5>Response Format:</h5>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
+                            <span class="json-key">{"visitId"</span>: <span class="json-string">"visit-456"</span>, <span class="json-key">"unitId"</span>: <span class="json-string">"U1001"</span>, <span class="json-key">"ownerId"</span>: <span class="json-string">"123"</span>, <span class="json-key">"ownerType"</span>: <span class="json-string">"resident"</span>, <span class="json-key">"visitorName"</span>: <span class="json-string">"Jane Smith"</span>, <span class="json-key">"visitDate"</span>: <span class="json-string">"2025-01-15"</span>, <span class="json-key">"qrCode"</span>: <span class="json-string">"VISITOR123456"</span><span class="json-key">}</span>
+                        </div>
+                    </div>
+
+                    <h5>Example curl Command:</h5>
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Generate visitor QR code</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X GET "https://middleware.hpd-lc.com/visitor-qr?unitId=U1001&ownerId=123&visitorName=Jane%20Smith&visitDate=2025-01-15"
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/visitor-qr?unitId=U1001&ownerId=123&visitorName=Jane%20Smith&visitDate=2025-01-15\\\"')">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 5: DELETE /residents -->
+                <div class="form-section">
+                    <h4>5. 🗑️ DELETE /residents - Soft Delete Resident</h4>
+                    <p><strong>Purpose:</strong> Soft delete a resident from the system. Marks them as deleted rather than removing them completely.</p>
+                    
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                        <h5>Parameters:</h5>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li><strong>ownerId</strong> (required): Resident's owner ID to delete</li>
+                        </ul>
+                        
+                        <h5>Response Format:</h5>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
+                            <span class="json-key">{"success"</span>: <span class="json-boolean">true</span><span class="json-key">}</span>
+                        </div>
+                    </div>
+
+                    <h5>Example curl Command:</h5>
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Delete resident (soft delete)</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X DELETE "https://middleware.hpd-lc.com/residents?ownerId=123"
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X DELETE \\\"https://middleware.hpd-lc.com/residents?ownerId=123\\\"')">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="form-section">
+                    <h4>6. 📊 Additional APIs</h4>
+                    
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Get API Logs</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X GET "https://middleware.hpd-lc.com/logs?limit=50"
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET https://middleware.hpd-lc.com/logs')">📋 Copy</button>
+                        </div>
+                    </div>
+
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Get Server Health</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X GET "https://middleware.hpd-lc.com/health"
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET https://middleware.hpd-lc.com/health')">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Handling -->
+                <div class="form-section">
+                    <h4>7. ⚠️ Error Handling</h4>
+                    <p><strong>Common Error Responses:</strong></p>
+                    
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                        <h5>400 Bad Request:</h5>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
+                            <span class="json-key">{"error"</span>: <span class="json-string">"Missing required field: name"</span><span class="json-key">}</span>
+                        </div>
+                        
+                        <h5>404 Not Found:</h5>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
+                            <span class="json-key">{"error"</span>: <span class="json-string">"Resident not found"</span><span class="json-key">}</span>
+                        </div>
+                        
+                        <h5>500 Internal Server Error:</h5>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
+                            <span class="json-key">{"error"</span>: <span class="json-string">"Database connection failed"</span><span class="json-key">}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integration Notes -->
+                <div class="form-section">
+                    <h4>8. 🔗 Integration Notes</h4>
+                    <ul style="margin: 0 0 0 20px;">
+                        <li><strong>Base URL:</strong> https://middleware.hpd-lc.com</li>
+                        <li><strong>Content-Type:</strong> application/json for POST requests</li>
+                        <li><strong>Response Format:</strong> JSON with appropriate HTTP status codes</li>
+                        <li><strong>Authentication:</strong> No authentication required (internal middleware)</li>
+                        <li><strong>Rate Limiting:</strong> None implemented (internal use)</li>
+                        <li><strong>Database:</strong> SQLite local database with HikCentral integration</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="responseContainer" class="response-box" style="margin-top: 20px; display: none;"></div>
+    
     <!-- Toast Container -->
     <div class="toast-container"></div>
 
+    <!-- Resident Details Modal -->
+    <div id="residentModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Resident Details</h3>
+            <div id="modalContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Styles -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        .qr-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .qr-code-text {
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            background-color: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+
     <script>
-        // Global variables
-        let currentUser = null;
-        let sessionToken = null;
+        // API Base URL
+        const API_BASE = '';
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            
-            // Form event listeners
-            document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
-            document.getElementById('createResidentForm').addEventListener('submit', handleCreateResident);
-            document.getElementById('getIdentityForm').addEventListener('submit', handleGetIdentity);
-            document.getElementById('getVisitorQRForm').addEventListener('submit', handleGetVisitorQR);
-            document.getElementById('deleteResidentForm').addEventListener('submit', handleDeleteResident);
-        });
-
-        // Authentication Functions
-        function checkAuth() {
-            const token = getCookie('sessionToken');
-            if (token) {
-                validateSession(token);
-            } else {
-                showLogin();
-            }
-        }
-
-        function validateSession(token) {
-            fetch(getApiBaseUrl() + '/admin/health', {
-                headers: {
-                    'X-Session-Token': token
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    sessionToken = token;
-                    showDashboard();
-                    loadResidents();
-                } else {
-                    showLogin();
-                }
-            })
-            .catch(() => {
-                showLogin();
-            });
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const spinner = document.getElementById('loginSpinner');
-            const errorDiv = document.getElementById('loginError');
-
-            // Show loading
-            spinner.style.display = 'inline-block';
-            errorDiv.style.display = 'none';
-
-            fetch(getApiBaseUrl() + '/admin/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Login failed');
-                }
-            })
-            .then(data => {
-                if (data.success) {
-                    sessionToken = data.sessionToken;
-                    currentUser = 'admin';
-                    showDashboard();
-                    loadResidents();
-                    showToast('Login successful!', 'success');
-                } else {
-                    errorDiv.textContent = data.message || 'Login failed';
-                    errorDiv.style.display = 'block';
-                }
-            })
-            .catch(error => {
-                errorDiv.textContent = 'Network error: ' + error.message;
-                errorDiv.style.display = 'block';
-            })
-            .finally(() => {
-                spinner.style.display = 'none';
-            });
-        }
-
-        function logout() {
-            fetch(getApiBaseUrl() + '/admin/logout', {
-                method: 'POST',
-                headers: {
-                    'X-Session-Token': sessionToken
-                }
-            })
-            .then(() => {
-                sessionToken = null;
-                currentUser = null;
-                showLogin();
-                showToast('Logged out successfully', 'info');
-            });
-        }
-
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-        }
-
-        // Dashboard Functions
-        function showLogin() {
-            document.getElementById('loginForm').style.display = 'flex';
-            document.getElementById('dashboard').style.display = 'none';
-        }
-
-        function showDashboard() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('currentUser').textContent = currentUser || 'Admin';
-        }
-
-        // Tab Management
-        function switchTab(tabId) {
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            
-            // Remove active class from all buttons
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // Show selected tab
-            document.getElementById(tabId).classList.add('active');
-            
-            // Add active class to clicked button
-            event.target.classList.add('active');
-        }
-
-        // API Functions
-        function getApiBaseUrl() {
-            // Use current origin for reverse proxy compatibility
-            return window.location.origin;
-        }
-
-        function loadResidents() {
-            fetch(getApiBaseUrl() + '/residents', {
-                headers: {
-                    'X-Session-Token': sessionToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
+        // Load residents
+        async function loadResidents() {
+            try {
+                const response = await fetch('/residents');
+                const data = await response.json();
+                
                 const tbody = document.querySelector('#residentsTable tbody');
                 tbody.innerHTML = '';
                 
+                if (response.status === 404) {
+                    // No residents found
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="7">No residents found</td>';
+                    tbody.appendChild(row);
+                    return;
+                }
+
                 if (Array.isArray(data)) {
+                    // Multiple residents
                     data.forEach(resident => {
                         const row = document.createElement('tr');
                         const personIdDisplay = resident.personId ? resident.personId : 'Not Synced';
@@ -993,348 +1204,380 @@
                             <td>${personIdDisplay}</td>
                             <td><span class="${statusClass}">${statusText}</span></td>
                             <td>
-                                <button class="btn btn-small" onclick="viewDetails('${resident.ownerId}')">View</button>
+                                <button onclick="viewDetails('${resident.ownerId}')" class="secondary">View</button>
                             </td>
                         `;
                         tbody.appendChild(row);
                     });
+                } else {
+                    // Single resident
+                    const row = document.createElement('tr');
+                    const personIdDisplay = data.personId ? data.personId : 'Not Synced';
+                    const statusClass = data.synced ? 'status-active' : 'status-inactive';
+                    const statusText = data.synced ? 'Synced' : 'Not Synced';
+                    
+                    row.innerHTML = `
+                        <td>${data.ownerId}</td>
+                        <td>${data.name}</td>
+                        <td>${data.email}</td>
+                        <td>${data.phone || '-'}</td>
+                        <td>${data.type}</td>
+                        <td>${personIdDisplay}</td>
+                        <td><span class="${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button onclick="viewDetails('${data.ownerId}')" class="secondary">View</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
                 }
-            })
-            .catch(error => {
-                showToast('Error loading residents: ' + error.message, 'error');
-            });
+            } catch (error) {
+                console.error('Error loading residents:', error);
+                showResponse('Error loading residents', 'error');
+            }
         }
 
-        function handleCreateResident(e) {
-            e.preventDefault();
+        // Search residents
+        async function searchResidents() {
+            const email = document.getElementById('searchEmail').value;
+            if (!email) return;
             
+            try {
+                const response = await fetch(`/residents?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+                
+                const tbody = document.querySelector('#residentsTable tbody');
+                tbody.innerHTML = '';
+                
+                if (response.ok) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.ownerId}</td>
+                        <td>${data.name}</td>
+                        <td>${data.email}</td>
+                        <td>${data.phone || '-'}</td>
+                        <td>${data.type}</td>
+                        <td><span class="status-active">active</span></td>
+                        <td>
+                            <button onclick="viewDetails('${data.ownerId}')" class="secondary">View</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                } else {
+                    showResponse('Resident not found', 'error');
+                }
+            } catch (error) {
+                console.error('Error searching residents:', error);
+                showResponse('Error searching residents', 'error');
+            }
+        }
+
+
+        // Test HikCentral connection - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
+        // async function testConnection() {
+        //     const resultDiv = document.getElementById('connectionResult');
+        //     resultDiv.style.display = 'block';
+        //     resultDiv.innerHTML = 'Testing HikCentral connection...';
+            
+        //     try {
+        //         const response = await fetch('/hikcentral/version');
+        //         const result = await response.json();
+                
+        //         if (result.success && result.connected) {
+        //             resultDiv.innerHTML = `
+        //                 ✅ HikCentral Connection Successful
+        //                 <div style="margin-top: 10px; font-size: 14px; color: #666;">
+        //                     Server: ${result.version.produceName}<br>
+        //                     Version: ${result.version.softVersion}
+        //                 </div>
+        //             `;
+        //             resultDiv.className = 'response-box success';
+        //         } else {
+        //             resultDiv.innerHTML = `
+        //                 ❌ HikCentral Connection Failed
+        //                 <div style="margin-top: 10px; font-size: 14px; color: #666;">
+        //                     ${result.message || 'Unable to connect to HikCentral server'}
+        //                 </div>
+        //             `;
+        //             resultDiv.className = 'response-box error';
+        //         }
+        //     } catch (error) {
+        //         resultDiv.innerHTML = `
+        //             ❌ Connection Test Failed
+        //             <div style="margin-top: 10px; font-size: 14px; color: #666;">
+        //                 Error: ${error.message}
+        //             </div>
+        //         `;
+        //         resultDiv.className = 'response-box error';
+        //     }
+        // }
+
+        // Create resident
+        async function createResident() {
             const data = {
-                name: document.getElementById('createName').value.trim(),
-                email: document.getElementById('createEmail').value.trim(),
-                phone: document.getElementById('createPhone').value.trim(),
-                community: document.getElementById('createCommunity').value.trim(),
+                name: document.getElementById('createName').value,
+                email: document.getElementById('createEmail').value,
+                phone: document.getElementById('createPhone').value,
+                community: document.getElementById('createCommunity').value,
                 from: document.getElementById('createFrom').value,
                 to: document.getElementById('createTo').value,
                 type: document.getElementById('createType').value,
-                unitId: document.getElementById('createUnitId').value.trim()
+                unitId: document.getElementById('createUnitId').value
             };
 
-            // Validation
-            if (!validateCreateForm()) return;
+            // Validate required fields
+            if (!data.name || !data.email || !data.community || !data.from || !data.to || !data.unitId) {
+                showResponse('Error: All required fields must be filled', 'error');
+                return;
+            }
 
-            const spinner = document.getElementById('createSpinner');
-            spinner.style.display = 'inline-block';
+            try {
+                const response = await fetch('/residents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
 
-            fetch(getApiBaseUrl() + '/residents', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Token': sessionToken
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success || result.ownerId) {
-                    showToast('Resident created successfully!', 'success');
+                const result = await response.json();
+                if (response.ok) {
+                    showResponse('Resident created successfully: ' + JSON.stringify(result, null, 2), 'success');
                     loadResidents();
-                    showResponse('create', result);
                 } else {
-                    showResponse('create', result);
-                    showToast('Error creating resident: ' + (result.error || 'Unknown error'), 'error');
+                    showResponse('Error creating resident: ' + JSON.stringify(result, null, 2), 'error');
                 }
-            })
-            .catch(error => {
-                showToast('Network error: ' + error.message, 'error');
-            })
-            .finally(() => {
-                spinner.style.display = 'none';
-            });
+            } catch (error) {
+                showResponse('Error: ' + error.message, 'error');
+            }
         }
 
-        function handleGetIdentity(e) {
-            e.preventDefault();
-            
-            const unitId = document.getElementById('getIdUnitId').value.trim();
-            const ownerId = document.getElementById('getIdOwnerId').value.trim();
+        // Get identity
+        async function getIdentity() {
+            const ownerId = document.getElementById('getIdOwnerId').value;
+            const unitId = document.getElementById('getIdUnitId').value;
 
-            if (!validateIdentityForm()) return;
-
-            const spinner = document.getElementById('getIdentitySpinner');
-            spinner.style.display = 'inline-block';
-
-            fetch(getApiBaseUrl() + `/identity?unitId=${encodeURIComponent(unitId)}&ownerId=${encodeURIComponent(ownerId)}`, {
-                headers: {
-                    'X-Session-Token': sessionToken
-                }
-            })
-            .then(response => response.json())
-            .then(result => {
-                showResponse('identity', result);
-                if (result.qrCode) {
-                    showToast('Identity retrieved successfully!', 'success');
+            try {
+                const response = await fetch(`/identity?unitId=${unitId}&ownerId=${ownerId}`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResponse('Identity retrieved: ' + JSON.stringify(result, null, 2), 'success');
                 } else {
-                    showToast('Error retrieving identity: ' + (result.error || 'Unknown error'), 'error');
+                    showResponse('Error getting identity: ' + JSON.stringify(result, null, 2), 'error');
                 }
-            })
-            .catch(error => {
-                showToast('Network error: ' + error.message, 'error');
-            })
-            .finally(() => {
-                spinner.style.display = 'none';
-            });
+            } catch (error) {
+                showResponse('Error: ' + error.message, 'error');
+            }
         }
 
-        function handleGetVisitorQR(e) {
-            e.preventDefault();
-            
-            const unitId = document.getElementById('getVisitorUnitId').value.trim();
-            const ownerId = document.getElementById('getVisitorOwnerId').value.trim();
-            const visitorName = document.getElementById('getVisitorName').value.trim();
+        // Get visitor QR
+        async function getVisitorQR() {
+            const ownerId = document.getElementById('getVisitorOwnerId').value;
+            const unitId = document.getElementById('getVisitorUnitId').value;
+            const visitorName = document.getElementById('getVisitorName').value;
             const visitDate = document.getElementById('getVisitorDate').value;
 
-            if (!validateVisitorForm()) return;
-
-            const spinner = document.getElementById('getVisitorSpinner');
-            spinner.style.display = 'inline-block';
-
-            fetch(getApiBaseUrl() + `/visitor-qr?unitId=${encodeURIComponent(unitId)}&ownerId=${encodeURIComponent(ownerId)}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${encodeURIComponent(visitDate)}`, {
-                headers: {
-                    'X-Session-Token': sessionToken
-                }
-            })
-            .then(response => response.json())
-            .then(result => {
-                showResponse('visitor', result);
-                if (result.qrCode) {
-                    showToast('Visitor QR generated successfully!', 'success');
-                } else {
-                    showToast('Error generating visitor QR: ' + (result.error || 'Unknown error'), 'error');
-                }
-            })
-            .catch(error => {
-                showToast('Network error: ' + error.message, 'error');
-            })
-            .finally(() => {
-                spinner.style.display = 'none';
-            });
-        }
-
-        function handleDeleteResident(e) {
-            e.preventDefault();
-            
-            const ownerId = document.getElementById('deleteOwnerId').value.trim();
-
-            if (!validateDeleteForm()) return;
-
-            if (!confirm(`Are you sure you want to delete resident ${ownerId}? This will soft-delete them (mark as deleted).`)) {
+            if (!ownerId || !unitId || !visitorName || !visitDate) {
+                showResponse('Error: All required fields must be filled', 'error');
                 return;
             }
 
-            const spinner = document.getElementById('deleteSpinner');
-            spinner.style.display = 'inline-block';
-
-            fetch(getApiBaseUrl() + `/residents?ownerId=${encodeURIComponent(ownerId)}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-Session-Token': sessionToken
+            try {
+                const response = await fetch(`/visitor-qr?ownerId=${ownerId}&unitId=${unitId}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${visitDate}`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResponse('Visitor QR generated: ' + JSON.stringify(result, null, 2), 'success');
+                } else {
+                    showResponse('Error generating visitor QR: ' + JSON.stringify(result, null, 2), 'error');
                 }
-            })
-            .then(response => response.json())
-            .then(result => {
-                showResponse('delete', result);
-                if (result.success) {
-                    showToast('Resident deleted successfully!', 'success');
+            } catch (error) {
+                showResponse('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Delete resident
+        async function deleteResident() {
+            const ownerId = document.getElementById('deleteOwnerId').value;
+
+            if (!confirm('Are you sure you want to delete this resident? This will soft-delete them (mark as deleted).')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/residents?ownerId=${ownerId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResponse('Resident deleted successfully: ' + JSON.stringify(result, null, 2), 'success');
                     loadResidents();
                 } else {
-                    showToast('Error deleting resident: ' + (result.error || 'Unknown error'), 'error');
+                    showResponse('Error deleting resident: ' + JSON.stringify(result, null, 2), 'error');
                 }
-            })
-            .catch(error => {
-                showToast('Network error: ' + error.message, 'error');
-            })
-            .finally(() => {
-                spinner.style.display = 'none';
-            });
-        }
-
-        // Configuration Functions
-        function loadConfig() {
-            fetch(getApiBaseUrl() + '/admin/config', {
-                headers: {
-                    'X-Session-Token': sessionToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const tbody = document.getElementById('configTableBody');
-                    tbody.innerHTML = '';
-                    
-                    Object.entries(data.config).forEach(([key, config]) => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${key}</td>
-                            <td><input type="text" value="${config.value}" style="width: 200px; padding: 5px;"></td>
-                            <td>${config.type}</td>
-                            <td>${config.description}</td>
-                            <td>${config.updated_at}</td>
-                            <td><button class="btn btn-small" onclick="updateConfig('${key}', this)">Update</button></td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-                    
-                    document.getElementById('configList').style.display = 'block';
-                    showToast('Configuration loaded successfully', 'success');
-                } else {
-                    showResponse('config', data);
-                    showToast('Error loading configuration', 'error');
-                }
-            })
-            .catch(error => {
-                showToast('Network error: ' + error.message, 'error');
-            });
-        }
-
-        function updateConfig(key, button) {
-            const row = button.closest('tr');
-            const value = row.querySelector('input').value;
-            
-            fetch(getApiBaseUrl() + '/admin/config', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Token': sessionToken
-                },
-                body: JSON.stringify({ key, value })
-            })
-            .then(response => response.json())
-            .then(result => {
-                showResponse('config', result);
-                if (result.success) {
-                    showToast('Configuration updated successfully', 'success');
-                } else {
-                    showToast('Error updating configuration', 'error');
-                }
-            })
-            .catch(error => {
-                showToast('Network error: ' + error.message, 'error');
-            });
-        }
-
-        function changePassword() {
-            const currentPassword = prompt('Enter current password:');
-            if (!currentPassword) return;
-            
-            const newPassword = prompt('Enter new password:');
-            if (!newPassword || newPassword.length < 8) {
-                alert('Password must be at least 8 characters long');
-                return;
-            }
-            
-            const confirmPassword = prompt('Confirm new password:');
-            if (newPassword !== confirmPassword) {
-                alert('Passwords do not match');
-                return;
-            }
-
-            fetch(getApiBaseUrl() + '/admin/password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Token': sessionToken
-                },
-                body: JSON.stringify({
-                    currentPassword,
-                    newPassword,
-                    confirmPassword
-                })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    showToast('Password changed successfully', 'success');
-                } else {
-                    showToast('Error changing password: ' + result.error, 'error');
-                }
-            })
-            .catch(error => {
-                showToast('Network error: ' + error.message, 'error');
-            });
-        }
-
-        // Logs Functions
-        function loadLogs() {
-            const limit = document.getElementById('logsLimit').value;
-            
-            fetch(getApiBaseUrl() + `/admin/logs?limit=${limit}`, {
-                headers: {
-                    'X-Session-Token': sessionToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const tbody = document.getElementById('logsTableBody');
-                    tbody.innerHTML = '';
-                    
-                    data.logs.forEach(log => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${log.timestamp}</td>
-                            <td>${log.method}</td>
-                            <td>${log.url}</td>
-                            <td>${log.statusCode}</td>
-                            <td>${log.responseTime}ms</td>
-                            <td>${log.ip}</td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-                    
-                    document.getElementById('logsList').style.display = 'block';
-                    showToast('Logs loaded successfully', 'success');
-                } else {
-                    showResponse('logs', data);
-                    showToast('Error loading logs', 'error');
-                }
-            })
-            .catch(error => {
-                showToast('Network error: ' + error.message, 'error');
-            });
-        }
-
-        function clearLogs() {
-            if (confirm('Are you sure you want to clear all logs?')) {
-                fetch(getApiBaseUrl() + '/admin/logs/clear', {
-                    method: 'POST',
-                    headers: {
-                        'X-Session-Token': sessionToken
-                    }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        showToast('Logs cleared successfully', 'success');
-                        document.getElementById('logsList').style.display = 'none';
-                    } else {
-                        showToast('Error clearing logs', 'error');
-                    }
-                })
-                .catch(error => {
-                    showToast('Network error: ' + error.message, 'error');
-                });
+            } catch (error) {
+                showResponse('Error: ' + error.message, 'error');
             }
         }
 
-        // Utility Functions
+        // View details
+        async function viewDetails(ownerId) {
+            try {
+                // Get resident details
+                const response = await fetch(`/residents?email=test@example.com&ownerId=${ownerId}`);
+                let resident = null;
+                
+                // Try to get by ownerId if email doesn't work
+                if (!response.ok) {
+                    // For now, we'll create a mock resident since we don't have a direct API for this
+                    resident = {
+                        ownerId: ownerId,
+                        name: 'Unknown Resident',
+                        email: 'unknown@example.com',
+                        phone: 'N/A',
+                        community: 'Unknown',
+                        type: 'Unknown',
+                        from: 'Unknown',
+                        to: 'Unknown',
+                        unitId: 'Unknown'
+                    };
+                } else {
+                    resident = await response.json();
+                }
+
+                // Build modal content
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = `
+                    <div class="detail-row">
+                        <span class="detail-label">Owner ID:</span>
+                        <span class="detail-value">${resident.ownerId}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value">${resident.name}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">${resident.email}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Phone:</span>
+                        <span class="detail-value">${resident.phone || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Community:</span>
+                        <span class="detail-value">${resident.community || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Type:</span>
+                        <span class="detail-value">${resident.type}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Unit ID:</span>
+                        <span class="detail-value">${resident.unitId}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Valid From:</span>
+                        <span class="detail-value">${resident.from || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Valid To:</span>
+                        <span class="detail-value">${resident.to || 'N/A'}</span>
+                    </div>
+                    <div class="qr-preview">
+                        <h4>Dynamic QR Code</h4>
+                        <p style="margin-bottom: 10px; font-size: 12px; color: #666;">
+                            This is the QR code that would be generated for this resident
+                        </p>
+                        <div class="qr-code-text">
+                            QR1234567890
+                        </div>
+                        <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                            Note: Actual QR code would be retrieved from HikCentral
+                        </p>
+                    </div>
+                `;
+
+                // Show modal
+                document.getElementById('residentModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading resident details:', error);
+                alert('Error loading resident details: ' + error.message);
+            }
+        }
+
+        // Close modal function
+        function closeModal() {
+            document.getElementById('residentModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('residentModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Enhanced JavaScript Functions for New UX
+
+        // Tab switching functionality
+        function switchTab(tabId) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Connection status checking - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
+        // async function checkConnectionStatus() {
+        //     const statusDot = document.getElementById('statusDot');
+        //     const statusText = document.getElementById('statusText');
+            
+        //     try {
+        //         const response = await fetch('/hikcentral/version');
+        //         const result = await response.json();
+                
+        //         if (result.success && result.connected) {
+        //             statusDot.classList.add('connected');
+        //             statusDot.style.background = '#28a745';
+        //             statusDot.style.boxShadow = '0 0 4px rgba(40, 167, 69, 0.5)';
+        //             statusText.textContent = 'Connected to HikCentral';
+        //             statusText.style.color = '#155724';
+        //         } else {
+        //             statusDot.classList.remove('connected');
+        //             statusDot.style.background = '#dc3545';
+        //             statusDot.style.boxShadow = '0 0 4px rgba(220, 53, 69, 0.5)';
+        //             statusText.textContent = 'Connection Failed';
+        //             statusText.style.color = '#721c24';
+        //         }
+        //     } catch (error) {
+        //         statusDot.classList.remove('connected');
+        //         statusDot.style.background = '#dc3545';
+        //         statusDot.style.boxShadow = '0 0 4px rgba(220, 53, 69, 0.5)';
+        //         statusText.textContent = 'Connection Error';
+        //         statusText.style.color = '#721c24';
+        //     }
+        // }
+
+        // Form validation functions
         function validateCreateForm() {
             let isValid = true;
-            const name = document.getElementById('createName').value.trim();
-            const email = document.getElementById('createEmail').value.trim();
-            const community = document.getElementById('createCommunity').value.trim();
-            const unitId = document.getElementById('createUnitId').value.trim();
-            const from = document.getElementById('createFrom').value;
-            const to = document.getElementById('createTo').value;
+            const name = document.getElementById('enhancedCreateName').value.trim();
+            const email = document.getElementById('enhancedCreateEmail').value.trim();
+            const community = document.getElementById('enhancedCreateCommunity').value.trim();
+            const unitId = document.getElementById('enhancedCreateUnitId').value.trim();
+            const from = document.getElementById('enhancedCreateFrom').value;
+            const to = document.getElementById('enhancedCreateTo').value;
 
             // Name validation
             if (!name || name.length < 2) {
@@ -1396,7 +1639,7 @@
 
         function validateIdentityForm() {
             let isValid = true;
-            const ownerId = document.getElementById('getIdOwnerId').value.trim();
+            const ownerId = document.getElementById('enhancedGetIdOwnerId').value.trim();
 
             if (!ownerId) {
                 showError('getIdOwnerIdError', 'Owner ID is required');
@@ -1410,10 +1653,10 @@
 
         function validateVisitorForm() {
             let isValid = true;
-            const ownerId = document.getElementById('getVisitorOwnerId').value.trim();
-            const unitId = document.getElementById('getVisitorUnitId').value.trim();
-            const visitorName = document.getElementById('getVisitorName').value.trim();
-            const visitDate = document.getElementById('getVisitorDate').value;
+            const ownerId = document.getElementById('enhancedGetVisitorOwnerId').value.trim();
+            const unitId = document.getElementById('enhancedGetVisitorUnitId').value.trim();
+            const visitorName = document.getElementById('enhancedGetVisitorName').value.trim();
+            const visitDate = document.getElementById('enhancedGetVisitorDate').value;
 
             if (!ownerId) {
                 showError('getVisitorOwnerIdError', 'Owner ID is required');
@@ -1448,7 +1691,7 @@
 
         function validateDeleteForm() {
             let isValid = true;
-            const ownerId = document.getElementById('deleteOwnerId').value.trim();
+            const ownerId = document.getElementById('enhancedDeleteOwnerId').value.trim();
 
             if (!ownerId) {
                 showError('deleteOwnerIdError', 'Owner ID is required');
@@ -1477,14 +1720,401 @@
             inputElement.classList.remove('field-error');
         }
 
-        function showResponse(operation, data) {
-            const container = document.getElementById(operation + 'ResponseContainer');
-            const body = document.getElementById(operation + 'ResponseBody');
-            
-            container.style.display = 'block';
-            body.innerHTML = formatJsonResponse(data);
+        // Enhanced API functions with better error handling
+        async function enhancedCreateResident() {
+            if (!validateCreateForm()) {
+                showToast('Please fix the validation errors before submitting', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('createResidentBtn');
+            const responseContainer = document.getElementById('createResponseContainer');
+            const responseBody = document.getElementById('createResponseBody');
+
+            // Set loading state
+            if (btn) {
+                btn.disabled = true;
+            }
+
+            if (responseContainer && responseBody) {
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = 'Processing request...';
+            }
+
+            try {
+                const nameInput = document.getElementById('enhancedCreateName');
+                const emailInput = document.getElementById('enhancedCreateEmail');
+                const phoneInput = document.getElementById('enhancedCreatePhone');
+                const communityInput = document.getElementById('enhancedCreateCommunity');
+                const fromInput = document.getElementById('enhancedCreateFrom');
+                const toInput = document.getElementById('enhancedCreateTo');
+                const typeInput = document.getElementById('enhancedCreateType');
+                const unitIdInput = document.getElementById('enhancedCreateUnitId');
+
+                // Check if all input elements exist
+                if (!nameInput || !emailInput || !communityInput || !unitIdInput || !fromInput || !toInput || !typeInput) {
+                    throw new Error('One or more form elements not found');
+                }
+
+                const data = {
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    community: communityInput.value.trim(),
+                    from: fromInput.value,
+                    to: toInput.value,
+                    type: typeInput.value,
+                    unitId: unitIdInput.value.trim()
+                };
+
+                const response = await fetch('/residents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
+                    showToast('Resident created successfully!', 'success');
+                    loadResidents(); // Refresh the residents list
+                } else {
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
+                    showToast('Error creating resident: ' + (result.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                if (responseBody) {
+                    responseBody.innerHTML = 'Network error: ' + error.message;
+                    responseBody.className = 'response-body';
+                }
+                
+                showToast('Network error: ' + error.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                }
+            }
         }
 
+        async function enhancedGetIdentity() {
+            if (!validateIdentityForm()) {
+                showToast('Please fix the validation errors before submitting', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('getIdentityBtn');
+            const status = document.getElementById('identityStatus');
+            const statusText = document.getElementById('identityStatusText');
+            const responseContainer = document.getElementById('identityResponseContainer');
+            const responseBody = document.getElementById('identityResponseBody');
+
+            // Set loading state (even if some elements don't exist)
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('btn-loading');
+            }
+            
+            if (status && statusText) {
+                status.style.display = 'inline-flex';
+                status.classList.add('status-loading');
+                statusText.textContent = 'Retrieving identity...';
+            }
+
+            if (responseContainer && responseBody) {
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = 'Processing request...';
+            }
+
+            try {
+                const ownerIdInput = document.getElementById('enhancedGetIdOwnerId');
+                const unitIdInput = document.getElementById('enhancedGetIdUnitId');
+
+                // Check if all input elements exist
+                if (!ownerIdInput || !unitIdInput) {
+                    throw new Error('One or more form elements not found');
+                }
+
+                const ownerId = ownerIdInput.value.trim();
+                const unitId = unitIdInput.value.trim();
+
+                const response = await fetch(`/identity?unitId=${encodeURIComponent(unitId)}&ownerId=${encodeURIComponent(ownerId)}`);
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-success');
+                        statusText.textContent = 'Identity retrieved successfully!';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
+                    showToast('Identity retrieved successfully!', 'success');
+                    
+                    // Update QR preview if available
+                    if (result.qrCode) {
+                        updateQrPreview(result.qrCode, 'identity');
+                    }
+                } else {
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-error');
+                        statusText.textContent = 'Error retrieving identity';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
+                    showToast('Error retrieving identity: ' + (result.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                if (status && statusText) {
+                    status.classList.remove('status-loading');
+                    status.classList.add('status-error');
+                    statusText.textContent = 'Network error';
+                }
+                
+                if (responseBody) {
+                    responseBody.innerHTML = 'Network error: ' + error.message;
+                    responseBody.className = 'response-body';
+                }
+                
+                showToast('Network error: ' + error.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('btn-loading');
+                }
+                
+                if (status) {
+                    setTimeout(() => {
+                        status.style.display = 'none';
+                    }, 3000);
+                }
+            }
+        }
+
+        async function enhancedGetVisitorQR() {
+            if (!validateVisitorForm()) {
+                showToast('Please fix the validation errors before submitting', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('getVisitorQrBtn');
+            const status = document.getElementById('visitorStatus');
+            const statusText = document.getElementById('visitorStatusText');
+            const responseContainer = document.getElementById('visitorResponseContainer');
+            const responseBody = document.getElementById('visitorResponseBody');
+
+            // Set loading state (even if some elements don't exist)
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('btn-loading');
+            }
+            
+            if (status && statusText) {
+                status.style.display = 'inline-flex';
+                status.classList.add('status-loading');
+                statusText.textContent = 'Generating visitor QR...';
+            }
+
+            if (responseContainer && responseBody) {
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = 'Processing request...';
+            }
+
+            try {
+                const ownerIdInput = document.getElementById('enhancedGetVisitorOwnerId');
+                const unitIdInput = document.getElementById('enhancedGetVisitorUnitId');
+                const visitorNameInput = document.getElementById('enhancedGetVisitorName');
+                const visitDateInput = document.getElementById('enhancedGetVisitorDate');
+
+                // Check if all input elements exist
+                if (!ownerIdInput || !unitIdInput || !visitorNameInput || !visitDateInput) {
+                    throw new Error('One or more form elements not found');
+                }
+
+                const ownerId = ownerIdInput.value.trim();
+                const unitId = unitIdInput.value.trim();
+                const visitorName = visitorNameInput.value.trim();
+                const visitDate = visitDateInput.value;
+
+                const response = await fetch(`/visitor-qr?ownerId=${encodeURIComponent(ownerId)}&unitId=${encodeURIComponent(unitId)}&visitorName=${encodeURIComponent(visitorName)}&visitDate=${encodeURIComponent(visitDate)}`);
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-success');
+                        statusText.textContent = 'Visitor QR generated successfully!';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
+                    showToast('Visitor QR generated successfully!', 'success');
+                    
+                    // Update QR preview if available
+                    // Generate QR code image from the extracted text data
+                    if (result.qrCode) {
+                        // Generate QR code image from the text using an online service
+                        updateQrPreview(result.qrCode, 'visitor');
+                    }
+                } else {
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-error');
+                        statusText.textContent = 'Error generating visitor QR';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
+                    showToast('Error generating visitor QR: ' + (result.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                if (status && statusText) {
+                    status.classList.remove('status-loading');
+                    status.classList.add('status-error');
+                    statusText.textContent = 'Network error';
+                }
+                
+                if (responseBody) {
+                    responseBody.innerHTML = 'Network error: ' + error.message;
+                    responseBody.className = 'response-body';
+                }
+                
+                showToast('Network error: ' + error.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('btn-loading');
+                }
+                
+                if (status) {
+                    setTimeout(() => {
+                        status.style.display = 'none';
+                    }, 3000);
+                }
+            }
+        }
+
+        async function enhancedDeleteResident() {
+            if (!validateDeleteForm()) {
+                showToast('Please fix the validation errors before submitting', 'error');
+                return;
+            }
+
+            const ownerId = document.getElementById('enhancedDeleteOwnerId').value.trim();
+
+            if (!confirm(`Are you sure you want to delete resident ${ownerId}? This will soft-delete them (mark as deleted).`)) {
+                return;
+            }
+
+            const btn = document.getElementById('deleteResidentBtn');
+            const status = document.getElementById('deleteStatus');
+            const statusText = document.getElementById('deleteStatusText');
+            const responseContainer = document.getElementById('deleteResponseContainer');
+            const responseBody = document.getElementById('deleteResponseBody');
+
+            // Set loading state (even if some elements don't exist)
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('btn-loading');
+            }
+            
+            if (status && statusText) {
+                status.style.display = 'inline-flex';
+                status.classList.add('status-loading');
+                statusText.textContent = 'Deleting resident...';
+            }
+
+            if (responseContainer && responseBody) {
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = 'Processing request...';
+            }
+
+            try {
+                const response = await fetch(`/residents?ownerId=${encodeURIComponent(ownerId)}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-success');
+                        statusText.textContent = 'Resident deleted successfully!';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
+                    showToast('Resident deleted successfully!', 'success');
+                    loadResidents(); // Refresh the residents list
+                } else {
+                    if (status && statusText) {
+                        status.classList.remove('status-loading');
+                        status.classList.add('status-error');
+                        statusText.textContent = 'Error deleting resident';
+                    }
+                    
+                    if (responseBody) {
+                        responseBody.innerHTML = formatJsonResponse(result);
+                        responseBody.className = 'response-body';
+                    }
+                    
+                    showToast('Error deleting resident: ' + (result.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                if (status && statusText) {
+                    status.classList.remove('status-loading');
+                    status.classList.add('status-error');
+                    statusText.textContent = 'Network error';
+                }
+                
+                if (responseBody) {
+                    responseBody.innerHTML = 'Network error: ' + error.message;
+                    responseBody.className = 'response-body';
+                }
+                
+                showToast('Network error: ' + error.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('btn-loading');
+                }
+                
+                if (status) {
+                    setTimeout(() => {
+                        status.style.display = 'none';
+                    }, 3000);
+                }
+            }
+        }
+
+        // Utility functions
         function formatJsonResponse(obj) {
             try {
                 const jsonString = JSON.stringify(obj, null, 2);
@@ -1512,9 +2142,47 @@
             }
         }
 
+        function updateQrPreview(qrCode, tab) {
+            // Generate QR code image from text data using an online service
+            let qrPlaceholder;
+            
+            // Select the correct QR code placeholder based on the tab
+            if (tab === 'identity') {
+                // Find the QR code placeholder in the "Get Identity" tab
+                const identityTab = document.getElementById('get-identity');
+                qrPlaceholder = identityTab.querySelector('.qr-placeholder');
+            } else if (tab === 'visitor') {
+                // Find the QR code placeholder in the "Visitor QR" tab
+                const visitorTab = document.getElementById('visitor-qr');
+                qrPlaceholder = visitorTab.querySelector('.qr-placeholder');
+            } else {
+                // Fallback to first QR code placeholder if tab is not specified
+                qrPlaceholder = document.querySelector('.qr-placeholder');
+            }
+
+            if (qrPlaceholder && qrCode) {
+                // Generate QR code image from the text using an online service
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`;
+                qrPlaceholder.innerHTML = `
+                    <img src="${qrUrl}" alt="QR Code" style="width: 200px; height: 200px; border-radius: 4px;">
+                    <small style="margin-top: 10px; display: block; color: #666;">QR Code for: ${qrCode}</small>
+                `;
+            } else {
+                // Fallback to placeholder if no QR code data
+                if (qrPlaceholder) {
+                    qrPlaceholder.innerHTML = `
+                        <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            QR Code will be generated here
+                        </div>
+                        <small style="margin-top: 10px; display: block; color: #666;">QR Code Preview</small>
+                    `;
+                }
+            }
+        }
+
         function copyResponse(operation) {
-            const body = document.getElementById(operation + 'ResponseBody');
-            const text = body.innerText;
+            const responseElement = document.getElementById(operation + 'ResponseBody');
+            const text = responseElement.innerText;
             
             navigator.clipboard.writeText(text).then(() => {
                 showToast('Response copied to clipboard', 'success');
@@ -1524,17 +2192,28 @@
         }
 
         function clearResponse(operation) {
-            const container = document.getElementById(operation + 'ResponseContainer');
-            const body = document.getElementById(operation + 'ResponseBody');
+            const responseContainer = document.getElementById(operation + 'ResponseContainer');
+            const responseBody = document.getElementById(operation + 'ResponseBody');
             
-            container.style.display = 'none';
-            body.innerHTML = '';
+            responseContainer.style.display = 'none';
+            responseBody.innerHTML = '';
         }
 
+        // Copy functions for curl commands
+        function copyCreateResidentCurl() {
+            const curlCommand = 'curl -X POST https://middleware.hpd-lc.com/residents \\\n  -H "Content-Type: application/json" \\\n  -d \'{"name":"John Doe","email":"john@example.com","phone":"+1234567890","community":"GreenHills","from":"2025-01-01","to":"2025-12-31","type":"resident","unitId":"U1001"}\'';
+            
+            navigator.clipboard.writeText(curlCommand).then(() => {
+                showToast('Curl command copied to clipboard', 'success');
+            }).catch(err => {
+                showToast('Failed to copy: ' + err, 'error');
+            });
+        }
+
+        // Toast notification system
         function showToast(message, type) {
-            const toastContainer = document.querySelector('.toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast ' + type;
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast ' + type;
             
             const icon = document.createElement('span');
             icon.className = 'toast-icon';
@@ -1543,28 +2222,39 @@
             const text = document.createElement('span');
             text.textContent = message;
             
-            toast.appendChild(icon);
-            toast.appendChild(text);
-            toastContainer.appendChild(toast);
+            toastContainer.appendChild(icon);
+            toastContainer.appendChild(text);
+            
+            document.querySelector('.toast-container').appendChild(toastContainer);
             
             // Trigger show animation
             setTimeout(() => {
-                toast.classList.add('show');
+                toastContainer.classList.add('show');
             }, 100);
             
             // Auto remove after 3 seconds
             setTimeout(() => {
-                toast.classList.remove('show');
+                toastContainer.classList.remove('show');
                 setTimeout(() => {
-                    toast.remove();
+                    toastContainer.remove();
                 }, 300);
             }, 3000);
         }
 
-        function viewDetails(ownerId) {
-            // This would show a modal with resident details
-            alert('View details for resident: ' + ownerId);
+        // Show response (legacy function for backward compatibility)
+        function showResponse(message, type) {
+            const container = document.getElementById('responseContainer');
+            container.style.display = 'block';
+            container.innerHTML = message;
+            container.className = 'response-box ' + type;
         }
+
+        // Load residents on page load
+        window.onload = function() {
+            loadResidents();
+            // checkConnectionStatus(); - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
+            // setInterval(checkConnectionStatus, 30000); - REMOVED: This feature was causing confusion as it's not one of the 5 main external APIs
+        };
     </script>
 </body>
 </html>
