@@ -199,14 +199,6 @@ class HikCentralClient {
 
 const hikCentralClient = new HikCentralClient();
 
-// Helper method to get visitor QR code
-async function getVisitorQRCode(visitorId) {
-  const qrData = {
-    visitorId: visitorId
-  };
-  return await hikCentralClient.makeRequest('/artemis/api/visitor/v1/visitor/qr/get', qrData);
-}
-
 // API Routes
 
 // GET /residents - Get resident(s)
@@ -528,7 +520,6 @@ app.get('/visitor-qr', async (req, res) => {
       console.log('DEBUG: Visit Start Time:', visitStartTimeFormatted);
       console.log('DEBUG: Visit End Time:', visitEndTimeFormatted);
 
-      // Step 1: Create visitor and get visitorId
       const hikCentralResponse = await hikCentralClient.makeRequest(
         '/artemis/api/visitor/v1/registerment',
         visitorData
@@ -540,35 +531,23 @@ app.get('/visitor-qr', async (req, res) => {
         return res.status(500).json({ error: 'Failed to create visitor in HikCentral' });
       }
 
-      // Step 2: Get the correct QR code using the visitorId
-      const visitorId = hikCentralResponse.data.visitorId;
-      console.log('DEBUG: Visitor ID for QR code request:', visitorId);
-
-      const qrCodeResponse = await getVisitorQRCode(visitorId);
-      
-      console.log('DEBUG: HikCentral QR Code Response:', qrCodeResponse);
-
-      if (!qrCodeResponse) {
-        return res.status(500).json({ error: 'Failed to get QR code from HikCentral' });
-      }
-
-      // Extract QR code text from the correct base64 image
+      // Extract QR code text from the base64 image
       let qrCodeText = '';
-      if (qrCodeResponse.data && qrCodeResponse.data.qRCodeInfo && qrCodeResponse.data.qRCodeInfo.qrCodeImage) {
+      if (hikCentralResponse.data && hikCentralResponse.data.qrCodeImage) {
         try {
-          qrCodeText = await extractQRCodeText(qrCodeResponse.data.qRCodeInfo.qrCodeImage);
+          qrCodeText = await extractQRCodeText(hikCentralResponse.data.qrCodeImage);
           console.log('DEBUG: Extracted QR Code Text:', qrCodeText);
         } catch (qrError) {
           console.error('Error extracting QR code text:', qrError);
           // If QR extraction fails, use a fallback identifier
-          qrCodeText = `VISITOR_${visitorId}`;
+          qrCodeText = `VISITOR_${hikCentralResponse.data.appointRecordId}`;
         }
       } else {
-        qrCodeText = `VISITOR_${visitorId}`;
+        qrCodeText = `VISITOR_${hikCentralResponse.data.appointRecordId}`;
       }
 
       const response = {
-        visitId: visitorId,
+        visitId: hikCentralResponse.data.appointRecordId,
         unitId: unitId,
         ownerId: ownerId,
         ownerType: row.type,
@@ -589,28 +568,20 @@ app.get('/visitor-qr', async (req, res) => {
 async function extractQRCodeText(base64Image) {
   return new Promise((resolve, reject) => {
     try {
-      // Handle data URI format if present
-      let base64Data = base64Image;
-      if (base64Image.startsWith('data:image/png;base64,')) {
-        base64Data = base64Image.substring('data:image/png;base64,'.length);
-        console.log('DEBUG: Stripped data URI prefix');
-      }
-      
-      // Validate base64 string
-      if (!base64Data || base64Data.length === 0) {
-        throw new Error('Empty base64 data');
-      }
-      
       // Convert base64 to buffer
-      const buffer = Buffer.from(base64Data, 'base64');
-      console.log('DEBUG: Base64 decoded successfully, buffer length:', buffer.length);
+      const buffer = Buffer.from(base64Image, 'base64');
       
-      // Decode PNG image
+      // Decode PNG image using pngjs
       const png = PNG.sync.read(buffer);
-      console.log('DEBUG: PNG decoded, dimensions:', png.width, 'x', png.height);
       
-      // jsQR expects RGBA data - use the raw data from PNG
-      const code = jsQR(png.data, png.width, png.height);
+      // jsQR expects RGBA data, not grayscale
+      // Convert RGBA to the format jsQR expects
+      const width = png.width;
+      const height = png.height;
+      const rgbaData = new Uint8ClampedArray(png.data);
+      
+      // Use jsQR to decode the QR code
+      const code = jsQR(rgbaData, width, height);
       
       if (code) {
         console.log('DEBUG: Successfully extracted QR code data:', code.data);
@@ -776,30 +747,6 @@ app.get('/hikcentral/version', async (req, res) => {
   }
 });
 
-
-// Debug endpoint for testing QR code extraction
-app.post('/debug-qr', async (req, res) => {
-  const { base64Image } = req.body;
-
-  if (!base64Image) {
-    return res.status(400).json({ error: 'base64Image parameter is required' });
-  }
-
-  try {
-    const extractedText = await extractQRCodeText(base64Image);
-    res.json({
-      success: true,
-      extractedText: extractedText,
-      message: 'QR code extraction successful'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      message: 'QR code extraction failed'
-    });
-  }
-});
 
 // Admin UI route
 app.get('/', (req, res) => {
