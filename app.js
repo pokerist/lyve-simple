@@ -20,6 +20,9 @@ async function initializeServices() {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for rate limiting (fixes X-Forwarded-For warning)
+app.set('trust proxy', 1);
+
 // Middleware setup
 app.use(securityHeaders);
 app.use(express.json());
