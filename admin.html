@@ -882,12 +882,19 @@
                 },
                 body: JSON.stringify({ username, password })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Login failed');
+                }
+            })
             .then(data => {
                 if (data.success) {
-                    sessionToken = data.expiresAt;
+                    sessionToken = data.sessionToken;
                     currentUser = 'admin';
                     showDashboard();
+                    loadResidents();
                     showToast('Login successful!', 'success');
                 } else {
                     errorDiv.textContent = data.message || 'Login failed';
