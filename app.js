@@ -199,6 +199,14 @@ class HikCentralClient {
 
 const hikCentralClient = new HikCentralClient();
 
+// Helper method to get visitor QR code
+async function getVisitorQRCode(visitorId) {
+  const qrData = {
+    visitorId: visitorId
+  };
+  return await hikCentralClient.makeRequest('/api/visitor/v1/visitor/qr/get', qrData);
+}
+
 // API Routes
 
 // GET /residents - Get resident(s)
@@ -520,6 +528,7 @@ app.get('/visitor-qr', async (req, res) => {
       console.log('DEBUG: Visit Start Time:', visitStartTimeFormatted);
       console.log('DEBUG: Visit End Time:', visitEndTimeFormatted);
 
+      // Step 1: Create visitor and get visitorId
       const hikCentralResponse = await hikCentralClient.makeRequest(
         '/artemis/api/visitor/v1/registerment',
         visitorData
@@ -531,23 +540,35 @@ app.get('/visitor-qr', async (req, res) => {
         return res.status(500).json({ error: 'Failed to create visitor in HikCentral' });
       }
 
-      // Extract QR code text from the base64 image
+      // Step 2: Get the correct QR code using the visitorId
+      const visitorId = hikCentralResponse.data.appointRecordId;
+      console.log('DEBUG: Visitor ID for QR code request:', visitorId);
+
+      const qrCodeResponse = await getVisitorQRCode(visitorId);
+      
+      console.log('DEBUG: HikCentral QR Code Response:', qrCodeResponse);
+
+      if (!qrCodeResponse) {
+        return res.status(500).json({ error: 'Failed to get QR code from HikCentral' });
+      }
+
+      // Extract QR code text from the correct base64 image
       let qrCodeText = '';
-      if (hikCentralResponse.data && hikCentralResponse.data.qrCodeImage) {
+      if (qrCodeResponse.data && qrCodeResponse.data.qRCodeInfo && qrCodeResponse.data.qRCodeInfo.qrCodeImage) {
         try {
-          qrCodeText = await extractQRCodeText(hikCentralResponse.data.qrCodeImage);
+          qrCodeText = await extractQRCodeText(qrCodeResponse.data.qRCodeInfo.qrCodeImage);
           console.log('DEBUG: Extracted QR Code Text:', qrCodeText);
         } catch (qrError) {
           console.error('Error extracting QR code text:', qrError);
           // If QR extraction fails, use a fallback identifier
-          qrCodeText = `VISITOR_${hikCentralResponse.data.appointRecordId}`;
+          qrCodeText = `VISITOR_${visitorId}`;
         }
       } else {
-        qrCodeText = `VISITOR_${hikCentralResponse.data.appointRecordId}`;
+        qrCodeText = `VISITOR_${visitorId}`;
       }
 
       const response = {
-        visitId: hikCentralResponse.data.appointRecordId,
+        visitId: visitorId,
         unitId: unitId,
         ownerId: ownerId,
         ownerType: row.type,
