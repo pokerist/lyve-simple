@@ -553,7 +553,8 @@ app.get('/visitor-qr', async (req, res) => {
         ownerType: row.type,
         visitorName: visitorName,
         visitDate: visitDate,
-        qrCode: qrCodeText
+        qrCode: qrCodeText,
+        qrCodeImage: hikCentralResponse.data.qrCodeImage
       };
 
       res.json(response);
