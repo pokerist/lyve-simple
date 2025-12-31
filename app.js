@@ -217,13 +217,17 @@ app.get('/residents', async (req, res) => {
     let query, params;
     
     if (ownerId) {
-      // Get specific resident by ownerId (NEW: Support ownerId parameter)
+      // Get specific resident by ownerId
+      // Community is required when using ownerId
+      if (!community) {
+        return res.status(400).json({ error: 'community parameter is required when using ownerId' });
+      }
+      
       query = `
         SELECT * FROM residents 
-        WHERE person_code = ? AND status != 'deleted'
-        ${community ? 'AND community = ?' : ''}
+        WHERE person_code = ? AND community = ? AND status != 'deleted'
       `;
-      params = community ? [ownerId, community] : [ownerId];
+      params = [ownerId, community];
       
       db.get(query, params, (err, row) => {
         if (err) {
@@ -245,20 +249,24 @@ app.get('/residents', async (req, res) => {
           type: row.type,
           from: row.from_date,
           to: row.to_date,
-          unitId: row.unit_id,
-          synced: !!row.person_id
+          unitId: row.unit_id
+          // Removed 'synced' field as per requirements
         };
 
         res.json(response);
       });
     } else if (email) {
       // Get specific resident by email
+      // Community is required when using email
+      if (!community) {
+        return res.status(400).json({ error: 'community parameter is required when using email' });
+      }
+      
       query = `
         SELECT * FROM residents 
-        WHERE email = ? AND status != 'deleted'
-        ${community ? 'AND community = ?' : ''}
+        WHERE email = ? AND community = ? AND status != 'deleted'
       `;
-      params = community ? [email, community] : [email];
+      params = [email, community];
       
       db.get(query, params, (err, row) => {
         if (err) {
@@ -280,21 +288,25 @@ app.get('/residents', async (req, res) => {
           type: row.type,
           from: row.from_date,
           to: row.to_date,
-          unitId: row.unit_id,
-          synced: !!row.person_id
+          unitId: row.unit_id
+          // Removed 'synced' field as per requirements
         };
 
         res.json(response);
       });
     } else {
       // Get all residents
+      // Community is required for all queries
+      if (!community) {
+        return res.status(400).json({ error: 'community parameter is required' });
+      }
+      
       query = `
         SELECT * FROM residents 
-        WHERE status != 'deleted'
-        ${community ? 'AND community = ?' : ''}
+        WHERE community = ? AND status != 'deleted'
         ORDER BY created_at DESC
       `;
-      params = community ? [community] : [];
+      params = [community];
       
       db.all(query, params, (err, rows) => {
         if (err) {
@@ -312,8 +324,8 @@ app.get('/residents', async (req, res) => {
           type: row.type,
           from: row.from_date,
           to: row.to_date,
-          unitId: row.unit_id,
-          synced: !!row.person_id
+          unitId: row.unit_id
+          // Removed 'synced' field as per requirements
         }));
 
         res.json(residents);
@@ -626,12 +638,16 @@ async function extractQRCodeText(base64Image) {
   });
 }
 
-// DELETE /residents - Delete resident
+// DELETE /residents - Delete resident (FULL DELETE)
 app.delete('/residents', async (req, res) => {
   const { ownerId, unitId } = req.query;
 
   if (!ownerId) {
     return res.status(400).json({ error: 'ownerId parameter is required' });
+  }
+
+  if (!unitId) {
+    return res.status(400).json({ error: 'unitId parameter is required' });
   }
 
   try {
@@ -646,6 +662,11 @@ app.delete('/residents', async (req, res) => {
         return res.status(404).json({ error: 'Resident not found' });
       }
 
+      // Check if unitId matches the resident record
+      if (row.unit_id !== unitId) {
+        return res.status(400).json({ error: 'unitId does not match the resident record' });
+      }
+
       // Delete from HikCentral
       const deleteData = {
         personId: row.person_id
@@ -656,11 +677,16 @@ app.delete('/residents', async (req, res) => {
         deleteData
       );
 
-      // Update local status to deleted (soft delete)
-      db.run('UPDATE residents SET status = "deleted", updated_at = CURRENT_TIMESTAMP WHERE person_code = ?', [ownerId], function(err) {
+      // Perform FULL DELETE (permanent removal) instead of soft delete
+      db.run('DELETE FROM residents WHERE person_code = ?', [ownerId], function(err) {
         if (err) {
           console.error('Database error:', err);
-          return res.status(500).json({ error: 'Failed to update resident status' });
+          return res.status(500).json({ error: 'Failed to delete resident from database' });
+        }
+
+        // Check if any rows were affected
+        if (this.changes === 0) {
+          return res.status(404).json({ error: 'Resident not found or already deleted' });
         }
 
         res.json({ success: true });

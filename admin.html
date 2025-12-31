@@ -477,12 +477,15 @@
         <p>Port 3000 - Local Database + HikCentral Integration</p>
     </div>
 
-    <div class="container">
+            <div class="container">
         <div class="card">
             <h3>Residents</h3>
             <button onclick="loadResidents()" class="secondary">Refresh</button>
             <div style="margin-top: 10px;">
-                <input type="text" id="searchEmail" placeholder="Search by email...">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" id="searchEmail" placeholder="Search by email...">
+                    <input type="text" id="searchCommunity" placeholder="Community (required)">
+                </div>
                 <button onclick="searchResidents()">Search</button>
             </div>
             <table id="residentsTable">
@@ -606,7 +609,7 @@
                         <div class="field-group">
                             <label class="required">Valid To</label>
                             <input type="date" id="enhancedCreateTo">
-                            <span class="form-help">End date for access permissions</span>
+                            <span class="form-help">End date for access permissions - can't exceed 10 years</span>
                             <span class="error-message" id="toError">Please select a valid end date</span>
                         </div>
                     </div>
@@ -780,15 +783,15 @@
             <!-- Delete Resident Tab -->
             <div id="delete-resident" class="tab-content">
                 <div class="operation-instruction">
-                    <strong>🗑️ Delete Resident:</strong> Soft delete a resident from the system. This marks them as deleted rather than removing them completely.
+                    <strong>🗑️ Delete Resident:</strong> Full delete a resident from the system. This permanently removes them from both the local database and HikCentral.
                 </div>
                 
                 <div class="form-section">
                     <h4>⚠️ Warning</h4>
                     <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
                         <p style="margin: 0; color: #856404;">
-                            <strong>Important:</strong> This operation will soft delete the resident from the local database and attempt to remove them from HikCentral. 
-                            The resident will be marked as "deleted" but their data will remain in the system for audit purposes.
+                            <strong>Important:</strong> This operation will FULL DELETE the resident from both the local database and HikCentral. 
+                            The resident will be permanently removed and cannot be recovered. Both Owner ID and Unit ID must match exactly.
                         </p>
                     </div>
                     
@@ -798,6 +801,12 @@
                             <input type="text" id="enhancedDeleteOwnerId" placeholder="123">
                             <span class="form-help">The unique identifier for the resident to delete</span>
                             <span class="error-message" id="deleteOwnerIdError">Please enter owner ID</span>
+                        </div>
+                        <div class="field-group">
+                            <label class="required">Unit ID</label>
+                            <input type="text" id="enhancedDeleteUnitId" placeholder="U1001">
+                            <span class="form-help">The unit ID must match the resident record exactly</span>
+                            <span class="error-message" id="deleteUnitIdError">Please enter unit ID</span>
                         </div>
                     </div>
                 </div>
@@ -840,44 +849,45 @@
                     <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;">
                         <h5>Parameters:</h5>
                         <ul style="margin: 5px 0 0 20px;">
-                            <li><strong>email</strong> (optional): Filter by resident email address</li>
-                            <li><strong>community</strong> (optional): Filter by community (when using email)</li>
+                            <li><strong>email</strong> (required): Filter by resident email address</li>
+                            <li><strong>community</strong> (required): Filter by community (when using email)</li>
+                            <li><strong>ownerId</strong> (required): Filter by owner ID (when retrieving specific resident)</li>
                         </ul>
                         
                         <h5>Response Format:</h5>
                         <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
-                            <span class="json-key">{"ownerId"</span>: <span class="json-string">"123"</span>, <span class="json-key">"personId"</span>: <span class="json-string">"hikcentral-456"</span>, <span class="json-key">"name"</span>: <span class="json-string">"John Doe"</span>, <span class="json-key">"email"</span>: <span class="json-string">"john@example.com"</span>, <span class="json-key">"phone"</span>: <span class="json-string">"+1234567890"</span>, <span class="json-key">"community"</span>: <span class="json-string">"GreenHills"</span>, <span class="json-key">"type"</span>: <span class="json-string">"resident"</span>, <span class="json-key">"from"</span>: <span class="json-string">"2025-01-01"</span>, <span class="json-key">"to"</span>: <span class="json-string">"2025-12-31"</span>, <span class="json-key">"unitId"</span>: <span class="json-string">"U1001"</span>, <span class="json-key">"synced"</span>: <span class="json-boolean">true</span><span class="json-key">}</span>
+                            <span class="json-key">{"ownerId"</span>: <span class="json-string">"123"</span>, <span class="json-key">"personId"</span>: <span class="json-string">"hikcentral-456"</span>, <span class="json-key">"name"</span>: <span class="json-string">"John Doe"</span>, <span class="json-key">"email"</span>: <span class="json-string">"john@example.com"</span>, <span class="json-key">"phone"</span>: <span class="json-string">"+1234567890"</span>, <span class="json-key">"community"</span>: <span class="json-string">"GreenHills"</span>, <span class="json-key">"type"</span>: <span class="json-string">"resident"</span>, <span class="json-key">"from"</span>: <span class="json-string">"2025-01-01"</span>, <span class="json-key">"to"</span>: <span class="json-string">"2025-12-31"</span>, <span class="json-key">"unitId"</span>: <span class="json-string">"U1001"</span><span class="json-key">}</span>
                         </div>
                     </div>
 
                     <h5>Example curl Commands:</h5>
                     <div class="response-container" style="margin: 10px 0;">
-                        <div class="response-header">Get all residents</div>
+                        <div class="response-header">Get all residents (requires community)</div>
                         <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
-                            curl -X GET https://middleware.hpd-lc.com/residents
+                            curl -X GET "https://middleware.hpd-lc.com/residents?community=GreenHills"
                         </div>
                         <div class="response-actions">
-                            <button class="btn-secondary" onclick="copyCurl('curl -X GET https://middleware.hpd-lc.com/residents')">📋 Copy</button>
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/residents?community=GreenHills\\\"')">📋 Copy</button>
                         </div>
                     </div>
 
                     <div class="response-container" style="margin: 10px 0;">
-                        <div class="response-header">Get specific resident by email</div>
-                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
-                            curl -X GET "https://middleware.hpd-lc.com/residents?email=john@example.com"
-                        </div>
-                        <div class="response-actions">
-                            <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/residents?email=john@example.com\\\"')">📋 Copy</button>
-                        </div>
-                    </div>
-
-                    <div class="response-container" style="margin: 10px 0;">
-                        <div class="response-header">Get resident with community filter</div>
+                        <div class="response-header">Get specific resident by email (requires community)</div>
                         <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
                             curl -X GET "https://middleware.hpd-lc.com/residents?email=john@example.com&community=GreenHills"
                         </div>
                         <div class="response-actions">
                             <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/residents?email=john@example.com&community=GreenHills\\\"')">📋 Copy</button>
+                        </div>
+                    </div>
+
+                    <div class="response-container" style="margin: 10px 0;">
+                        <div class="response-header">Get resident by owner ID (requires community)</div>
+                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
+                            curl -X GET "https://middleware.hpd-lc.com/residents?ownerId=123&community=GreenHills"
+                        </div>
+                        <div class="response-actions">
+                            <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/residents?ownerId=123&community=GreenHills\\\"')">📋 Copy</button>
                         </div>
                     </div>
                 </div>
@@ -982,13 +992,14 @@
 
                 <!-- API 5: DELETE /residents -->
                 <div class="form-section">
-                    <h4>5. 🗑️ DELETE /residents - Soft Delete Resident</h4>
-                    <p><strong>Purpose:</strong> Soft delete a resident from the system. Marks them as deleted rather than removing them completely.</p>
+                    <h4>5. 🗑️ DELETE /residents - Full Delete Resident</h4>
+                    <p><strong>Purpose:</strong> FULL DELETE a resident from the system. Permanently removes them from both the local database and HikCentral. Both ownerId and unitId must match exactly.</p>
                     
                     <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;">
                         <h5>Parameters:</h5>
                         <ul style="margin: 5px 0 0 20px;">
                             <li><strong>ownerId</strong> (required): Resident's owner ID to delete</li>
+                            <li><strong>unitId</strong> (required): Unit ID must match the resident record exactly</li>
                         </ul>
                         
                         <h5>Response Format:</h5>
@@ -999,12 +1010,12 @@
 
                     <h5>Example curl Command:</h5>
                     <div class="response-container" style="margin: 10px 0;">
-                        <div class="response-header">Delete resident (soft delete)</div>
+                        <div class="response-header">Delete resident (full delete - requires unitId)</div>
                         <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
-                            curl -X DELETE "https://middleware.hpd-lc.com/residents?ownerId=123"
+                            curl -X DELETE "https://middleware.hpd-lc.com/residents?ownerId=123&unitId=U1001"
                         </div>
                         <div class="response-actions">
-                            <button class="btn-secondary" onclick="copyCurl('curl -X DELETE \\\"https://middleware.hpd-lc.com/residents?ownerId=123\\\"')">📋 Copy</button>
+                            <button class="btn-secondary" onclick="copyCurl('curl -X DELETE \\\"https://middleware.hpd-lc.com/residents?ownerId=123&unitId=U1001\\\"')">📋 Copy</button>
                         </div>
                     </div>
                 </div>
@@ -1239,10 +1250,15 @@
         // Search residents
         async function searchResidents() {
             const email = document.getElementById('searchEmail').value;
-            if (!email) return;
+            const community = document.getElementById('searchCommunity').value;
+            
+            if (!email || !community) {
+                showResponse('Please enter both email and community', 'error');
+                return;
+            }
             
             try {
-                const response = await fetch(`/residents?email=${encodeURIComponent(email)}`);
+                const response = await fetch(`/residents?email=${encodeURIComponent(email)}&community=${encodeURIComponent(community)}`);
                 const data = await response.json();
                 
                 const tbody = document.querySelector('#residentsTable tbody');
@@ -2024,8 +2040,9 @@
             }
 
             const ownerId = document.getElementById('enhancedDeleteOwnerId').value.trim();
+            const unitId = document.getElementById('enhancedDeleteUnitId').value.trim();
 
-            if (!confirm(`Are you sure you want to delete resident ${ownerId}? This will soft-delete them (mark as deleted).`)) {
+            if (!confirm('Are you sure you want to delete resident ' + ownerId + '? This will FULL DELETE them permanently.')) {
                 return;
             }
 
@@ -2053,7 +2070,7 @@
             }
 
             try {
-                const response = await fetch(`/residents?ownerId=${encodeURIComponent(ownerId)}`, {
+                const response = await fetch('/residents?ownerId=' + encodeURIComponent(ownerId) + '&unitId=' + encodeURIComponent(unitId), {
                     method: 'DELETE'
                 });
 
