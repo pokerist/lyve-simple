@@ -851,7 +851,6 @@
                         <ul style="margin: 5px 0 0 20px;">
                             <li><strong>email</strong> (required): Filter by resident email address</li>
                             <li><strong>community</strong> (required): Filter by community (when using email)</li>
-                            <li><strong>ownerId</strong> (required): Filter by owner ID (when retrieving specific resident)</li>
                         </ul>
                         
                         <h5>Response Format:</h5>
@@ -878,16 +877,6 @@
                         </div>
                         <div class="response-actions">
                             <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/residents?email=john@example.com&community=GreenHills\\\"')">📋 Copy</button>
-                        </div>
-                    </div>
-
-                    <div class="response-container" style="margin: 10px 0;">
-                        <div class="response-header">Get resident by owner ID (requires community)</div>
-                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
-                            curl -X GET "https://middleware.hpd-lc.com/residents?ownerId=123&community=GreenHills"
-                        </div>
-                        <div class="response-actions">
-                            <button class="btn-secondary" onclick="copyCurl('curl -X GET \\\"https://middleware.hpd-lc.com/residents?ownerId=123&community=GreenHills\\\"')">📋 Copy</button>
                         </div>
                     </div>
                 </div>
@@ -918,9 +907,7 @@
                     <div class="response-container" style="margin: 10px 0;">
                         <div class="response-header">Create new resident</div>
                         <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
-                            curl -X POST https://middleware.hpd-lc.com/residents \ <br>
-                            &nbsp;&nbsp;-H "Content-Type: application/json" \ <br>
-                            &nbsp;&nbsp;-d '{"name":"John Doe","email":"john@example.com","phone":"+1234567890","community":"GreenHills","from":"2025-01-01","to":"2025-12-31","type":"resident","unitId":"U1001"}'
+                            curl -X POST https://middleware.hpd-lc.com/residents \ -H "Content-Type: application/json" \ -d '{"name":"John Doe","email":"john@example.com","phone":"+1234567890","community":"GreenHills","from":"2025-01-01","to":"2025-12-31","type":"resident","unitId":"U1001"}'
                         </div>
                         <div class="response-actions">
                             <button class="btn-secondary" onclick="copyCreateResidentCurl()">📋 Copy</button>
@@ -1018,67 +1005,6 @@
                             <button class="btn-secondary" onclick="copyCurl('curl -X DELETE \\\"https://middleware.hpd-lc.com/residents?ownerId=123&unitId=U1001\\\"')">📋 Copy</button>
                         </div>
                     </div>
-                </div>
-
-                <!-- Additional Information -->
-                <div class="form-section">
-                    <h4>6. 📊 Additional APIs</h4>
-                    
-                    <div class="response-container" style="margin: 10px 0;">
-                        <div class="response-header">Get API Logs</div>
-                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
-                            curl -X GET "https://middleware.hpd-lc.com/logs?limit=50"
-                        </div>
-                        <div class="response-actions">
-                            <button class="btn-secondary" onclick="copyCurl('curl -X GET https://middleware.hpd-lc.com/logs')">📋 Copy</button>
-                        </div>
-                    </div>
-
-                    <div class="response-container" style="margin: 10px 0;">
-                        <div class="response-header">Get Server Health</div>
-                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa;">
-                            curl -X GET "https://middleware.hpd-lc.com/health"
-                        </div>
-                        <div class="response-actions">
-                            <button class="btn-secondary" onclick="copyCurl('curl -X GET https://middleware.hpd-lc.com/health')">📋 Copy</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Error Handling -->
-                <div class="form-section">
-                    <h4>7. ⚠️ Error Handling</h4>
-                    <p><strong>Common Error Responses:</strong></p>
-                    
-                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin: 15px 0;">
-                        <h5>400 Bad Request:</h5>
-                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
-                            <span class="json-key">{"error"</span>: <span class="json-string">"Missing required field: name"</span><span class="json-key">}</span>
-                        </div>
-                        
-                        <h5>404 Not Found:</h5>
-                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
-                            <span class="json-key">{"error"</span>: <span class="json-string">"Resident not found"</span><span class="json-key">}</span>
-                        </div>
-                        
-                        <h5>500 Internal Server Error:</h5>
-                        <div class="response-body" style="font-family: 'Courier New', monospace; font-size: 12px; background: white; margin: 10px 0;">
-                            <span class="json-key">{"error"</span>: <span class="json-string">"Database connection failed"</span><span class="json-key">}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Integration Notes -->
-                <div class="form-section">
-                    <h4>8. 🔗 Integration Notes</h4>
-                    <ul style="margin: 0 0 0 20px;">
-                        <li><strong>Base URL:</strong> https://middleware.hpd-lc.com</li>
-                        <li><strong>Content-Type:</strong> application/json for POST requests</li>
-                        <li><strong>Response Format:</strong> JSON with appropriate HTTP status codes</li>
-                        <li><strong>Authentication:</strong> No authentication required (internal middleware)</li>
-                        <li><strong>Rate Limiting:</strong> None implemented (internal use)</li>
-                        <li><strong>Database:</strong> SQLite local database with HikCentral integration</li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -1203,17 +1129,15 @@
                     data.forEach(resident => {
                         const row = document.createElement('tr');
                         const personIdDisplay = resident.personId ? resident.personId : 'Not Synced';
-                        const statusClass = resident.synced ? 'status-active' : 'status-inactive';
-                        const statusText = resident.synced ? 'Synced' : 'Not Synced';
                         
                         row.innerHTML = `
-                            <td>${resident.ownerId}</td>
-                            <td>${resident.name}</td>
-                            <td>${resident.email}</td>
+                            <td>${resident.ownerId || 'N/A'}</td>
+                            <td>${resident.name || 'N/A'}</td>
+                            <td>${resident.email || 'N/A'}</td>
                             <td>${resident.phone || '-'}</td>
-                            <td>${resident.type}</td>
+                            <td>${resident.type || 'N/A'}</td>
                             <td>${personIdDisplay}</td>
-                            <td><span class="${statusClass}">${statusText}</span></td>
+                            <td><span class="status-active">active</span></td>
                             <td>
                                 <button onclick="viewDetails('${resident.ownerId}')" class="secondary">View</button>
                             </td>
@@ -1224,17 +1148,15 @@
                     // Single resident
                     const row = document.createElement('tr');
                     const personIdDisplay = data.personId ? data.personId : 'Not Synced';
-                    const statusClass = data.synced ? 'status-active' : 'status-inactive';
-                    const statusText = data.synced ? 'Synced' : 'Not Synced';
                     
                     row.innerHTML = `
-                        <td>${data.ownerId}</td>
-                        <td>${data.name}</td>
-                        <td>${data.email}</td>
+                        <td>${data.ownerId || 'N/A'}</td>
+                        <td>${data.name || 'N/A'}</td>
+                        <td>${data.email || 'N/A'}</td>
                         <td>${data.phone || '-'}</td>
-                        <td>${data.type}</td>
+                        <td>${data.type || 'N/A'}</td>
                         <td>${personIdDisplay}</td>
-                        <td><span class="${statusClass}">${statusText}</span></td>
+                        <td><span class="status-active">active</span></td>
                         <td>
                             <button onclick="viewDetails('${data.ownerId}')" class="secondary">View</button>
                         </td>
@@ -2218,7 +2140,7 @@
 
         // Copy functions for curl commands
         function copyCreateResidentCurl() {
-            const curlCommand = 'curl -X POST https://middleware.hpd-lc.com/residents \\\n  -H "Content-Type: application/json" \\\n  -d \'{"name":"John Doe","email":"john@example.com","phone":"+1234567890","community":"GreenHills","from":"2025-01-01","to":"2025-12-31","type":"resident","unitId":"U1001"}\'';
+            const curlCommand = 'curl -X POST https://middleware.hpd-lc.com/residents -H "Content-Type: application/json" -d \'{"name":"John Doe","email":"john@example.com","phone":"+1234567890","community":"GreenHills","from":"2025-01-01","to":"2025-12-31","type":"resident","unitId":"U1001"}\'';
             
             navigator.clipboard.writeText(curlCommand).then(() => {
                 showToast('Curl command copied to clipboard', 'success');
